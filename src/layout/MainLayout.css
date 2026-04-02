@@ -1,0 +1,21 @@
+.layout-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-gray-soft);
+  padding-bottom: 6rem; /* Support for BottomBar */
+}
+
+.layout-content {
+  flex: 1;
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .layout-content {
+    padding: var(--spacing-md);
+  }
+}

@@ -1,0 +1,15 @@
+.app-container {
+  min-height: 100vh;
+  background-color: var(--color-gray-soft);
+  font-family: var(--font-family);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-md);
+}
+
+@media (max-width: 600px) {
+  .app-container {
+    padding: var(--spacing-sm);
+  }
+}

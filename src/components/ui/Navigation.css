@@ -40,36 +40,46 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 0.65rem 1rem;
-  background-color: #f8fbf9;
-  border: 1px solid #e1e9e4;
+  padding: 0.75rem 0.5rem;
+  background-color: var(--color-white);
+  border-top: 1px solid #e1e9e4;
   position: fixed;
-  bottom: 2rem;
-  left: 1.5rem;
-  right: 1.5rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 8px 30px rgba(12, 72, 25, 0.08);
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .nav-tab {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1rem;
-  border-radius: 1rem;
+  justify-content: center;
+  gap: 4px;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
   color: var(--color-text-muted);
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
+  flex: 1;
 }
 
 .nav-tab.active {
+  color: var(--color-primary);
+}
+
+.nav-tab.active .tab-icon {
   background-color: var(--color-secondary);
   color: var(--color-primary);
+  border-radius: 12px;
+  padding: 4px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tab-icon {
@@ -79,17 +89,14 @@
 }
 
 .tab-label {
-  display: none; /* Mobile view: hide labels unless active? The image shows labels for all items at the very bottom, but the preview above shows labels only for active. Actually, at the very bottom of the image, all have labels. Let's show labels or match the 'aperçu' vs 'bottom'. Let's show labels as the image suggests at the very bottom. Wait, the very bottom of the image has 4 items with labels. Let's show them. */
+  display: block;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-@media (min-width: 480px) {
-  .tab-label {
-    display: block;
-  }
+  font-size: 0.65rem;
+  margin-top: 4px;
 }
 
 .nav-tab.active .tab-label {
-  display: block;
+  color: var(--color-primary);
+  font-weight: 800;
 }

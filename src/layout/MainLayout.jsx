@@ -1,6 +1,6 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import { TopBar, BottomBar } from '../components/ui/Navigation'
+import { TopBar, BottomBar } from '../components/ui/Navigation.jsx'
 import './MainLayout.css'
 
 const MainLayout = () => {

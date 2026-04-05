@@ -8,25 +8,29 @@
 }
 
 .input-label {
-  font-family: inherit;
+  font-family: var(--font-body);
   font-weight: 700;
-  font-size: 0.8rem;
-  color: var(--color-primary);
+  font-size: 0.75rem;
+  color: var(--color-primary-optimized);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
 }
 
 .input-wrapper {
   display: flex;
   align-items: center;
-  background-color: var(--color-neutral-high);
+  background-color: #f2f4f3;
   border-radius: var(--radius-sm);
-  padding: 0.5rem 0.75rem;
+  padding: 0.9rem 1rem;
   border: 1px solid transparent;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .input-wrapper:focus-within {
-  border-color: var(--color-primary-optimized);
+  border-color: var(--color-primary);
+  background-color: var(--color-white);
+  box-shadow: 0 0 0 4px rgba(12, 72, 25, 0.05);
 }
 
 .input-field {
@@ -34,9 +38,10 @@
   border: none;
   outline: none;
   width: 100%;
-  font-family: inherit;
-  font-size: 0.9rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
   color: var(--color-text-dark);
+  font-weight: 500;
 }
 
 .input-field::placeholder {

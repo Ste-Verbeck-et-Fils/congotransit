@@ -8,26 +8,28 @@
 }
 
 .select-label {
-  font-family: inherit;
+  font-family: var(--font-body);
   font-weight: 700;
-  font-size: 0.8rem;
-  color: var(--color-primary);
+  font-size: 0.75rem;
+  color: var(--color-primary-optimized);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
 }
 
 .select-row {
   display: flex;
   gap: var(--spacing-sm);
-  align-items: center;
 }
 
 .select-wrapper {
+  flex: 1;
   display: flex;
   align-items: center;
-  background-color: var(--color-neutral-high);
+  background-color: #f2f4f3;
   border-radius: var(--radius-sm);
-  padding: 0.5rem 0.75rem;
-  flex: 1;
+  padding: 0 1rem;
+  min-height: 52px;
 }
 
 .select-field {
@@ -35,15 +37,17 @@
   border: none;
   outline: none;
   width: 100%;
-  font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  font-weight: 500;
   color: var(--color-text-dark);
+  cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right center;
-  background-size: 1rem;
-  padding-right: 1.5rem;
+  background-position: right 0px center;
+  background-size: 20px;
+  padding-right: 24px;
 }
 
 .select-icon {

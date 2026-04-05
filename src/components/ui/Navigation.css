@@ -2,9 +2,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: 1rem 1.5rem;
   background-color: var(--color-white);
-  border-bottom: 1px solid var(--color-neutral-high);
+  border-bottom: 1px solid #f2f4f3;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -13,22 +13,26 @@
 .logo-container {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0.75rem;
 }
 
 .logo-text {
+  font-family: var(--font-heading);
   font-weight: 800;
   color: var(--color-primary);
   letter-spacing: 0.05em;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .menu-btn {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--color-primary-optimized);
   cursor: pointer;
+  padding: 0.5rem;
 }
 
 /* Bottom Bar */
@@ -36,46 +40,56 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: var(--spacing-sm) 0;
-  background-color: var(--color-white);
-  border-top: 1px solid var(--color-neutral-high);
+  padding: 0.65rem 1rem;
+  background-color: #f8fbf9;
+  border: 1px solid #e1e9e4;
   position: fixed;
-  bottom: 1.5rem;
+  bottom: 2rem;
   left: 1.5rem;
   right: 1.5rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 30px rgba(12, 72, 25, 0.08);
   z-index: 100;
+  backdrop-filter: blur(10px);
 }
 
 .nav-tab {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  background: none;
-  border: none;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border-radius: 1rem;
   color: var(--color-text-muted);
-  font-family: inherit;
+  font-family: var(--font-body);
   font-weight: 700;
-  font-size: 0.65rem;
-  cursor: pointer;
-  transition: color 0.3s;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.75rem;
   text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-tab.active {
-  color: var(--color-primary-optimized);
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
 }
 
 .tab-icon {
-  font-size: 1.25rem;
-  margin-bottom: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.nav-tab.active .tab-icon {
-  background-color: var(--color-secondary);
-  border-radius: var(--radius-sm);
-  padding: 0.25rem;
-  margin-bottom: 0.1rem;
+.tab-label {
+  display: none; /* Mobile view: hide labels unless active? The image shows labels for all items at the very bottom, but the preview above shows labels only for active. Actually, at the very bottom of the image, all have labels. Let's show labels or match the 'aperçu' vs 'bottom'. Let's show labels as the image suggests at the very bottom. Wait, the very bottom of the image has 4 items with labels. Let's show them. */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (min-width: 480px) {
+  .tab-label {
+    display: block;
+  }
+}
+
+.nav-tab.active .tab-label {
+  display: block;
 }

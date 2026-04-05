@@ -1,17 +1,19 @@
 .timeline-container {
-  padding: var(--spacing-lg);
+  padding: 1.5rem;
   background-color: var(--color-white);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   max-width: 400px;
 }
 
 .timeline-label {
+  font-family: var(--font-heading);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-primary-optimized);
-  margin-bottom: var(--spacing-lg);
-  letter-spacing: 0.1em;
+  margin-bottom: 2rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
 }
 
 .timeline-list {
@@ -21,8 +23,8 @@
 
 .timeline-item {
   display: flex;
-  gap: var(--spacing-md);
-  padding-bottom: var(--spacing-lg);
+  gap: 1.25rem;
+  padding-bottom: 2rem;
   position: relative;
 }
 
@@ -30,7 +32,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
+  width: 32px;
+  flex-shrink: 0;
 }
 
 .marker-dot {
@@ -41,48 +44,75 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   z-index: 2;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
 }
 
 .timeline-item.completed .marker-dot {
-  background-color: var(--color-secondary);
-  color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: var(--color-white);
 }
 
 .timeline-item.active .marker-dot {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-optimized);
   color: var(--color-white);
-  box-shadow: 0 0 0 4px rgba(12, 72, 25, 0.1);
+}
+
+.timeline-item.active .marker-dot::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  bottom: -6px;
+  left: -6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-optimized);
+  opacity: 0.2;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.3); opacity: 0.1; }
+  100% { transform: scale(1); opacity: 0.3; }
 }
 
 .timeline-item.pending .marker-dot {
-  border: 2px solid var(--color-neutral-high);
+  border: 1.5px solid #e5e8e7;
   background-color: var(--color-white);
-  color: var(--color-text-muted);
+  color: #e5e8e7;
 }
 
 .marker-line {
   position: absolute;
-  top: 32px;
-  bottom: -14px;
-  left: 16px;
+  top: 36px; /* Below dot padding */
+  bottom: -4px;
+  left: 15px; /* Center with 32px dot - half width */
   width: 2px;
-  background-color: var(--color-neutral-high);
+  background-color: #f2f4f3;
   z-index: 1;
 }
 
 .timeline-item.completed .marker-line {
-  background-color: var(--color-secondary);
+  background-color: var(--color-primary);
+}
+
+.timeline-content {
+  flex: 1;
 }
 
 .step-title {
-  font-size: 0.9rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--color-text-dark);
+  margin-bottom: 2px;
 }
 
 .step-subtitle {
-  font-size: 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
   color: var(--color-text-muted);
+  font-weight: 400;
 }

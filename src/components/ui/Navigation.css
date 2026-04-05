@@ -16,12 +16,18 @@
   gap: 0.75rem;
 }
 
+.logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
 .logo-text {
   font-family: var(--font-heading);
   font-weight: 800;
   color: var(--color-primary);
   letter-spacing: 0.05em;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 .menu-btn {
@@ -96,7 +102,98 @@
   margin-top: 4px;
 }
 
+@media (max-width: 340px) {
+  .tab-label {
+    display: none;
+  }
+  .nav-tab {
+    padding: 0.75rem;
+  }
+}
+
 .nav-tab.active .tab-label {
   color: var(--color-primary);
   font-weight: 800;
+}
+
+/* Mobile Side Menu */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: -280px;
+  width: 280px;
+  height: 100%;
+  background-color: var(--color-white);
+  z-index: 1001;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+}
+
+.mobile-menu.open {
+  right: 0;
+}
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.menu-link {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f2f4f3;
+}
+
+.menu-link:last-child {
+  border-bottom: none;
+}
+
+.menu-link:hover, .menu-link.active {
+  color: var(--color-primary);
 }

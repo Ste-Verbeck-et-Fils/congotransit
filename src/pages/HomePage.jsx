@@ -19,7 +19,12 @@ const HomePage = () => {
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Bienvenue sur votre gestionnaire congotransit.</p>
       </header>
 
-      <section className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--spacing-lg)' }}>
+      <section className="dashboard-grid" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        gap: 'var(--spacing-lg)',
+        padding: '0 1rem'
+      }}>
         <div className="card-column">
           <StatsCard {...stats} />
           <div style={{ marginTop: 'var(--spacing-lg)' }}>

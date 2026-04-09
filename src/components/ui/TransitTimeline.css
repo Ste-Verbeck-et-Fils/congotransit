@@ -2,8 +2,8 @@
   padding: 1.5rem;
   background-color: var(--color-white);
   border-radius: var(--radius-lg);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  max-width: 400px;
+  box-shadow: var(--shadow-md);
+  width: 100%;
 }
 
 .timeline-label {

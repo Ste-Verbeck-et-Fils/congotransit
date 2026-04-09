@@ -15,6 +15,22 @@ export const TopBar = () => {
           <img src="/favicon.png" alt="Congo Transit" className="logo-img" />
           <span className="logo-text">CONGO TRANSIT</span>
         </NavLink>
+        
+        <nav className="desktop-nav">
+          <NavLink to="/" className={({ isActive }) => `desktop-link ${isActive ? 'active' : ''}`}>
+            Dashboard
+          </NavLink>
+          <NavLink to="/expedients" className={({ isActive }) => `desktop-link ${isActive ? 'active' : ''}`}>
+            Expédients
+          </NavLink>
+          <NavLink to="/trajet" className={({ isActive }) => `desktop-link ${isActive ? 'active' : ''}`}>
+            Trajet
+          </NavLink>
+          <NavLink to="/profil" className={({ isActive }) => `desktop-link ${isActive ? 'active' : ''}`}>
+            Profil
+          </NavLink>
+        </nav>
+
         <button className="menu-btn" onClick={toggleMenu} aria-label="Open Menu">
           <IconMenu size={28} />
         </button>

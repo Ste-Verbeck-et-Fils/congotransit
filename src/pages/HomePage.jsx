@@ -19,28 +19,30 @@ const HomePage = () => {
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Bienvenue sur votre gestionnaire congotransit.</p>
       </header>
 
-      <section className="dashboard-grid" style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-        gap: 'var(--spacing-lg)',
-        padding: '0 1rem'
-      }}>
-        <div className="card-column">
+      <section className="grid-auto-fit">
+        <div className="flex flex-col gap-lg">
           <StatsCard {...stats} />
-          <div style={{ marginTop: 'var(--spacing-lg)' }}>
-            <Button variant="primary">Nouveau Colis</Button>
-          </div>
+          <Button variant="primary">Nouveau Colis</Button>
         </div>
 
-        <div className="search-column">
+        <div className="flex flex-col gap-lg">
           <Input 
             label="RECHERCHE DE COLIS" 
             placeholder="Saisir le numéro..." 
             icon={<IconSearch size={18} />} 
           />
-          <div style={{ marginTop: 'var(--spacing-lg)' }}>
-            <InfoCard title="Dernier envoi" details={recentShipment} />
-          </div>
+          <InfoCard title="Dernier envoi" details={recentShipment} />
+        </div>
+
+        <div className="flex flex-col gap-lg">
+          {/* Action cards or more stats could go here */}
+          <InfoCard 
+            title="Notifications" 
+            details={[
+              { label: 'Colis LQ-382', value: 'Arrivé à Goma' },
+              { label: 'Alerte', value: 'Paiement en attente' }
+            ]} 
+          />
         </div>
       </section>
     </div>

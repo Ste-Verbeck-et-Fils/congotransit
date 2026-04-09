@@ -3,19 +3,23 @@
   display: flex;
   flex-direction: column;
   background-color: var(--color-gray-soft);
-  padding-bottom: 6rem; /* Support for BottomBar */
+  padding-bottom: 4.5rem; /* Space for BottomBar on mobile */
 }
 
 .layout-content {
   flex: 1;
-  padding: var(--spacing-lg);
-  max-width: 1200px;
+  padding: var(--spacing-md);
+  max-width: var(--breakpoint-xl);
   margin: 0 auto;
   width: 100%;
 }
 
-@media (max-width: 600px) {
+@media (min-width: 992px) {
+  .layout-container {
+    padding-bottom: 0;
+  }
+  
   .layout-content {
-    padding: var(--spacing-md);
+    padding: var(--spacing-xl);
   }
 }

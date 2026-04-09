@@ -3,17 +3,24 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  padding: 0.85rem var(--spacing-xl);
+  padding: var(--spacing-sm) var(--spacing-xl);
+  min-height: clamp(44px, 4vw, 54px);
   border-radius: var(--radius-md);
   font-family: var(--font-heading);
   font-weight: 700;
   cursor: pointer;
   border: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 100%;
-  max-width: 320px;
-  font-size: 0.95rem;
+  width: auto;
+  min-width: clamp(100px, 15vw, 140px);
+  max-width: 100%;
+  font-size: var(--font-size-base);
   letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.btn-full {
+  width: 100%;
 }
 
 .btn:active {
@@ -22,8 +29,8 @@
 
 .btn:hover {
   opacity: 0.9;
-  filter: brightness(1.05);
-  box-shadow: 0 4px 12px rgba(12, 72, 25, 0.15);
+  filter: brightness(1.1);
+  box-shadow: 0 4px 15px rgba(12, 72, 25, 0.2);
 }
 
 .btn-primary {
@@ -42,14 +49,17 @@
   color: var(--color-primary-optimized);
 }
 
-.btn-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.btn-icon-only {
+  width: clamp(40px, 5vw, 48px);
+  height: clamp(40px, 5vw, 48px);
+  min-width: auto;
+  padding: 0;
+  border-radius: var(--radius-md);
 }
 
-@media (max-width: 600px) {
-  .btn {
+@media (max-width: 576px) {
+  .btn:not(.btn-icon-only) {
     width: 100%;
+    min-height: 48px;
   }
 }

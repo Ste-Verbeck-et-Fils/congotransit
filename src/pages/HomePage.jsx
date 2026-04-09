@@ -19,31 +19,12 @@ const HomePage = () => {
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Bienvenue sur votre gestionnaire congotransit.</p>
       </header>
 
-      <section className="grid-auto-fit">
-        <div className="flex flex-col gap-lg">
-          <StatsCard {...stats} />
-          <Button variant="primary">Nouveau Colis</Button>
-        </div>
+      <section className="grid-auto-fit"> 
 
         <div className="flex flex-col gap-lg">
-          <Input 
-            label="RECHERCHE DE COLIS" 
-            placeholder="Saisir le numéro..." 
-            icon={<IconSearch size={18} />} 
-          />
           <InfoCard title="Dernier envoi" details={recentShipment} />
         </div>
-
-        <div className="flex flex-col gap-lg">
-          {/* Action cards or more stats could go here */}
-          <InfoCard 
-            title="Notifications" 
-            details={[
-              { label: 'Colis LQ-382', value: 'Arrivé à Goma' },
-              { label: 'Alerte', value: 'Paiement en attente' }
-            ]} 
-          />
-        </div>
+ 
       </section>
     </div>
   )

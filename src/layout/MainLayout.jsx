@@ -1,6 +1,6 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import { TopBar, BottomBar } from '../components/ui/Navigation.jsx'
+import { TopBar } from '../components/ui/Navigation.jsx'
 import './MainLayout.css'
 
 const MainLayout = () => {
@@ -10,7 +10,6 @@ const MainLayout = () => {
       <main className="layout-content">
         <Outlet />
       </main>
-      <BottomBar />
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 import { IconBox, IconTruck, IconPin } from '../components/ui/Icons'
-import './HomePage.css'
+import '../styles/Dashboard.css'
 
 /* ── Données ───────────────────────────────────────────────── */
 const KPIS = [
@@ -69,7 +69,7 @@ const BarChart = ({ data }) => {
 }
 
 /* ── Dashboard ──────────────────────────────────────────────── */
-const HomePage = () => (
+const Dashboard = () => (
   <div className="dash fade-in">
 
     {/* KPIs */}
@@ -124,4 +124,4 @@ const HomePage = () => (
   </div>
 )
 
-export default HomePage
+export default Dashboard

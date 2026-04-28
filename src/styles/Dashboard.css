@@ -9,7 +9,7 @@
   align-items: flex-end;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.85rem;
   margin-bottom: 1.5rem;
 }
 
@@ -34,6 +34,36 @@
   border-radius: 999px;
   padding: 0.25rem 0.75rem;
   white-space: nowrap;
+}
+
+.dash-header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.dash-action {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-white);
+  padding: 0 0.85rem;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dash-action:hover {
+  background: var(--color-primary-optimized);
 }
 
 /* ── KPIs ──────────────────────────────────────────────────── */
@@ -146,6 +176,10 @@
 }
 
 .ship-row {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -155,8 +189,9 @@
   transition: background 0.15s;
   border-radius: 8px;
   padding-left: 0.4rem;
+  font-family: var(--font-body);
 }
-.ship-row:last-child { border-bottom: none; }
+.ship-list li:last-child .ship-row { border-bottom: none; }
 .ship-row:hover { background: #f9fdf9; }
 
 .ship-dot {

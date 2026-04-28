@@ -1,5 +1,5 @@
 import React from 'react'
-import { IconBox, IconTruck, IconPin } from '../components/ui/Icons'
+import { IconBox, IconTruck, IconPin, IconPlus } from '../components/ui/Icons'
 import '../styles/Dashboard.css'
 
 /* ── Données ───────────────────────────────────────────────── */
@@ -33,6 +33,13 @@ const STATUS = {
   'en attente': { label: 'En attente',  color: '#6b7280', bg: 'rgba(107,114,128,0.1)' },
   'anomalie':   { label: 'Anomalie',    color: '#ef4444', bg: 'rgba(239,68,68,0.1)'   },
 }
+
+const todayLabel = new Intl.DateTimeFormat('fr-FR', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+}).format(new Date())
 
 /* ── Graphique à barres SVG ─────────────────────────────────── */
 const BarChart = ({ data }) => {
@@ -71,11 +78,24 @@ const BarChart = ({ data }) => {
 /* ── Dashboard ──────────────────────────────────────────────── */
 const Dashboard = () => (
   <div className="dash fade-in">
+    <div className="dash-header">
+      <div>
+        <h1 className="dash-title">Tableau de bord</h1>
+        <p className="dash-sub">Vue rapide de l'activite colis et transit</p>
+      </div>
+      <div className="dash-header-actions">
+        <span className="dash-date">{todayLabel}</span>
+        <button className="dash-action" type="button">
+          <IconPlus size={17} />
+          <span>Nouveau colis</span>
+        </button>
+      </div>
+    </div>
 
     {/* KPIs */}
     <div className="kpi-row">
-      {KPIS.map((k, i) => (
-        <div className="kpi" key={i}>
+      {KPIS.map((k) => (
+        <div className="kpi" key={k.label}>
           <div className="kpi-icon">{k.icon}</div>
           <div>
             <p className="kpi-val">{k.value}</p>
@@ -101,19 +121,21 @@ const Dashboard = () => (
       <div className="card-panel">
         <p className="panel-title">Derniers colis</p>
         <ul className="ship-list">
-          {SHIPMENTS.map((s, i) => {
+          {SHIPMENTS.map((s) => {
             const st = STATUS[s.status]
             return (
-              <li className="ship-row" key={i}>
-                <div className="ship-dot" style={{ background: st.color }} />
-                <div className="ship-info">
-                  <span className="ship-ref">{s.ref}</span>
-                  <span className="ship-route">{s.route}</span>
-                </div>
-                <div className="ship-right">
-                  <span className="ship-badge" style={{ color: st.color, background: st.bg }}>{st.label}</span>
-                  <span className="ship-date">{s.date}</span>
-                </div>
+              <li key={s.ref}>
+                <button className="ship-row" type="button" aria-label={`Voir le colis ${s.ref}`}>
+                  <span className="ship-dot" style={{ background: st.color }} />
+                  <span className="ship-info">
+                    <span className="ship-ref">{s.ref}</span>
+                    <span className="ship-route">{s.route}</span>
+                  </span>
+                  <span className="ship-right">
+                    <span className="ship-badge" style={{ color: st.color, background: st.bg }}>{st.label}</span>
+                    <span className="ship-date">{s.date}</span>
+                  </span>
+                </button>
               </li>
             )
           })}

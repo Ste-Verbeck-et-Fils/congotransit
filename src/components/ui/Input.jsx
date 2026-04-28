@@ -1,13 +1,17 @@
-import React from 'react'
+import React, { useId } from 'react'
 import './Input.css'
 
-const Input = ({ label, placeholder, type = 'text', value, onChange, icon, variant = 'default' }) => {
+const Input = ({ id, label, placeholder, type = 'text', value, onChange, icon, variant = 'default' }) => {
+  const generatedId = useId()
+  const inputId = id || generatedId
+
   return (
     <div className={`input-container input-${variant}`}>
-      {label && <label className="input-label">{label}</label>}
+      {label && <label className="input-label" htmlFor={inputId}>{label}</label>}
       <div className="input-wrapper">
         {icon && <span className="input-icon">{icon}</span>}
         <input 
+          id={inputId}
           type={type} 
           placeholder={placeholder} 
           value={value} 

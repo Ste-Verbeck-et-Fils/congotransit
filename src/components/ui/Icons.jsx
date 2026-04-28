@@ -96,3 +96,18 @@ export const IconClose = ({ size = 24, color = "currentColor" }) => (
     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
   </svg>
 )
+
+export const IconBell = ({ size = 20, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 8-3 8h18s-3-1-3-8"/>
+  </svg>
+)
+
+export const IconLogout = ({ size = 20, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <path d="M16 17l5-5-5-5"/>
+    <path d="M21 12H9"/>
+  </svg>
+)

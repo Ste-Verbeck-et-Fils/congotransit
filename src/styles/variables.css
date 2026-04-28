@@ -11,6 +11,9 @@
   --color-text-dark: #1a1a1a;
   --color-text-muted: #666666;
 
+  --font-body: "Inter", sans-serif;
+  --font-heading: "Montserrat", sans-serif;
+
   --font-size-base: clamp(0.875rem, 0.85rem + 0.125vw, 1rem);
   --font-size-lg: clamp(1rem, 0.95rem + 0.25vw, 1.25rem);
   --font-size-xl: clamp(1.25rem, 1.15rem + 0.5vw, 1.75rem);

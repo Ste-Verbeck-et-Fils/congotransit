@@ -43,7 +43,9 @@
 .menu-btn,
 .close-btn,
 .top-icon-btn,
-.logout-btn {
+.logout-btn,
+.desktop-logout-link,
+.mobile-logout-link {
   border: none;
   cursor: pointer;
   font-family: var(--font-heading);
@@ -77,12 +79,13 @@
 .top-icon-btn,
 .profile-action,
 .logout-btn {
+  width: 40px;
   min-height: 40px;
+  height: 40px;
   border-radius: var(--radius-md);
 }
 
 .top-icon-btn {
-  width: 40px;
   position: relative;
   background: #f2f7f3;
 }
@@ -101,33 +104,12 @@
 .profile-action {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  color: var(--color-text-dark);
-  text-decoration: none;
-  padding: 0.25rem 0.45rem;
-}
-
-.profile-action-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-optimized));
-  color: var(--color-white);
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 0.8rem;
-  flex-shrink: 0;
-}
-
-.profile-name {
-  display: none;
-  font-family: var(--font-heading);
-  font-size: 0.82rem;
-  font-weight: 700;
-  white-space: nowrap;
+  gap: 0.55rem;
+  background: #f2f7f3;
+  color: var(--color-primary-optimized);
+  text-decoration: none;
+  padding: 0;
 }
 
 .logout-btn {
@@ -137,13 +119,9 @@
   gap: 0.45rem;
   background: #fff5f5;
   color: #b42318;
-  padding: 0 0.7rem;
+  padding: 0;
   font-size: 0.78rem;
   font-weight: 700;
-}
-
-.logout-btn span {
-  display: none;
 }
 
 .menu-btn:hover,
@@ -212,7 +190,8 @@ body.menu-open {
   gap: 0.5rem;
 }
 
-.mobile-nav-link {
+.mobile-nav-link,
+.mobile-logout-link {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -238,11 +217,19 @@ body.menu-open {
   color: var(--color-primary);
 }
 
-@media (min-width: 768px) {
-  .profile-name,
-  .logout-btn span {
-    display: inline;
-  }
+.mobile-logout-link {
+  width: 100%;
+  margin-top: auto;
+  background: #fff5f5;
+  color: #b42318;
+}
+
+.mobile-logout-link .mobile-nav-icon {
+  color: #b42318;
+}
+
+.mobile-logout-link:hover {
+  background: #fee4e2;
 }
 
 @media (min-width: 992px) {
@@ -279,7 +266,8 @@ body.menu-open {
     gap: 0.35rem;
   }
 
-  .desktop-nav-link {
+  .desktop-nav-link,
+  .desktop-logout-link {
     display: flex;
     align-items: center;
     gap: 0.8rem;
@@ -309,6 +297,21 @@ body.menu-open {
     color: var(--color-primary);
   }
 
+  .desktop-logout-link {
+    width: 100%;
+    margin-top: auto;
+    background: #fff5f5;
+    color: #b42318;
+  }
+
+  .desktop-logout-link .desktop-nav-icon {
+    color: #b42318;
+  }
+
+  .desktop-logout-link:hover {
+    background: #fee4e2;
+  }
+
   .top-bar {
     justify-content: flex-end;
     min-height: 68px;
@@ -324,9 +327,5 @@ body.menu-open {
 
   .top-actions {
     gap: 0.7rem;
-  }
-
-  .profile-action {
-    padding: 0.25rem 0.7rem;
   }
 }

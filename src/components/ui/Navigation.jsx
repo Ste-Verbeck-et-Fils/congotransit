@@ -36,6 +36,13 @@ const NavigationLinks = ({ variant = 'desktop', onNavigate }) => (
   </nav>
 )
 
+const LogoutButton = ({ variant = 'desktop' }) => (
+  <button className={`${variant}-logout-link`} type="button">
+    <span className={`${variant}-nav-icon`}><IconLogout size={20} /></span>
+    <span>Deconnexion</span>
+  </button>
+)
+
 const DesktopSidebar = () => (
   <aside className="desktop-sidebar">
     <NavLink to="/" className="sidebar-brand" aria-label="Congo Transit">
@@ -43,6 +50,7 @@ const DesktopSidebar = () => (
       <span className="sidebar-brand-text">CONGO TRANSIT</span>
     </NavLink>
     <NavigationLinks />
+    <LogoutButton />
   </aside>
 )
 
@@ -68,23 +76,11 @@ export const TopBar = () => {
     }
   }, [isMenuOpen])
 
-  const userName = 'Admin CongoTransit'
-
   return (
     <>
       <DesktopSidebar />
 
       <header className="top-bar">
-        <button
-          className="menu-btn"
-          onClick={openMenu}
-          aria-label="Ouvrir le menu"
-          aria-expanded={isMenuOpen}
-          aria-controls="mobile-navigation"
-        >
-          <IconMenu size={28} />
-        </button>
-
         <NavLink to="/" className="mobile-brand" aria-label="Congo Transit">
           <img src="/favicon.png" alt="Congo Transit" className="logo-img" />
           <span className="logo-text">CONGO TRANSIT</span>
@@ -97,15 +93,23 @@ export const TopBar = () => {
           </button>
 
           <NavLink to="/profil" className="profile-action" aria-label="Profil utilisateur">
-            <span className="profile-action-avatar" aria-hidden="true">A</span>
-            <span className="profile-name">{userName}</span>
+            <IconUser size={20} />
           </NavLink>
 
           <button className="logout-btn" type="button" aria-label="Déconnexion">
             <IconLogout size={19} />
-            <span>Déconnexion</span>
           </button>
         </div>
+
+        <button
+          className="menu-btn"
+          onClick={openMenu}
+          aria-label="Ouvrir le menu"
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-navigation"
+        >
+          <IconMenu size={28} />
+        </button>
       </header>
 
       <div className={`mobile-menu-overlay ${isMenuOpen ? 'open' : ''}`} onClick={closeMenu} />
@@ -126,6 +130,7 @@ export const TopBar = () => {
         </div>
 
         <NavigationLinks variant="mobile" onNavigate={closeMenu} />
+        <LogoutButton variant="mobile" />
       </div>
     </>
   )

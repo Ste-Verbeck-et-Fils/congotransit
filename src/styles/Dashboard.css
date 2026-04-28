@@ -133,14 +133,8 @@
 /* ── Grid principal ────────────────────────────────────────── */
 .dash-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.75rem;
-}
-
-@media (min-width: 600px) {
-  .dash-grid {
-    grid-template-columns: 1.3fr 1fr;
-  }
 }
 
 /* ── Panels ─────────────────────────────────────────────────── */
@@ -165,83 +159,4 @@
 /* ── Bar chart ──────────────────────────────────────────────── */
 .chart-wrap {
   padding: 0 0.25rem;
-}
-
-/* ── Liste colis ────────────────────────────────────────────── */
-.ship-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.ship-row {
-  width: 100%;
-  border: none;
-  background: transparent;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid #f6f8f6;
-  cursor: pointer;
-  transition: background 0.15s;
-  border-radius: 8px;
-  padding-left: 0.4rem;
-  font-family: var(--font-body);
-}
-.ship-list li:last-child .ship-row { border-bottom: none; }
-.ship-row:hover { background: #f9fdf9; }
-
-.ship-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.ship-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-}
-
-.ship-ref {
-  font-weight: 700;
-  font-size: 0.8rem;
-  color: var(--color-text-dark);
-  font-family: var(--font-heading);
-}
-
-.ship-route {
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ship-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.ship-badge {
-  font-size: 0.65rem;
-  font-weight: 700;
-  border-radius: 999px;
-  padding: 2px 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.ship-date {
-  font-size: 0.65rem;
-  color: var(--color-text-muted);
 }

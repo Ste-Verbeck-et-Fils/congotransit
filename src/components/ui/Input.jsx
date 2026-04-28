@@ -1,7 +1,18 @@
 import React, { useId } from 'react'
 import './Input.css'
 
-const Input = ({ id, label, placeholder, type = 'text', value, onChange, icon, variant = 'default' }) => {
+const Input = ({
+  id,
+  label,
+  placeholder,
+  type = 'text',
+  value,
+  onChange,
+  icon,
+  rightElement,
+  variant = 'default',
+  ...inputProps
+}) => {
   const generatedId = useId()
   const inputId = id || generatedId
 
@@ -17,7 +28,9 @@ const Input = ({ id, label, placeholder, type = 'text', value, onChange, icon, v
           value={value} 
           onChange={onChange}
           className="input-field"
+          {...inputProps}
         />
+        {rightElement}
       </div>
     </div>
   )

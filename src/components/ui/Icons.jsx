@@ -111,3 +111,26 @@ export const IconLogout = ({ size = 20, color = "currentColor" }) => (
     <path d="M21 12H9"/>
   </svg>
 )
+
+export const IconArrowRight = ({ size = 20, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14"/>
+    <path d="m12 5 7 7-7 7"/>
+  </svg>
+)
+
+export const IconEye = ({ size = 20, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+)
+
+export const IconEyeOff = ({ size = 20, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m2 2 20 20"/>
+    <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
+    <path d="M9.9 4.3A9.8 9.8 0 0 1 12 4c7 0 10 8 10 8a15.7 15.7 0 0 1-3.2 4.7"/>
+    <path d="M6.1 6.1C3.4 7.9 2 12 2 12s3 8 10 8a9.7 9.7 0 0 0 5.1-1.5"/>
+  </svg>
+)

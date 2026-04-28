@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from '../layout/MainLayout.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
+import Login from '../pages/Login.jsx'
 
 const PlaceholderPage = ({ title, description }) => (
   <section className="placeholder-page fade-in">
@@ -17,6 +18,7 @@ const PlaceholderPage = ({ title, description }) => (
 const AppRoutes = () => {
   return (
     <Routes>
+      <Route path="/login" element={<Login />} />
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Dashboard />} />
         <Route

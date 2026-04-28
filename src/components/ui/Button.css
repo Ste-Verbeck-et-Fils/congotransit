@@ -21,6 +21,7 @@
 
 .btn-full {
   width: 100%;
+  min-height: 48px;
 }
 
 .btn:active {
@@ -62,4 +63,8 @@
     width: 100%;
     min-height: 38px;
   }
+}
+
+.btn.btn-full {
+  min-height: 48px;
 }

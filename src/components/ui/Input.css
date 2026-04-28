@@ -63,3 +63,51 @@
   background-color: var(--color-white);
   border: 1px solid var(--color-neutral-high);
 }
+
+.input-login {
+  gap: 0.55rem;
+  margin-bottom: 1.25rem;
+}
+
+.input-login .input-label {
+  color: #555955;
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-bottom: 0;
+}
+
+.input-login .input-wrapper {
+  position: relative;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: #dedede;
+  transform: none;
+}
+
+.input-login .input-wrapper:focus-within {
+  border: none;
+  background: #e7e7e7;
+  box-shadow: 0 0 0 2px rgba(12, 72, 25, 0.18);
+  transform: none;
+}
+
+.input-login .input-field {
+  height: 100%;
+  padding: 0 1.15rem;
+  color: var(--color-text-dark);
+  font: 500 0.95rem var(--font-body);
+}
+
+.input-login .input-field::placeholder {
+  color: #9b9b9b;
+  opacity: 0.78;
+}
+
+.input-login:has(.login-password-toggle) .input-field {
+  padding-right: 3.5rem;
+}

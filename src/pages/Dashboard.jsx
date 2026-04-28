@@ -19,21 +19,6 @@ const BAR_DATA = [
   { label: 'Dim', value: 20 },
 ]
 
-const SHIPMENTS = [
-  { ref: 'LQ-382-K9', route: 'Kinshasa → Goma',       status: 'transit',    date: '19 Avr' },
-  { ref: 'LQ-301-B2', route: 'Lubumbashi → Kinshasa',  status: 'livré',      date: '18 Avr' },
-  { ref: 'LQ-298-X1', route: 'Matadi → Mbuji-Mayi',    status: 'en attente', date: '17 Avr' },
-  { ref: 'LQ-274-C5', route: 'Kisangani → Bukavu',     status: 'anomalie',   date: '16 Avr' },
-  { ref: 'LQ-265-A7', route: 'Goma → Beni',            status: 'livré',      date: '15 Avr' },
-]
-
-const STATUS = {
-  'transit':    { label: 'En transit',  color: '#f59e0b', bg: 'rgba(245,158,11,0.1)'  },
-  'livré':      { label: 'Livré',       color: '#16a34a', bg: 'rgba(22,163,74,0.1)'   },
-  'en attente': { label: 'En attente',  color: '#6b7280', bg: 'rgba(107,114,128,0.1)' },
-  'anomalie':   { label: 'Anomalie',    color: '#ef4444', bg: 'rgba(239,68,68,0.1)'   },
-}
-
 const todayLabel = new Intl.DateTimeFormat('fr-FR', {
   weekday: 'long',
   day: 'numeric',
@@ -106,7 +91,7 @@ const Dashboard = () => (
       ))}
     </div>
 
-    {/* Graphique + Liste */}
+    {/* Graphique */}
     <div className="dash-grid">
 
       {/* Graphique à barres */}
@@ -115,31 +100,6 @@ const Dashboard = () => (
         <div className="chart-wrap">
           <BarChart data={BAR_DATA} />
         </div>
-      </div>
-
-      {/* Derniers colis */}
-      <div className="card-panel">
-        <p className="panel-title">Derniers colis</p>
-        <ul className="ship-list">
-          {SHIPMENTS.map((s) => {
-            const st = STATUS[s.status]
-            return (
-              <li key={s.ref}>
-                <button className="ship-row" type="button" aria-label={`Voir le colis ${s.ref}`}>
-                  <span className="ship-dot" style={{ background: st.color }} />
-                  <span className="ship-info">
-                    <span className="ship-ref">{s.ref}</span>
-                    <span className="ship-route">{s.route}</span>
-                  </span>
-                  <span className="ship-right">
-                    <span className="ship-badge" style={{ color: st.color, background: st.bg }}>{st.label}</span>
-                    <span className="ship-date">{s.date}</span>
-                  </span>
-                </button>
-              </li>
-            )
-          })}
-        </ul>
       </div>
 
     </div>

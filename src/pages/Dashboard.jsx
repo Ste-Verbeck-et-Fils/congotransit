@@ -29,13 +29,13 @@ const todayLabel = new Intl.DateTimeFormat('fr-FR', {
 /* ── Graphique à barres SVG ─────────────────────────────────── */
 const BarChart = ({ data }) => {
   const max = Math.max(...data.map(d => d.value))
-  const H = 120
-  const BAR_W = 28
-  const GAP = 16
+  const H = 92
+  const BAR_W = 22
+  const GAP = 12
   const W = data.length * (BAR_W + GAP) - GAP
 
   return (
-    <svg viewBox={`0 0 ${W} ${H + 24}`} width="100%" style={{ overflow: 'visible' }}>
+    <svg viewBox={`0 0 ${W} ${H + 20}`} width="100%" style={{ overflow: 'visible' }}>
       {data.map((d, i) => {
         const barH = (d.value / max) * H
         const x = i * (BAR_W + GAP)
@@ -50,7 +50,7 @@ const BarChart = ({ data }) => {
               <animate attributeName="y" from={H} to={y} dur="0.6s" fill="freeze" />
             </rect>
             {/* Label jour */}
-            <text x={x + BAR_W / 2} y={H + 16} textAnchor="middle" fontSize="10" fill="#9ca3af" fontFamily="Inter,sans-serif">
+            <text x={x + BAR_W / 2} y={H + 14} textAnchor="middle" fontSize="9" fill="#9ca3af" fontFamily="Inter,sans-serif">
               {d.label}
             </text>
           </g>

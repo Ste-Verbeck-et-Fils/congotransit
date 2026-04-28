@@ -39,7 +39,7 @@ const Login = () => {
       <section className="login-shell" aria-label="Connexion Congo Transit">
         <div className="login-brand-panel" style={{ '--login-brand-image': `url(${deliveryImage})` }}>
           <div className="login-brand-block">
-            <IconBox size={54} color="var(--color-primary)" />
+            <IconBox size={42} color="var(--color-primary)" />
             <p className="login-brand-name">CONGO TRANSIT</p>
             <p className="login-brand-copy">
               Espace securise de suivi et de gestion des colis en transit.
@@ -49,7 +49,7 @@ const Login = () => {
 
         <div className="login-form-panel">
           <div className="login-mobile-brand" aria-hidden="true">
-            <IconBox size={38} color="var(--color-primary)" />
+            <IconBox size={32} color="var(--color-primary)" />
             <p>CONGO TRANSIT</p>
           </div>
 
@@ -106,13 +106,13 @@ const Login = () => {
               </p>
             )}
 
-            <Button className="btn-full" type="submit" icon={<IconArrowRight size={19} />} iconPosition="right">
+            <Button className="btn-full" type="submit" icon={<IconArrowRight size={16} />} iconPosition="right">
               Se connecter
             </Button>
           </form>
 
           <p className="login-footnote">
-            Acces restreint aux employes autorises d'Equator Logistics S.A.R.L.
+            Acces restreint aux employes autorises de congo transit.
             Toutes les activites sont enregistrees.
           </p>
         </div>

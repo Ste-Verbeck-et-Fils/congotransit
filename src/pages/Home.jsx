@@ -1,40 +1,41 @@
-import React from 'react'
-import PublicFooter from '../components/layout/PublicFooter'
-import PublicHeader from '../components/layout/PublicHeader'
-import { IconArrowRight, IconBox, IconPin, IconTimeline, IconTruck } from '../components/ui/Icons'
-import heroImage from '../assets/images/nature.jpg'
-import deliveryImage from '../assets/images/images.jpeg'
-import '../styles/Home.css'
+import React from "react";
+import PublicFooter from "../components/layout/PublicFooter";
+import PublicHeader from "../components/layout/PublicHeader";
+import {
+  IconArrowRight,
+  IconBox,
+  IconPin,
+  IconTimeline,
+  IconTruck,
+} from "../components/ui/Icons";
+import heroImage from "../assets/images/nature.jpg";
+import deliveryImage from "../assets/images/images.jpeg";
+import "../styles/Home.css";
 
 const trackingSteps = [
-  { label: 'Colis scanne', value: '09:20' },
-  { label: 'En route vers Lubumbashi', value: '12:45' },
-  { label: 'Livraison estimee', value: "Aujourd'hui" },
-]
+  { label: "Colis scanné à Goma", value: "09:20" },
+  { label: "En route vers Sake", value: "12:45" },
+  { label: "Livraison estimée", value: "Aujourd'hui" },
+];
 
 const solutions = [
   {
-    icon: <IconBox size={22} />,
-    title: 'Suivi instantane',
-    text: 'Chaque colis garde son statut, son historique et sa position recente au meme endroit.',
+    icon: <IconTruck size={24} />,
+    title: "Smart Kivu",
+    text: "Réduisez le coût de vos expéditions au Nord-Kivu avec notre offre d'exploitation mutualisée.",
   },
   {
-    icon: <IconTruck size={22} />,
-    title: 'Livraisons pilotees',
-    text: 'Les equipes terrain visualisent les priorites, les retards et les preuves de passage.',
+    icon: <IconTimeline size={24} />,
+    title: "Suivi Temps Réel",
+    text: "Gardez un œil sur chaque expédition avec un suivi GPS précis des flottes sur les axes routiers de la RDC.",
   },
-  {
-    icon: <IconTimeline size={22} />,
-    title: 'Alertes temps reel',
-    text: 'Les clients recoivent les changements importants sans appeler le service support.',
-  },
-]
+];
 
 const deliveryStats = [
-  { value: '1 284', label: 'colis suivis' },
-  { value: '342', label: 'en transit' },
-  { value: '98%', label: 'statuts a jour' },
-]
+  { value: "1 284", label: "colis suivis" },
+  { value: "342", label: "en transit" },
+  { value: "98%", label: "statuts à jour" },
+];
 
 const Home = () => {
   return (
@@ -42,48 +43,69 @@ const Home = () => {
       <PublicHeader />
 
       <main>
-        <section className="home-hero" id="suivi" style={{ '--home-hero-image': `url(${heroImage})` }}>
-          <div className="home-hero-copy">
-            <p className="home-kicker">CongoTransit live tracking</p>
-            <h1>Suivez vos colis et leurs livraisons en temps reel.</h1>
-            <p>
-              Une interface claire pour connaitre la position, le statut et la prochaine etape de chaque expedition.
-            </p>
-
-            <form className="tracking-card" aria-label="Recherche de colis">
-              <label htmlFor="tracking-code">Numero de suivi</label>
-              <div className="tracking-input-row">
-                <input id="tracking-code" type="text" placeholder="CT-2408-9572" />
-                <button type="submit">
-                  <IconArrowRight size={18} />
-                  <span>Suivre</span>
-                </button>
+        <section
+          className="home-hero"
+          id="suivi"
+          style={{ "--home-hero-image": `url(${heroImage})` }}
+        >
+          <div className="home-hero-bottom-row">
+            <div className="hero-left-column">
+              <div className="home-hero-intro">
+                <h1>L'innovation logistique à Goma</h1>
+                <p>
+                  Que vous expédiiez vos marchandises vers l'Est de la RDC ou
+                  recherchiez une solution de suivi, nous proposons des
+                  solutions logistiques innovantes.
+                </p>
               </div>
-            </form>
-          </div>
 
-          <div className="hero-status-panel" aria-label="Statut de livraison">
-            <div className="hero-status-top">
-              <span>Livraison active</span>
-              <strong>CT-2408-9572</strong>
-            </div>
-            <div className="mini-map">
-              <img src={deliveryImage} alt="" />
-              <div className="map-route" aria-hidden="true" />
-              <span className="map-pin origin"><IconPin size={17} /></span>
-              <span className="map-pin destination"><IconPin size={17} /></span>
-            </div>
-            <div className="tracking-steps">
-              {trackingSteps.map((step, index) => (
-                <div className="tracking-step" key={step.label}>
-                  <span className="step-dot" aria-hidden="true" />
-                  <div>
-                    <p>{step.label}</p>
-                    <strong>{step.value}</strong>
-                  </div>
-                  {index < trackingSteps.length - 1 && <span className="step-line" aria-hidden="true" />}
+              <form className="tracking-card" aria-label="Recherche de colis">
+                <label htmlFor="tracking-code">
+                  Suivre une expédition active
+                </label>
+                <div className="tracking-input-row">
+                  <input
+                    id="tracking-code"
+                    type="text"
+                    placeholder="Ex: CT-2408-9572"
+                  />
+                  <button type="submit" className="btn-primary">
+                    <IconArrowRight size={18} />
+                    <span>Suivre</span>
+                  </button>
                 </div>
-              ))}
+              </form>
+            </div>
+
+            <div className="hero-status-panel" aria-label="Statut de livraison">
+              <div className="hero-status-top">
+                <span>Livraison active</span>
+                <strong>CT-2408-9572</strong>
+              </div>
+              <div className="mini-map">
+                <img src={deliveryImage} alt="" />
+                <div className="map-route" aria-hidden="true" />
+                <span className="map-pin origin">
+                  <IconPin size={17} />
+                </span>
+                <span className="map-pin destination">
+                  <IconPin size={17} />
+                </span>
+              </div>
+              <div className="tracking-steps">
+                {trackingSteps.map((step, index) => (
+                  <div className="tracking-step" key={step.label}>
+                    <span className="step-dot" aria-hidden="true" />
+                    <div>
+                      <p>{step.label}</p>
+                      <strong>{step.value}</strong>
+                    </div>
+                    {index < trackingSteps.length - 1 && (
+                      <span className="step-line" aria-hidden="true" />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -98,21 +120,29 @@ const Home = () => {
         </section>
 
         <section className="home-solutions" id="solutions">
-          <div className="solutions-copy">
-            <p className="home-kicker">Operations de livraison</p>
-            <h2>Tout le parcours colis, sans zone floue.</h2>
+          <div className="solutions-left">
+            <h2>
+              Découvrez toutes
+              <br />
+              nos solutions.
+            </h2>
             <p>
-              CongoTransit relie le bureau, les chauffeurs et les clients autour d'une meme information fiable.
+              Que vous soyez expéditeur régulier, opérateur logistique,
+              gestionnaire de flotte ou commerçant à Goma, découvrez tous nos
+              services CongoTransit.
             </p>
+            <button className="btn-outline">Contactez-nous !</button>
           </div>
 
           <div className="solution-grid">
             {solutions.map((solution) => (
               <article className="solution-card" key={solution.title}>
-                <div className="solution-icon">{solution.icon}</div>
+                <div className="solution-icon-wrapper">
+                  <div className="solution-icon">{solution.icon}</div>
+                </div>
                 <h3>{solution.title}</h3>
                 <p>{solution.text}</p>
-                <a href="#livraison">
+                <a href="#livraison" className="solution-link">
                   <IconArrowRight size={16} />
                   <span>En savoir plus</span>
                 </a>
@@ -127,14 +157,15 @@ const Home = () => {
             <h2>Des preuves de livraison visibles des que le colis bouge.</h2>
           </div>
           <p>
-            Statuts, horodatage, trajet et reception sont synchronises pour reduire les appels de relance et anticiper les retards.
+            Statuts, horodatage, trajet et reception sont synchronises pour
+            reduire les appels de relance et anticiper les retards.
           </p>
         </section>
       </main>
 
       <PublicFooter />
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

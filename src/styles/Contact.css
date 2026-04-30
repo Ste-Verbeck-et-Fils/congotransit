@@ -163,3 +163,38 @@
   margin-top: 0.5rem;
   gap: 0.5rem;
 }
+
+/* Toast Notification Styles */
+.contact-toast {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  background: var(--color-primary);
+  color: var(--color-white);
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-100px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1000;
+}
+
+.contact-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 480px) {
+  .contact-toast {
+    top: 1.5rem;
+    right: 1.5rem;
+    left: 1.5rem;
+    text-align: center;
+  }
+}

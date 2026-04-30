@@ -198,3 +198,26 @@ body.public-menu-open {
     display: none;
   }
 }
+
+@media (max-width: 290px) {
+  .public-brand,
+  .public-brand-static {
+    gap: 0.35rem;
+    font-size: 0.8rem;
+  }
+
+  .public-brand-logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .public-menu-button {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+  }
+
+  .public-mobile-panel {
+    width: 100vw;
+  }
+}

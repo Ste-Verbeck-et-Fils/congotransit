@@ -481,3 +481,148 @@
     padding: 1.45rem 1.6rem;
   }
 }
+
+@media (max-width: 430px) {
+  .home-hero {
+    padding: 0 1rem 4rem 1rem;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 5vw));
+  }
+
+  .home-hero-intro h1 {
+    font-size: 2.2rem;
+    line-height: 1.2;
+  }
+
+  .home-hero-intro p {
+    font-size: 0.95rem;
+  }
+
+  .tracking-input-row {
+    flex-direction: column;
+  }
+
+  .tracking-input-row button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tracking-card {
+    padding: 1rem;
+  }
+
+  .hero-status-panel {
+    padding: 1rem;
+  }
+
+  .home-stat {
+    padding: 1rem;
+  }
+
+  .home-stat strong {
+    font-size: 1.5rem;
+  }
+
+  .home-solutions {
+    padding: 3rem 0;
+  }
+
+  .solution-card {
+    padding: 1.5rem;
+  }
+
+  .home-solutions h2,
+  .delivery-band h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 290px) {
+  .home-hero {
+    padding: 0 0.5rem 3rem 0.5rem;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 3vw));
+  }
+
+  .home-hero-intro h1 {
+    font-size: 1.6rem;
+    line-height: 1.1;
+  }
+
+  .home-hero-intro p {
+    font-size: 0.85rem;
+  }
+
+  .tracking-card {
+    padding: 0.75rem;
+  }
+
+  .tracking-input-row input {
+    font-size: 0.85rem;
+    padding: 0 0.5rem;
+  }
+
+  .btn-primary {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .hero-status-panel {
+    padding: 0.75rem;
+  }
+
+  .hero-status-top strong {
+    font-size: 0.8rem;
+  }
+
+  .mini-map {
+    height: 120px;
+  }
+
+  .tracking-step p {
+    font-size: 0.75rem;
+  }
+
+  .tracking-step strong {
+    font-size: 0.7rem;
+  }
+
+  .home-stat {
+    padding: 0.85rem;
+  }
+
+  .home-stat strong {
+    font-size: 1.25rem;
+  }
+
+  .home-stat span {
+    font-size: 0.75rem;
+  }
+
+  .home-solutions {
+    padding: 2rem 0;
+  }
+
+  .solution-card {
+    padding: 1rem;
+  }
+
+  .solution-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .solution-card p {
+    font-size: 0.85rem;
+  }
+
+  .home-solutions h2,
+  .delivery-band h2 {
+    font-size: 1.25rem;
+  }
+
+  .delivery-band {
+    padding: 1rem;
+  }
+
+  .delivery-band > p {
+    font-size: 0.9rem;
+  }
+}

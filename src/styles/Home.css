@@ -16,6 +16,7 @@
   position: relative;
   overflow: visible;
   padding: 0 1.5rem 6rem 1.5rem;
+  margin-top: -2rem;
   background: var(--color-hero-bg);
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 6vw));
   margin-bottom: 3rem;
@@ -48,7 +49,7 @@
   line-height: 1.1;
   font-weight: 900;
   letter-spacing: -0.02em;
-  margin: 1rem 0 1.5rem 0;
+  margin: 2rem 0 1.5rem 0;
 }
 
 .home-hero-copy {

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import PublicFooter from "../components/layout/PublicFooter";
 import PublicHeader from "../components/layout/PublicHeader";
 import {
@@ -57,6 +58,7 @@ const Home = () => {
                   recherchiez une solution de suivi, nous proposons des
                   solutions logistiques innovantes.
                 </p>
+                <Link to="/contact" className="btn-primary" style={{ textDecoration: 'none' }}>Contactez-nous !</Link>
               </div>
 
               <form className="tracking-card" aria-label="Recherche de colis">
@@ -128,10 +130,10 @@ const Home = () => {
             </h2>
             <p>
               Que vous soyez expéditeur régulier, opérateur logistique,
-              gestionnaire de flotte ou commerçant à Goma, découvrez tous nos
+              Gestionnaire de flotte ou commerçant à Goma, découvrez tous nos
               services CongoTransit.
             </p>
-            <button className="btn-outline">Contactez-nous !</button>
+            <Link to="/contact" className="btn-outline" style={{ textDecoration: 'none', display: 'inline-flex' }}>Contactez-nous !</Link>
           </div>
 
           <div className="solution-grid">
@@ -142,10 +144,10 @@ const Home = () => {
                 </div>
                 <h3>{solution.title}</h3>
                 <p>{solution.text}</p>
-                <a href="#livraison" className="solution-link">
+                <Link to="/contact" className="solution-link">
                   <IconArrowRight size={16} />
                   <span>En savoir plus</span>
-                </a>
+                </Link>
               </article>
             ))}
           </div>

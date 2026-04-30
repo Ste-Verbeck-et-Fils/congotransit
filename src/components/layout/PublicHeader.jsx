@@ -7,7 +7,7 @@ const PUBLIC_NAV_ITEMS = [
   { href: '#suivi', label: 'Suivi' },
   { href: '#solutions', label: 'Solutions' },
   { href: '#livraison', label: 'Livraison' },
-  { href: '#contact', label: 'Contact' },
+  { href: '/contact', label: 'Contact' },
 ]
 
 const PublicHeader = () => {

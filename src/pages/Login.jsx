@@ -27,7 +27,7 @@ const Login = () => {
     }
 
     setMessage('')
-    navigate('/')
+    navigate('/dashboard')
   }
 
   const clearMessage = () => {

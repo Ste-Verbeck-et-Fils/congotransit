@@ -5,9 +5,9 @@ import "./PublicHeader.css";
 
 const PUBLIC_NAV_ITEMS = [
   { href: "/", label: "Accueil" },
-  { href: "#suivi", label: "Suivi" },
-  { href: "#solutions", label: "Solutions" },
-  { href: "#livraison", label: "Livraison" },
+  { href: "/#suivi", label: "Suivi" },
+  { href: "/#solutions", label: "Solutions" },
+  { href: "/#livraison", label: "Livraison" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -41,9 +41,9 @@ const PublicHeader = () => {
 
       <nav className="public-nav" aria-label="Navigation accueil">
         {PUBLIC_NAV_ITEMS.map((item) => (
-          <a key={item.href} href={item.href}>
+          <NavLink key={item.href} to={item.href}>
             {item.label}
-          </a>
+          </NavLink>
         ))}
       </nav>
 
@@ -93,9 +93,9 @@ const PublicHeader = () => {
           aria-label="Navigation mobile accueil"
         >
           {PUBLIC_NAV_ITEMS.map((item) => (
-            <a key={item.href} href={item.href} onClick={closeMenu}>
+            <NavLink key={item.href} to={item.href} onClick={closeMenu}>
               {item.label}
-            </a>
+            </NavLink>
           ))}
         </nav>
 

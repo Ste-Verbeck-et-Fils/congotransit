@@ -13,10 +13,10 @@ import {
 } from './Icons'
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Tableau de bord', icon: <IconDashboard size={20} /> },
-  { to: '/expedients', label: 'Expéditions', icon: <IconTruck size={20} /> },
-  { to: '/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },
-  { to: '/profil', label: 'Profil', icon: <IconUser size={20} /> },
+  { to: '/dashboard', label: 'Tableau de bord', icon: <IconDashboard size={20} /> },
+  { to: '/dashboard/expedients', label: 'Expéditions', icon: <IconTruck size={20} /> },
+  { to: '/dashboard/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },
+  { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
 ]
 
 const NavigationLinks = ({ variant = 'desktop', onNavigate }) => (
@@ -25,7 +25,7 @@ const NavigationLinks = ({ variant = 'desktop', onNavigate }) => (
       <NavLink
         key={item.to}
         to={item.to}
-        end={item.to === '/'}
+        end={item.to === '/dashboard'}
         className={({ isActive }) => `${variant}-nav-link ${isActive ? 'active' : ''}`}
         onClick={onNavigate}
       >
@@ -45,7 +45,7 @@ const LogoutButton = ({ variant = 'desktop' }) => (
 
 const DesktopSidebar = () => (
   <aside className="desktop-sidebar">
-    <NavLink to="/" className="sidebar-brand" aria-label="Congo Transit">
+    <NavLink to="/dashboard" className="sidebar-brand" aria-label="Congo Transit">
       <img src="/favicon.png" alt="" className="sidebar-logo" />
       <span className="sidebar-brand-text">CONGO TRANSIT</span>
     </NavLink>
@@ -81,7 +81,7 @@ export const TopBar = () => {
       <DesktopSidebar />
 
       <header className="top-bar">
-        <NavLink to="/" className="mobile-brand" aria-label="Congo Transit">
+        <NavLink to="/dashboard" className="mobile-brand" aria-label="Congo Transit">
           <img src="/favicon.png" alt="Congo Transit" className="logo-img" />
           <span className="logo-text">CONGO TRANSIT</span>
         </NavLink>
@@ -92,7 +92,7 @@ export const TopBar = () => {
             <span className="notification-dot" aria-hidden="true" />
           </button>
 
-          <NavLink to="/profil" className="profile-action" aria-label="Profil utilisateur">
+          <NavLink to="/dashboard/profil" className="profile-action" aria-label="Profil utilisateur">
             <IconUser size={20} />
           </NavLink>
 

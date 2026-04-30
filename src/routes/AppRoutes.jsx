@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from '../layout/MainLayout.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
+import Home from '../pages/Home.jsx'
 import Login from '../pages/Login.jsx'
 
 const PlaceholderPage = ({ title, description }) => (
@@ -18,8 +19,9 @@ const PlaceholderPage = ({ title, description }) => (
 const AppRoutes = () => {
   return (
     <Routes>
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<MainLayout />}>
+      <Route path="/dashboard" element={<MainLayout />}>
         <Route index element={<Dashboard />} />
         <Route
           path="expedients"

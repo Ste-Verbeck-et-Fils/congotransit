@@ -58,7 +58,6 @@ const Home = () => {
                   recherchiez une solution de suivi, nous proposons des
                   solutions logistiques innovantes.
                 </p>
-                <Link to="/contact" className="btn-primary" style={{ textDecoration: 'none' }}>Contactez-nous !</Link>
               </div>
 
               <form className="tracking-card" aria-label="Recherche de colis">
@@ -133,7 +132,13 @@ const Home = () => {
               Gestionnaire de flotte ou commerçant à Goma, découvrez tous nos
               services CongoTransit.
             </p>
-            <Link to="/contact" className="btn-outline" style={{ textDecoration: 'none', display: 'inline-flex' }}>Contactez-nous !</Link>
+            <Link
+              to="/contact"
+              className="btn-outline"
+              style={{ textDecoration: "none", display: "inline-flex" }}
+            >
+              Contactez-nous !
+            </Link>
           </div>
 
           <div className="solution-grid">

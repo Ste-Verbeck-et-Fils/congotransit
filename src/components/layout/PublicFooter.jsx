@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import "./PublicFooter.css";
 
 const PublicFooter = () => {
@@ -42,7 +42,7 @@ const PublicFooter = () => {
             <a href="#about">À propos</a>
             <a href="#carrieres">Carrières</a>
             <a href="#blog">Blog & Actualités</a>
-            <a href="#contact">Contactez-nous</a>
+            <Link to="/contact">Contactez-nous</Link>
           </div>
 
           <div className="footer-contact-col">

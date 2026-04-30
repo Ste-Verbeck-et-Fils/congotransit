@@ -8,6 +8,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+main {
+  /* Fix subpixel rounding gap between sticky header and main content */
+  margin-top: -1px;
+}
+
 /* Container & Grid Utilities */
 .container {
   width: 100%;

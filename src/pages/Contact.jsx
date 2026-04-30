@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PublicHeader from '../components/layout/PublicHeader'
 import PublicFooter from '../components/layout/PublicFooter'
@@ -7,8 +7,20 @@ import '../styles/Contact.css'
 import heroImage from '../assets/images/nature.jpg'
 
 const Contact = () => {
+  const [showToast, setShowToast] = useState(false);
+
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => setShowToast(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showToast]);
+
   return (
     <div className="home-page contact-page">
+      <div className={`contact-toast ${showToast ? 'show' : ''}`}>
+        Votre message a bien été envoyé !
+      </div>
       <PublicHeader />
 
       <main>
@@ -42,7 +54,11 @@ const Contact = () => {
 
           <div className="contact-form-container">
             <h2>Envoyez-nous un message</h2>
-            <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
+            <form className="contact-form" onSubmit={(e) => {
+              e.preventDefault();
+              e.target.reset();
+              setShowToast(true);
+            }}>
               <div className="form-group">
                 <label htmlFor="name">Nom complet</label>
                 <input type="text" id="name" placeholder="Votre nom" required />

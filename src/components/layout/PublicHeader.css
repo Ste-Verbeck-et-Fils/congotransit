@@ -9,7 +9,8 @@
   justify-content: space-between;
   gap: 1rem;
   margin: 0 auto;
-  padding: 0.65rem 0;
+  padding: 0 1%;
+  border-radius: 0.7rem;
   background: rgba(255, 255, 255, 0.84);
   backdrop-filter: blur(18px);
 }
@@ -71,7 +72,9 @@
   padding: 0 1rem;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .public-login-link:hover,
@@ -109,7 +112,9 @@
   background: rgba(8, 28, 12, 0.38);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
 }
 
 .public-menu-backdrop.open {
@@ -132,7 +137,9 @@
   border-left: 1px solid #e4ebe6;
   box-shadow: -12px 0 30px rgba(9, 43, 18, 0.12);
   visibility: hidden;
-  transition: right 0.24s ease, visibility 0.24s ease;
+  transition:
+    right 0.24s ease,
+    visibility 0.24s ease;
 }
 
 .public-mobile-panel.open {

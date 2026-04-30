@@ -10,6 +10,11 @@
   --color-gray-soft: #f8faf9;
   --color-text-dark: #1a1a1a;
   --color-text-muted: #666666;
+  --color-home-surface: #f2f7f3;
+  --color-home-surface-strong: #e6f1e8;
+  --color-home-line: #dce8df;
+  --color-home-accent: #f59e0b;
+  --color-home-danger: #b42318;
 
   --font-body: "Inter", sans-serif;
   --font-heading: "Montserrat", sans-serif;

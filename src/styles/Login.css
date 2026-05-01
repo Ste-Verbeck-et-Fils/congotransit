@@ -61,6 +61,24 @@
   margin-bottom: 2.25rem;
 }
 
+.auth-title-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth-title-row h1 {
+  margin-bottom: 0;
+}
+
+.auth-title-row p {
+  color: #727572;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .login-password-toggle {
   position: absolute;
   top: 50%;
@@ -100,6 +118,24 @@
   line-height: 1.55;
   text-align: center;
   text-transform: uppercase;
+}
+
+.auth-switch {
+  margin-top: 1rem;
+  color: #6d716d;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.auth-switch a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
 }
 
 .login-brand-copy {
@@ -142,6 +178,11 @@
     align-items: stretch;
     justify-content: stretch;
     grid-template-columns: 0.92fr 1fr;
+  }
+
+  .register-shell {
+    max-width: 920px;
+    height: min(560px, calc(100dvh - 2rem));
   }
 
   .login-brand-panel {
@@ -188,12 +229,24 @@
     margin: 0 auto;
   }
 
+  .register-form {
+    max-width: 330px;
+  }
+
   .login-form h1 {
     margin-bottom: 1.65rem;
   }
 
+  .auth-title-row h1 {
+    margin-bottom: 0;
+  }
+
   .login-footnote {
     margin-top: 2.1rem;
+  }
+
+  .register-form-panel .login-footnote {
+    margin-top: 1.45rem;
   }
 }
 

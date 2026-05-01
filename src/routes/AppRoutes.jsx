@@ -4,6 +4,7 @@ import MainLayout from '../layout/MainLayout.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Home from '../pages/Home.jsx'
 import Login from '../pages/Login.jsx'
+import Register from '../pages/Register.jsx'
 import Contact from '../pages/Contact.jsx'
 
 const PlaceholderPage = ({ title, description }) => (
@@ -23,6 +24,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Home />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/dashboard" element={<MainLayout />}>
         <Route index element={<Dashboard />} />
         <Route

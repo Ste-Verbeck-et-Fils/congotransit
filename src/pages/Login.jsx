@@ -1,27 +1,48 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { IconArrowRight, IconBox, IconEye, IconEyeOff } from '../components/ui/Icons'
+import { Link, useNavigate } from 'react-router-dom'
+import { IconArrowRight, IconBox, IconEye, IconEyeOff, IconPhone } from '../components/ui/Icons'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import deliveryImage from '../assets/images/livraison.avif'
 import '../styles/Login.css'
 
+const getRegisteredUser = () => {
+  const storedUser = sessionStorage.getItem('congotransit.pendingUser')
+
+  if (!storedUser) return null
+
+  try {
+    return JSON.parse(storedUser)
+  } catch {
+    return null
+  }
+}
+
 const Login = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
-  const [username, setUsername] = useState('')
+  const [telephone, setTelephone] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
 
   const handleSubmit = (event) => {
     event.preventDefault()
+    const cleanTelephone = telephone.replace(/\s+/g, '')
 
-    if (!username.trim() || !password) {
-      setMessage("Veuillez renseigner le nom d'utilisateur et le mot de passe.")
+    if (!cleanTelephone || !password) {
+      setMessage('Veuillez renseigner le telephone et le mot de passe.')
       return
     }
 
-    if (username.trim() !== 'admin' || password !== 'admin') {
+    const registeredUser = getRegisteredUser()
+    const matchesRegisteredUser = (
+      registeredUser?.telephone === cleanTelephone
+      && registeredUser?.password === password
+      && registeredUser?.status === 'actif'
+    )
+    const matchesAdminDemo = cleanTelephone === 'admin' && password === 'admin'
+
+    if (!matchesRegisteredUser && !matchesAdminDemo) {
       setMessage("Identifiants incorrects. Verifiez vos informations puis reessayez.")
       return
     }
@@ -57,16 +78,17 @@ const Login = () => {
             <h1>Connexion</h1>
 
             <Input
-              id="login-username"
-              name="username"
-              label="Nom d'utilisateur"
-              type="text"
-              placeholder="ex: admin_goma"
-              autoComplete="username"
+              id="login-telephone"
+              name="telephone"
+              label="Telephone"
+              type="tel"
+              placeholder="ex: +243 990 000 000"
+              autoComplete="tel"
               variant="login"
-              value={username}
+              icon={<IconPhone size={16} />}
+              value={telephone}
               onChange={(event) => {
-                setUsername(event.target.value)
+                setTelephone(event.target.value)
                 clearMessage()
               }}
               aria-invalid={Boolean(message)}
@@ -109,6 +131,11 @@ const Login = () => {
             <Button className="btn-full" type="submit" icon={<IconArrowRight size={16} />} iconPosition="right">
               Se connecter
             </Button>
+
+            <p className="auth-switch">
+              Pas encore de compte ?
+              <Link to="/register"> Creer un compte</Link>
+            </p>
           </form>
 
           <p className="login-footnote">

@@ -103,6 +103,16 @@
   font: 500 0.82rem var(--font-body);
 }
 
+.input-login .input-icon {
+  width: 18px;
+  margin: 0 0 0 0.82rem;
+  color: #5e655f;
+}
+
+.input-login .input-icon + .input-field {
+  padding-left: 0.58rem;
+}
+
 .input-login .input-field::placeholder {
   color: #9b9b9b;
   opacity: 0.78;

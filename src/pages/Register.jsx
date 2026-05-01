@@ -64,7 +64,11 @@ const Register = () => {
 
     sessionStorage.setItem('congotransit.pendingUser', JSON.stringify(userRecord))
     setMessage('')
-    navigate('/login')
+    navigate('/login', {
+      state: {
+        successMessage: 'Compte cree avec succes. Connectez-vous.',
+      },
+    })
   }
 
   return (

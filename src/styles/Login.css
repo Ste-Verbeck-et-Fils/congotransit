@@ -106,6 +106,10 @@
   margin: -0.25rem 0 0.65rem;
 }
 
+.login-message-success {
+  color: var(--color-primary);
+}
+
 .login-password-toggle:hover {
   background: rgba(255, 255, 255, 0.45);
 }

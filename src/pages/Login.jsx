@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { IconArrowRight, IconBox, IconEye, IconEyeOff, IconPhone } from '../components/ui/Icons'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -20,16 +20,19 @@ const getRegisteredUser = () => {
 
 const Login = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [showPassword, setShowPassword] = useState(false)
   const [telephone, setTelephone] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState(location.state?.successMessage || '')
 
   const handleSubmit = (event) => {
     event.preventDefault()
     const cleanTelephone = telephone.replace(/\s+/g, '')
 
     if (!cleanTelephone || !password) {
+      setSuccessMessage('')
       setMessage('Veuillez renseigner le telephone et le mot de passe.')
       return
     }
@@ -43,6 +46,7 @@ const Login = () => {
     const matchesAdminDemo = cleanTelephone === 'admin' && password === 'admin'
 
     if (!matchesRegisteredUser && !matchesAdminDemo) {
+      setSuccessMessage('')
       setMessage("Identifiants incorrects. Verifiez vos informations puis reessayez.")
       return
     }
@@ -53,6 +57,7 @@ const Login = () => {
 
   const clearMessage = () => {
     if (message) setMessage('')
+    if (successMessage) setSuccessMessage('')
   }
 
   return (
@@ -125,6 +130,12 @@ const Login = () => {
             {message && (
               <p className="login-message" id="login-message" role="alert">
                 {message}
+              </p>
+            )}
+
+            {successMessage && !message && (
+              <p className="login-message login-message-success" id="login-message" role="status">
+                {successMessage}
               </p>
             )}
 

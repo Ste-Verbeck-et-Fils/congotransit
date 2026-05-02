@@ -9,14 +9,10 @@ const KPIS = [
   { icon: <IconPin size={20} color="#2b6623" />,               label: 'Livrés',        value: '891',   trend: '+22%', up: true  },
 ]
 
-const BAR_DATA = [
-  { label: 'Lun', value: 42 },
-  { label: 'Mar', value: 68 },
-  { label: 'Mer', value: 55 },
-  { label: 'Jeu', value: 81 },
-  { label: 'Ven', value: 74 },
-  { label: 'Sam', value: 33 },
-  { label: 'Dim', value: 20 },
+const FLOW_DATA = [
+  { label: 'Enregistrement', value: 284, percent: 72, color: 'var(--color-primary)' },
+  { label: 'Transit actif', value: 342, percent: 58, color: '#f59e0b' },
+  { label: 'Livraison', value: 891, percent: 86, color: '#2b6623' },
 ]
 
 const todayLabel = new Intl.DateTimeFormat('fr-FR', {
@@ -26,39 +22,27 @@ const todayLabel = new Intl.DateTimeFormat('fr-FR', {
   year: 'numeric',
 }).format(new Date())
 
-/* ── Graphique à barres SVG ─────────────────────────────────── */
-const BarChart = ({ data }) => {
-  const max = Math.max(...data.map(d => d.value))
-  const H = 92
-  const BAR_W = 22
-  const GAP = 12
-  const W = data.length * (BAR_W + GAP) - GAP
-
-  return (
-    <svg viewBox={`0 0 ${W} ${H + 20}`} width="100%" style={{ overflow: 'visible' }}>
-      {data.map((d, i) => {
-        const barH = (d.value / max) * H
-        const x = i * (BAR_W + GAP)
-        const y = H - barH
-        return (
-          <g key={i}>
-            {/* Barre fond */}
-            <rect x={x} y={0} width={BAR_W} height={H} rx={6} fill="#f2f4f3" />
-            {/* Barre valeur */}
-            <rect x={x} y={y} width={BAR_W} height={barH} rx={6} fill="var(--color-primary)" opacity={0.85}>
-              <animate attributeName="height" from="0" to={barH} dur="0.6s" fill="freeze" />
-              <animate attributeName="y" from={H} to={y} dur="0.6s" fill="freeze" />
-            </rect>
-            {/* Label jour */}
-            <text x={x + BAR_W / 2} y={H + 14} textAnchor="middle" fontSize="9" fill="#9ca3af" fontFamily="Inter,sans-serif">
-              {d.label}
-            </text>
-          </g>
-        )
-      })}
-    </svg>
-  )
-}
+const TransitFlow = ({ data }) => (
+  <div className="flow-chart" aria-label="Progression des colis">
+    {data.map((item) => (
+      <div className="flow-item" key={item.label}>
+        <div className="flow-meta">
+          <span className="flow-label">{item.label}</span>
+          <strong className="flow-value">{item.value}</strong>
+        </div>
+        <div className="flow-track" aria-hidden="true">
+          <span
+            className="flow-fill"
+            style={{
+              '--flow-color': item.color,
+              '--flow-width': `${item.percent}%`,
+            }}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+)
 
 /* ── Dashboard ──────────────────────────────────────────────── */
 const Dashboard = () => (
@@ -91,17 +75,11 @@ const Dashboard = () => (
       ))}
     </div>
 
-    {/* Graphique */}
     <div className="dash-grid">
-
-      {/* Graphique à barres */}
       <div className="card-panel">
-        <p className="panel-title">Colis enregistrés cette semaine</p>
-        <div className="chart-wrap">
-          <BarChart data={BAR_DATA} />
-        </div>
+        <p className="panel-title">Flux operationnel des colis</p>
+        <TransitFlow data={FLOW_DATA} />
       </div>
-
     </div>
   </div>
 )

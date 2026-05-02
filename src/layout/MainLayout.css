@@ -3,14 +3,17 @@
   display: flex;
   flex-direction: column;
   background-color: var(--color-gray-soft);
+  overflow-x: hidden;
 }
 
 .layout-content {
   flex: 1;
-  padding: var(--spacing-md);
+  min-width: 0;
+  padding: 0.85rem;
   max-width: var(--breakpoint-xl);
   margin: 0 auto;
   width: 100%;
+  overflow-x: hidden;
 }
 
 @media (min-width: 992px) {
@@ -20,6 +23,12 @@
   }
   
   .layout-content {
-    padding: var(--spacing-xl);
+    padding: 1.35rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .layout-content {
+    padding: 0.65rem;
   }
 }

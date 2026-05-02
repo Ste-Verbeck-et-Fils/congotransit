@@ -332,3 +332,9 @@ body.menu-open {
     gap: 0.5rem;
   }
 }
+
+@media (max-width: 249px) {
+  .top-bar .logo-text {
+    display: none;
+  }
+}

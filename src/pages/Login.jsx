@@ -3,20 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { IconArrowRight, IconBox, IconEye, IconEyeOff, IconPhone } from '../components/ui/Icons'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import { apiRequest } from '../lib/api'
 import deliveryImage from '../assets/images/livraison.avif'
 import '../styles/Login.css'
-
-const getRegisteredUser = () => {
-  const storedUser = sessionStorage.getItem('congotransit.pendingUser')
-
-  if (!storedUser) return null
-
-  try {
-    return JSON.parse(storedUser)
-  } catch {
-    return null
-  }
-}
 
 const Login = () => {
   const navigate = useNavigate()
@@ -26,8 +15,9 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState(location.state?.successMessage || '')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     const cleanTelephone = telephone.replace(/\s+/g, '')
 
@@ -37,22 +27,28 @@ const Login = () => {
       return
     }
 
-    const registeredUser = getRegisteredUser()
-    const matchesRegisteredUser = (
-      registeredUser?.telephone === cleanTelephone
-      && registeredUser?.password === password
-      && registeredUser?.status === 'actif'
-    )
-    const matchesAdminDemo = cleanTelephone === 'admin' && password === 'admin'
+    setIsSubmitting(true)
 
-    if (!matchesRegisteredUser && !matchesAdminDemo) {
+    try {
+      const data = await apiRequest('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          telephone: cleanTelephone,
+          password,
+        }),
+      })
+
+      localStorage.setItem('congotransit.token', data.token)
+      localStorage.setItem('congotransit.user', JSON.stringify(data.user))
       setSuccessMessage('')
-      setMessage("Identifiants incorrects. Verifiez vos informations puis reessayez.")
-      return
+      setMessage('')
+      navigate('/dashboard')
+    } catch (error) {
+      setSuccessMessage('')
+      setMessage(error.message)
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setMessage('')
-    navigate('/dashboard')
   }
 
   const clearMessage = () => {
@@ -139,8 +135,8 @@ const Login = () => {
               </p>
             )}
 
-            <Button className="btn-full" type="submit" icon={<IconArrowRight size={16} />} iconPosition="right">
-              Se connecter
+            <Button className="btn-full" type="submit" icon={<IconArrowRight size={16} />} iconPosition="right" disabled={isSubmitting}>
+              {isSubmitting ? 'Connexion...' : 'Se connecter'}
             </Button>
 
             <p className="auth-switch">

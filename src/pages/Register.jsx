@@ -10,6 +10,7 @@ import {
 } from '../components/ui/Icons'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import { apiRequest } from '../lib/api'
 import deliveryImage from '../assets/images/livraison.avif'
 import '../styles/Login.css'
 
@@ -22,12 +23,13 @@ const Register = () => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const clearMessage = () => {
     if (message) setMessage('')
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
 
     const cleanNoms = noms.trim()
@@ -53,22 +55,29 @@ const Register = () => {
       return
     }
 
-    const userRecord = {
-      id: crypto.randomUUID(),
-      noms: cleanNoms,
-      telephone: cleanTelephone,
-      password,
-      status: 'actif',
-      created_at: new Date().toISOString(),
-    }
+    setIsSubmitting(true)
 
-    sessionStorage.setItem('congotransit.pendingUser', JSON.stringify(userRecord))
-    setMessage('')
-    navigate('/login', {
-      state: {
-        successMessage: 'Compte cree avec succes. Connectez-vous.',
-      },
-    })
+    try {
+      await apiRequest('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          noms: cleanNoms,
+          telephone: cleanTelephone,
+          password,
+        }),
+      })
+
+      setMessage('')
+      navigate('/login', {
+        state: {
+          successMessage: 'Compte cree avec succes. Connectez-vous.',
+        },
+      })
+    } catch (error) {
+      setMessage(error.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -192,8 +201,8 @@ const Register = () => {
               </p>
             )}
 
-            <Button className="btn-full" type="submit" icon={<IconArrowRight size={16} />} iconPosition="right">
-              Creer le compte
+            <Button className="btn-full" type="submit" icon={<IconArrowRight size={16} />} iconPosition="right" disabled={isSubmitting}>
+              {isSubmitting ? 'Creation...' : 'Creer le compte'}
             </Button>
 
             <p className="auth-switch">

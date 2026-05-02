@@ -6,6 +6,7 @@ import Home from '../pages/Home.jsx'
 import Login from '../pages/Login.jsx'
 import Register from '../pages/Register.jsx'
 import Contact from '../pages/Contact.jsx'
+import ProtectedRoute from './ProtectedRoute.jsx'
 
 const PlaceholderPage = ({ title, description }) => (
   <section className="placeholder-page fade-in">
@@ -25,20 +26,22 @@ const AppRoutes = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={<MainLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route
-          path="expedients"
-          element={<PlaceholderPage title="Expeditions" description="Gerez les colis, expediteurs et destinataires depuis un espace dedie." />}
-        />
-        <Route
-          path="trajet"
-          element={<PlaceholderPage title="Suivi trajet" description="Consultez les mouvements, etapes et anomalies de transit." />}
-        />
-        <Route
-          path="profil"
-          element={<PlaceholderPage title="Profil" description="Mettez a jour les informations du compte et les preferences de securite." />}
-        />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<MainLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route
+            path="expedients"
+            element={<PlaceholderPage title="Expeditions" description="Gerez les colis, expediteurs et destinataires depuis un espace dedie." />}
+          />
+          <Route
+            path="trajet"
+            element={<PlaceholderPage title="Suivi trajet" description="Consultez les mouvements, etapes et anomalies de transit." />}
+          />
+          <Route
+            path="profil"
+            element={<PlaceholderPage title="Profil" description="Mettez a jour les informations du compte et les preferences de securite." />}
+          />
+        </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

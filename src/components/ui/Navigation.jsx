@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import './Navigation.css'
 import {
   IconBell,
@@ -36,29 +36,35 @@ const NavigationLinks = ({ variant = 'desktop', onNavigate }) => (
   </nav>
 )
 
-const LogoutButton = ({ variant = 'desktop' }) => (
-  <button className={`${variant}-logout-link`} type="button">
+const LogoutButton = ({ variant = 'desktop', onLogout }) => (
+  <button className={`${variant}-logout-link`} type="button" onClick={onLogout}>
     <span className={`${variant}-nav-icon`}><IconLogout size={20} /></span>
     <span>Deconnexion</span>
   </button>
 )
 
-const DesktopSidebar = () => (
+const DesktopSidebar = ({ onLogout }) => (
   <aside className="desktop-sidebar">
     <NavLink to="/dashboard" className="sidebar-brand" aria-label="Congo Transit">
       <img src="/favicon.png" alt="" className="sidebar-logo" />
       <span className="sidebar-brand-text">CONGO TRANSIT</span>
     </NavLink>
     <NavigationLinks />
-    <LogoutButton />
+    <LogoutButton onLogout={onLogout} />
   </aside>
 )
 
 export const TopBar = () => {
+  const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const openMenu = () => setIsMenuOpen(true)
   const closeMenu = () => setIsMenuOpen(false)
+  const handleLogout = () => {
+    localStorage.removeItem('congotransit.token')
+    localStorage.removeItem('congotransit.user')
+    navigate('/login', { replace: true })
+  }
 
   useEffect(() => {
     if (!isMenuOpen) return undefined
@@ -78,7 +84,7 @@ export const TopBar = () => {
 
   return (
     <>
-      <DesktopSidebar />
+      <DesktopSidebar onLogout={handleLogout} />
 
       <header className="top-bar">
         <NavLink to="/dashboard" className="mobile-brand" aria-label="Congo Transit">
@@ -96,7 +102,7 @@ export const TopBar = () => {
             <IconUser size={20} />
           </NavLink>
 
-          <button className="logout-btn" type="button" aria-label="Déconnexion">
+          <button className="logout-btn" type="button" aria-label="Déconnexion" onClick={handleLogout}>
             <IconLogout size={19} />
           </button>
         </div>
@@ -130,7 +136,7 @@ export const TopBar = () => {
         </div>
 
         <NavigationLinks variant="mobile" onNavigate={closeMenu} />
-        <LogoutButton variant="mobile" />
+        <LogoutButton variant="mobile" onLogout={handleLogout} />
       </div>
     </>
   )

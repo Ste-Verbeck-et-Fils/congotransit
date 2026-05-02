@@ -16,6 +16,7 @@ const Button = ({
   type = 'button',
   icon,
   iconPosition = 'left',
+  ...props
 }) => {
   const buttonIcon = icon === undefined ? DEFAULT_ICONS[variant] : icon
 
@@ -24,6 +25,7 @@ const Button = ({
       className={`btn btn-${variant} ${className}`} 
       onClick={onClick} 
       type={type}
+      {...props}
     >
       {buttonIcon && iconPosition === 'left' && <span className="btn-icon">{buttonIcon}</span>}
       <span className="btn-text">{children}</span>

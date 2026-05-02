@@ -143,6 +143,8 @@ const Login = () => {
               Pas encore de compte ?
               <Link to="/register"> Creer un compte</Link>
             </p>
+
+            <Link to="/" className="auth-home-link">Retour a l'accueil</Link>
           </form>
 
           <p className="login-footnote">

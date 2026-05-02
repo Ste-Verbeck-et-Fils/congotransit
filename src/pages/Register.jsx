@@ -209,6 +209,8 @@ const Register = () => {
               Deja inscrit ?
               <Link to="/login"> Se connecter</Link>
             </p>
+
+            <Link to="/" className="auth-home-link">Retour a l'accueil</Link>
           </form>
 
           <p className="login-footnote">

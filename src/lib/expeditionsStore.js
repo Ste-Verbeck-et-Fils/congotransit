@@ -94,3 +94,34 @@ export const createExpedition = (payload) => {
   writeExpeditions([...items, created])
   return created
 }
+
+export const updateExpeditionByNumero = (numero, payload) => {
+  const items = readExpeditions()
+  let updated = null
+
+  const nextItems = items.map((item) => {
+    if (item.numero !== numero) return item
+
+    const montantTotal = payload.colis.reduce((sum, colis) => sum + Number(colis.valeur || 0), 0)
+    updated = {
+      ...item,
+      ...payload,
+      numero,
+      montantTotal,
+    }
+
+    return updated
+  })
+
+  if (!updated) return null
+
+  writeExpeditions(nextItems)
+  return updated
+}
+
+export const deleteExpeditionByNumero = (numero) => {
+  const items = readExpeditions()
+  const nextItems = items.filter((item) => item.numero !== numero)
+  writeExpeditions(nextItems)
+  return nextItems.length !== items.length
+}

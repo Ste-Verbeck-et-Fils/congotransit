@@ -25,22 +25,26 @@ const ExpeditionDetail = () => {
 
   return (
     <section className="expedition-detail-page fade-in" aria-label="Detail expedition">
-      <header className="expedition-detail-header">
+      <header style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
         <div>
-          <h1>Detail expedition</h1>
-          <p>{expedition.numero} - {expedition.statut}</p>
+          <h1 style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)', fontSize: 'clamp(1.35rem, 2.8vw, 1.9rem)', lineHeight: 1.1 }}>Detail expedition</h1>
+          <p style={{ color: 'var(--color-text-muted)', marginTop: '0.35rem' }}>{expedition.numero} - {expedition.statut}</p>
         </div>
-
-        <div className="expedition-detail-actions">
-          <Button
-          variant="outline"
-          type="button"
-          icon={null}
-          onClick={() => navigate('/dashboard/expedients')}
-        >
-          Retour
-        </Button>
-         
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap: '0.5rem', flexShrink: 0 }}>
+          <button
+            type="button"
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 'auto', minWidth: '110px', height: '40px', padding: '0 1.2rem', background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: 'var(--radius-md)', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
+            onClick={() => navigate(`/dashboard/expedients/${expedition.numero}/modifier`)}
+          >
+            Modifier
+          </button>
+          <button
+            type="button"
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 'auto', minWidth: '100px', height: '40px', padding: '0 1.2rem', background: 'transparent', color: 'var(--color-primary)', border: '1.5px solid var(--color-primary)', borderRadius: 'var(--radius-md)', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
+            onClick={() => navigate('/dashboard/expedients')}
+          >
+            Retour
+          </button>
         </div>
       </header>
 

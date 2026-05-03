@@ -41,6 +41,10 @@ const AppRoutes = () => {
             element={<Expedients />}
           />
           <Route
+            path="expedients/:expeditionNumero/modifier"
+            element={<Expedients />}
+          />
+          <Route
             path="expedients/:expeditionNumero"
             element={<ExpeditionDetail />}
           />

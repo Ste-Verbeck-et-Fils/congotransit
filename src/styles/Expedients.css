@@ -197,6 +197,16 @@
   color: var(--color-text-muted);
 }
 
+.expeditions-search-row {
+  width: 60%;
+  max-width: none;
+  margin: 0 auto;
+}
+
+.expeditions-search-row .input-container {
+  margin-bottom: 0;
+}
+
 .expeditions-table-card {
   background: transparent;
   border: none;
@@ -223,6 +233,8 @@
   font-weight: 700;
   border: 1px solid #edf2ee;
   border-radius: var(--radius-md);
+  width: 80%;
+  margin: 0 auto;
 }
 
 .expeditions-table-body {
@@ -236,6 +248,28 @@
   border-radius: var(--radius-md);
   background: var(--color-white);
   box-shadow: var(--shadow-sm);
+  width: 80%;
+  margin: 0 auto;
+}
+
+.expeditions-empty-state {
+  border: 1px dashed #d7e1d9;
+  border-radius: var(--radius-md);
+  background: #f8fbf9;
+  padding: var(--spacing-lg);
+  width: 80%;
+  margin: 0 auto;
+}
+
+.expeditions-empty-state h3 {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: 1.02rem;
+}
+
+.expeditions-empty-state p {
+  color: var(--color-text-muted);
+  margin-top: 0.2rem;
 }
 
 .expeditions-main-cell {
@@ -264,6 +298,64 @@
   background: #eaf4ec;
 }
 
+.expeditions-actions-menu {
+  position: relative;
+  display: inline-flex;
+  justify-content: flex-end;
+}
+
+.expeditions-actions-trigger {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid #dbe6dd;
+  background: var(--color-white);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.expeditions-actions-trigger:hover {
+  background: #f6faf7;
+}
+
+.expeditions-actions-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 15;
+  min-width: 140px;
+  border-radius: var(--radius-md);
+  border: 1px solid #dbe6dd;
+  background: var(--color-white);
+  box-shadow: var(--shadow-md);
+  padding: 0.3rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.expeditions-actions-dropdown button {
+  min-height: 34px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-dark);
+  text-align: left;
+  padding: 0 0.65rem;
+  font: 600 0.82rem var(--font-body);
+  cursor: pointer;
+}
+
+.expeditions-actions-dropdown button:hover {
+  background: #f6faf7;
+}
+
+.expeditions-actions-dropdown button.danger {
+  color: #b42318;
+}
+
 .expedition-detail-page {
   width: 100%;
   max-width: 760px;
@@ -274,8 +366,9 @@
 
 .expedition-detail-header {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--spacing-md);
 }
 
@@ -293,7 +386,34 @@
 
 .expedition-detail-actions {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.expedition-action-btn {
+  width: auto !important;
+  min-width: 110px;
+  min-height: 40px;
+  height: 40px;
+  white-space: nowrap;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 576px) {
+  .expedition-detail-actions {
+    gap: var(--spacing-xs);
+    justify-content: start;
+  }
+
+  .expedition-action-btn {
+    width: 110px !important;
+    min-width: 110px;
+  }
 }
 
 .expedition-detail-card {
@@ -402,9 +522,39 @@
 }
 
 @media (max-width: 640px) {
-  .expeditions-list-header,
-  .expedition-detail-header {
+  .expeditions-list-header {
     flex-direction: column;
+  }
+
+  .expedition-detail-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: var(--spacing-sm);
+  }
+
+  .expedition-detail-actions {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+  }
+
+  .expedition-detail-actions .btn.expedition-action-btn {
+    width: auto !important;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  .expeditions-table-head,
+  .expeditions-row,
+  .expeditions-empty-state {
+    width: 100%;
+  }
+
+  .expeditions-search-row {
+    max-width: 100%;
   }
 
   .expeditions-table-head {
@@ -417,6 +567,11 @@
   }
 
   .expeditions-row .btn {
+    width: 100%;
+  }
+
+  .expeditions-actions-menu,
+  .expeditions-actions-trigger {
     width: 100%;
   }
 

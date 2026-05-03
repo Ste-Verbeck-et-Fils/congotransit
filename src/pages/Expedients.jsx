@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import { IconBox, IconPlus } from '../components/ui/Icons'
-import { createExpedition } from '../lib/expeditionsStore'
+import { createExpedition, getExpeditionByNumero, updateExpeditionByNumero } from '../lib/expeditionsStore'
 import '../styles/Expedients.css'
 
 const buildOption = (value, label) => ({ value, label })
@@ -43,10 +43,31 @@ const createColis = (id) => ({
   valeur: 70 + id * 35,
 })
 
+const findOrCreateOption = (options, label, prefix) => {
+  if (!label) return { options, selectedValue: '' }
+
+  const normalizedLabel = label.trim().toLowerCase()
+  const existing = options.find((option) => option.label.trim().toLowerCase() === normalizedLabel)
+  if (existing) return { options, selectedValue: existing.value }
+
+  const value = `${prefix}-${options.length}`
+  return {
+    options: [...options, buildOption(value, label)],
+    selectedValue: value,
+  }
+}
+
 /* Ce composant affiche un formulaire d'expedition interactif en frontend uniquement. */
 const Expedients = () => {
   const navigate = useNavigate()
-  const [expediteurOptions] = useState(defaultExpediteurs)
+  const { expeditionNumero } = useParams()
+  const isEditMode = Boolean(expeditionNumero)
+  const expedition = useMemo(
+    () => (isEditMode ? getExpeditionByNumero(expeditionNumero) : null),
+    [isEditMode, expeditionNumero],
+  )
+
+  const [expediteurOptions, setExpediteurOptions] = useState(defaultExpediteurs)
   const [destinataireOptions, setDestinataireOptions] = useState(defaultDestinataires)
   const [agenceOptions, setAgenceOptions] = useState(defaultAgences)
 
@@ -58,6 +79,33 @@ const Expedients = () => {
   const [observations, setObservations] = useState('')
   const [colis, setColis] = useState([defaultColis])
   const [errorMessage, setErrorMessage] = useState('')
+
+  useEffect(() => {
+    if (!isEditMode) return
+
+    if (!expedition) {
+      setErrorMessage("Impossible de charger cette expedition pour la modifier.")
+      return
+    }
+
+    const expediteurEntry = findOrCreateOption(defaultExpediteurs, expedition.expediteurNom, 'expediteur')
+    const destinataireEntry = findOrCreateOption(defaultDestinataires, expedition.destinataireNom, 'destinataire')
+    const departAgencyEntry = findOrCreateOption(defaultAgences, expedition.agenceDepartNom, 'agence')
+    const arriveeAgencyEntry = findOrCreateOption(departAgencyEntry.options, expedition.agenceArriveeNom, 'agence')
+
+    setExpediteurOptions(expediteurEntry.options)
+    setDestinataireOptions(destinataireEntry.options)
+    setAgenceOptions(arriveeAgencyEntry.options)
+
+    setExpediteur(expediteurEntry.selectedValue)
+    setDestinataire(destinataireEntry.selectedValue)
+    setAgenceDepart(departAgencyEntry.selectedValue)
+    setAgenceArrivee(arriveeAgencyEntry.selectedValue)
+    setDateExpedition(expedition.dateExpedition)
+    setObservations(expedition.observations || '')
+    setColis(expedition.colis.map((item, index) => ({ ...item, id: index + 1 })))
+    setErrorMessage('')
+  }, [isEditMode, expedition])
 
   const total = useMemo(
     () => colis.reduce((sum, item) => sum + Number(item.valeur || 0), 0).toFixed(2),
@@ -81,11 +129,11 @@ const Expedients = () => {
 
   const handleSubmit = () => {
     if (!expediteur || !destinataire || !agenceDepart || !agenceArrivee || !dateExpedition) {
-      setErrorMessage('Veuillez completer les informations obligatoires avant la creation.')
+      setErrorMessage('Veuillez completer les informations obligatoires avant de valider.')
       return
     }
 
-    const created = createExpedition({
+    const payload = {
       expediteurNom: getOptionLabel(expediteurOptions, expediteur),
       destinataireNom: getOptionLabel(destinataireOptions, destinataire),
       agenceDepartNom: getOptionLabel(agenceOptions, agenceDepart),
@@ -93,18 +141,36 @@ const Expedients = () => {
       dateExpedition,
       observations,
       colis,
-    })
+    }
+
+    if (isEditMode) {
+      const updated = updateExpeditionByNumero(expeditionNumero, payload)
+      if (!updated) {
+        setErrorMessage("Impossible d'enregistrer les modifications.")
+        return
+      }
+
+      setErrorMessage('')
+      navigate(`/dashboard/expedients/${updated.numero}`)
+      return
+    }
+
+    const created = createExpedition(payload)
 
     setErrorMessage('')
     navigate(`/dashboard/expedients/${created.numero}`)
   }
 
   return (
-    <section className="expedients-page fade-in" aria-label="Creation d'expedition">
+    <section className="expedients-page fade-in" aria-label={isEditMode ? "Modification d'expedition" : "Creation d'expedition"}>
       <header className="expedients-header">
         <div>
-          <h1>Creation d'expedition</h1>
-          <p>Enregistrez un nouvel envoi dans le grand livre logistique.</p>
+          <h1>{isEditMode ? "Modification d'expedition" : "Creation d'expedition"}</h1>
+          <p>
+            {isEditMode
+              ? "Mettez a jour les informations de l'envoi dans le grand livre logistique."
+              : 'Enregistrez un nouvel envoi dans le grand livre logistique.'}
+          </p>
         </div>
         <Button
           variant="outline"
@@ -223,7 +289,7 @@ const Expedients = () => {
         icon={null}
         onClick={handleSubmit}
       >
-        Creer l'expedition
+        {isEditMode ? "Enregistrer les modifications" : "Creer l'expedition"}
       </Button>
     </section>
   )

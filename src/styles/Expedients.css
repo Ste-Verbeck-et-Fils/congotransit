@@ -1,6 +1,6 @@
 .expedients-page {
   width: 100%;
-  max-width: 760px;
+  max-width: 900px;
   margin: 0 auto;
   display: grid;
   gap: var(--spacing-lg);
@@ -40,6 +40,17 @@
 .expedients-stack {
   display: grid;
   gap: var(--spacing-lg);
+}
+
+.expedients-cards-row {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+@media (min-width: 1070px) {
+  .expedients-cards-row {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .expedients-card {
@@ -82,6 +93,16 @@
 .expedients-colis-list {
   display: grid;
   gap: var(--spacing-md);
+}
+
+.expedients-colis-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 576px) {
+  .expedients-colis-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .expedients-colis-card {
@@ -197,10 +218,16 @@
   color: var(--color-text-muted);
 }
 
+.expeditions-add-btn {
+  margin-right: 20%;
+  margin-top: 3%;
+}
+
 .expeditions-search-row {
-  width: 60%;
+  width: 40%;
   max-width: none;
-  margin: 0 auto;
+  margin: 0;
+  margin-left: 10%;
 }
 
 .expeditions-search-row .input-container {
@@ -354,6 +381,49 @@
 
 .expeditions-actions-dropdown button.danger {
   color: #b42318;
+}
+
+.expeditions-inline-actions {
+  display: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.expeditions-actions-menu-desktop {
+  display: inline-flex;
+}
+
+.expeditions-inline-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.7rem;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #d0dbd2;
+  background: var(--color-white);
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.74rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.expeditions-inline-btn:hover {
+  background: #f0f7f1;
+}
+
+.expeditions-inline-btn.danger {
+  color: #b42318;
+  border-color: #f5c2be;
+}
+
+.expeditions-inline-btn.danger:hover {
+  background: #fff5f5;
 }
 
 .expedition-detail-page {
@@ -526,6 +596,11 @@
     flex-direction: column;
   }
 
+  .expeditions-add-btn {
+    margin-right: 0;
+    margin-top: 0;
+  }
+
   .expedition-detail-header {
     flex-direction: row;
     align-items: center;
@@ -554,7 +629,10 @@
   }
 
   .expeditions-search-row {
+    width: 100%;
     max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .expeditions-table-head {
@@ -562,17 +640,20 @@
   }
 
   .expeditions-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: var(--spacing-sm);
   }
 
-  .expeditions-row .btn {
-    width: 100%;
+  .expeditions-inline-actions {
+    display: flex;
   }
 
-  .expeditions-actions-menu,
-  .expeditions-actions-trigger {
-    width: 100%;
+  .expeditions-actions-menu-desktop {
+    display: none;
+  }
+
+  .expeditions-inline-actions {
+    grid-column: 1 / -1;
   }
 
   .expedition-detail-grid {

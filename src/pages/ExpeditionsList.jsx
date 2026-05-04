@@ -34,31 +34,6 @@ const ExpeditionsList = () => {
     })
   }, [expeditions, normalizedSearch])
 
-  useEffect(() => {
-    const handleDocumentClick = (event) => {
-      const target = event.target
-      if (target instanceof Element && !target.closest('.expeditions-actions-menu')) {
-        setOpenActionNumero('')
-      }
-    }
-
-    const handleEscape = (event) => {
-      if (event.key === 'Escape') setOpenActionNumero('')
-    }
-
-    document.addEventListener('mousedown', handleDocumentClick)
-    window.addEventListener('keydown', handleEscape)
-
-    return () => {
-      document.removeEventListener('mousedown', handleDocumentClick)
-      window.removeEventListener('keydown', handleEscape)
-    }
-  }, [])
-
-  const handleToggleActions = (numero) => {
-    setOpenActionNumero((previous) => (previous === numero ? '' : numero))
-  }
-
   const handleDelete = (numero) => {
     const isConfirmed = window.confirm('Confirmer la suppression de cette expedition ?')
     if (!isConfirmed) return
@@ -70,6 +45,24 @@ const ExpeditionsList = () => {
     }
   }
 
+  useEffect(() => {
+    const handleDocumentClick = (event) => {
+      const target = event.target
+      if (target instanceof Element && !target.closest('.expeditions-actions-menu')) {
+        setOpenActionNumero('')
+      }
+    }
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') setOpenActionNumero('')
+    }
+    document.addEventListener('mousedown', handleDocumentClick)
+    window.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handleDocumentClick)
+      window.removeEventListener('keydown', handleEscape)
+    }
+  }, [])
+
   return (
     <section className="expeditions-list-page fade-in" aria-label="Liste des expeditions">
       <header className="expeditions-list-header">
@@ -79,6 +72,7 @@ const ExpeditionsList = () => {
         </div>
 
         <Button
+          className="expeditions-add-btn"
           type="button"
           variant="primary"
           icon={<IconPlus size={18} />}
@@ -122,48 +116,45 @@ const ExpeditionsList = () => {
               <span>
                 <em className="expeditions-status-chip">{item.statut}</em>
               </span>
-              <span>
+              <span className="expeditions-inline-actions">
+                <button
+                  type="button"
+                  className="expeditions-inline-btn"
+                  onClick={() => navigate(`/dashboard/expedients/${item.numero}`)}
+                >
+                  Detail
+                </button>
+                <button
+                  type="button"
+                  className="expeditions-inline-btn"
+                  onClick={() => navigate(`/dashboard/expedients/${item.numero}/modifier`)}
+                >
+                  Modifier
+                </button>
+                <button
+                  type="button"
+                  className="expeditions-inline-btn danger"
+                  onClick={() => handleDelete(item.numero)}
+                >
+                  Supprimer
+                </button>
+              </span>
+              <span className="expeditions-actions-menu-desktop">
                 <div className="expeditions-actions-menu">
                   <button
                     type="button"
                     className="expeditions-actions-trigger"
                     aria-label="Ouvrir les actions"
                     aria-expanded={openActionNumero === item.numero}
-                    onClick={() => handleToggleActions(item.numero)}
+                    onClick={() => setOpenActionNumero((p) => (p === item.numero ? '' : item.numero))}
                   >
                     <IconMoreVertical size={18} />
                   </button>
-
                   {openActionNumero === item.numero && (
-                    <div className="expeditions-actions-dropdown" role="menu" aria-label="Actions expedition">
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          setOpenActionNumero('')
-                          navigate(`/dashboard/expedients/${item.numero}`)
-                        }}
-                      >
-                        Details
-                      </button>
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          setOpenActionNumero('')
-                          navigate(`/dashboard/expedients/${item.numero}/modifier`)
-                        }}
-                      >
-                        Modifier
-                      </button>
-                      <button
-                        type="button"
-                        role="menuitem"
-                        className="danger"
-                        onClick={() => handleDelete(item.numero)}
-                      >
-                        Supprimer
-                      </button>
+                    <div className="expeditions-actions-dropdown" role="menu">
+                      <button type="button" role="menuitem" onClick={() => { setOpenActionNumero(''); navigate(`/dashboard/expedients/${item.numero}`) }}>Details</button>
+                      <button type="button" role="menuitem" onClick={() => { setOpenActionNumero(''); navigate(`/dashboard/expedients/${item.numero}/modifier`) }}>Modifier</button>
+                      <button type="button" role="menuitem" className="danger" onClick={() => handleDelete(item.numero)}>Supprimer</button>
                     </div>
                   )}
                 </div>

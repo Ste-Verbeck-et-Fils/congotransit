@@ -186,21 +186,23 @@ const Expedients = () => {
         <article className="card expedients-card">
           <h2>Parties Prenantes</h2>
           <div className="expedients-divider" aria-hidden="true" />
-          <Select
-            label="Selection expediteur"
-            value={expediteur}
-            onChange={(event) => setExpediteur(event.target.value)}
-            options={expediteurOptions}
-          />
-          <Select
-            label="Selection destinataire"
-            value={destinataire}
-            onChange={(event) => setDestinataire(event.target.value)}
-            options={destinataireOptions}
-            withAdd
-            onAdd={() => addNamedOption(setDestinataireOptions, 'Destinataire')}
-          />
-        </article>
+          <div className="expedients-grid-two">
+            <Select
+              label="Selection expediteur"
+              value={expediteur}
+              onChange={(event) => setExpediteur(event.target.value)}
+              options={expediteurOptions}
+            />
+            <Select
+              label="Selection destinataire"
+              value={destinataire}
+              onChange={(event) => setDestinataire(event.target.value)}
+              options={destinataireOptions}
+              withAdd
+              onAdd={() => addNamedOption(setDestinataireOptions, 'Destinataire')}
+            />
+          </div>
+          </article>
 
         <article className="card expedients-card">
           <h2>Itineraire & Date</h2>
@@ -243,7 +245,7 @@ const Expedients = () => {
             Ajouter un colis
           </Button>
 
-          <div className="expedients-colis-list" aria-live="polite">
+          <div className="expedients-colis-list expedients-colis-grid" aria-live="polite">
             {colis.map((item) => (
               <article className="expedients-colis-card" key={item.id}>
                 <div className="expedients-colis-icon" aria-hidden="true">
@@ -264,19 +266,22 @@ const Expedients = () => {
         </article>
 
         <article className="card expedients-card">
-          <label className="expedients-total-label" htmlFor="montant-total">Montant total (USD)</label>
-          <div id="montant-total" className="expedients-total-value">
-            <span>{total}</span>
-            <strong>$</strong>
+          <div className="expedients-grid-two">
+            <div>
+              <label className="expedients-total-label" htmlFor="montant-total">Montant total (USD)</label>
+              <div id="montant-total" className="expedients-total-value">
+                <span>{total}</span>
+                <strong>$</strong>
+              </div>
+              <p className="expedients-total-help">Taxes et frais de manutention inclus.</p>
+            </div>
+            <Input
+              label="Observations"
+              placeholder="Notes particulieres sur la livraison, fragilite, etc..."
+              value={observations}
+              onChange={(event) => setObservations(event.target.value)}
+            />
           </div>
-          <p className="expedients-total-help">Taxes et frais de manutention inclus.</p>
-
-          <Input
-            label="Observations"
-            placeholder="Notes particulieres sur la livraison, fragilite, etc..."
-            value={observations}
-            onChange={(event) => setObservations(event.target.value)}
-          />
         </article>
       </div>
 

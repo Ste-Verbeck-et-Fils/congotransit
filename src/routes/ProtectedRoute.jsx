@@ -1,10 +1,12 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
+import { isAuthenticated } from '../lib/authSession'
 
+/* Ce composant bloque l'acces aux routes privees sans session valide. */
 const ProtectedRoute = () => {
-  const token = localStorage.getItem('congotransit.token')
+  const authenticated = isAuthenticated()
 
-  return token ? <Outlet /> : <Navigate to="/login" replace />
+  return authenticated ? <Outlet /> : <Navigate to="/login" replace />
 }
 
 export default ProtectedRoute

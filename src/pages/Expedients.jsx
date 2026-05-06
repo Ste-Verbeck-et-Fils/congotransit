@@ -122,7 +122,11 @@ const Expedients = () => {
   }
 
   const handleAddColis = () => {
-    setColis((previous) => [...previous, createColis(previous.length + 1)])
+    if (isEditMode) {
+      navigate('/dashboard/colis/nouveau', { state: { refExpedition: expeditionNumero } })
+    } else {
+      navigate('/dashboard/colis/nouveau')
+    }
   }
 
   const getOptionLabel = (options, value) => options.find((item) => item.value === value)?.label || ''
@@ -242,7 +246,7 @@ const Expedients = () => {
             icon={<IconPlus size={18} />}
             onClick={handleAddColis}
           >
-            Ajouter un colis
+            {isEditMode ? 'Ajouter un colis' : 'Ajouter un colis (apres creation)'}
           </Button>
 
           <div className="expedients-colis-list expedients-colis-grid" aria-live="polite">

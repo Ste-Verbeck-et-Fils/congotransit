@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { clearAuthSession } from '../../lib/authSession'
 import './Navigation.css'
 import {
   IconBell,
@@ -54,6 +55,7 @@ const DesktopSidebar = ({ onLogout }) => (
   </aside>
 )
 
+/* Ce composant affiche la navigation privee et gere la deconnexion. */
 export const TopBar = () => {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -61,8 +63,7 @@ export const TopBar = () => {
   const openMenu = () => setIsMenuOpen(true)
   const closeMenu = () => setIsMenuOpen(false)
   const handleLogout = () => {
-    localStorage.removeItem('congotransit.token')
-    localStorage.removeItem('congotransit.user')
+    clearAuthSession()
     navigate('/login', { replace: true })
   }
 

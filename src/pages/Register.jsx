@@ -10,18 +10,28 @@ import {
 } from '../components/ui/Icons'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import Select from '../components/ui/Select'
 import { apiRequest } from '../lib/api'
 import deliveryImage from '../assets/images/livraison.avif'
 import '../styles/Login.css'
 
+const ROLE_OPTIONS = [
+  { value: 'CLIENT', label: 'Client' },
+  { value: 'AGENT', label: 'Agent' },
+  { value: 'ADMIN', label: 'Administrateur' },
+]
+
+/* Ce composant cree un utilisateur selon la structure finale et son role systeme. */
 const Register = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [noms, setNoms] = useState('')
+  const [nomAffichage, setNomAffichage] = useState('')
   const [telephone, setTelephone] = useState('')
-  const [password, setPassword] = useState('')
+  const [motDePasse, setMotDePasse] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [roleSysteme, setRoleSysteme] = useState('CLIENT')
+  const [refAgence, setRefAgence] = useState('')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -32,10 +42,11 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault()
 
-    const cleanNoms = noms.trim()
+    const cleanNomAffichage = nomAffichage.trim()
     const cleanTelephone = telephone.replace(/\s+/g, '')
+    const cleanRefAgence = refAgence.trim()
 
-    if (!cleanNoms || !cleanTelephone || !password || !confirmPassword) {
+    if (!cleanNomAffichage || !cleanTelephone || !motDePasse || !confirmPassword || !roleSysteme) {
       setMessage('Veuillez renseigner toutes les informations du compte.')
       return
     }
@@ -45,25 +56,36 @@ const Register = () => {
       return
     }
 
-    if (password.length < 6) {
+    if (motDePasse.length < 6) {
       setMessage('Le mot de passe doit contenir au moins 6 caracteres.')
       return
     }
 
-    if (password !== confirmPassword) {
+    if (motDePasse !== confirmPassword) {
       setMessage('Les mots de passe ne correspondent pas.')
       return
     }
 
+    if (roleSysteme === 'AGENT' && !cleanRefAgence) {
+      setMessage('Le champ reference agence est obligatoire pour un agent.')
+      return
+    }
+
     setIsSubmitting(true)
+    setMessage('')
 
     try {
       await apiRequest('/auth/register', {
         method: 'POST',
         body: JSON.stringify({
-          noms: cleanNoms,
+          nom_affichage: cleanNomAffichage,
+          noms: cleanNomAffichage,
           telephone: cleanTelephone,
-          password,
+          mot_de_passe: motDePasse,
+          password: motDePasse,
+          role_systeme: roleSysteme,
+          role: roleSysteme,
+          ref_agence: roleSysteme === 'AGENT' ? cleanRefAgence : null,
         }),
       })
 
@@ -74,7 +96,7 @@ const Register = () => {
         },
       })
     } catch (error) {
-      setMessage(error.message)
+      setMessage(`Inscription impossible : ${error.message}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -104,19 +126,51 @@ const Register = () => {
               <h1>Inscription</h1>
               <p>Nouveau compte employe</p>
             </div>
+             < Select
+              id="register-role-systeme"
+              label="Role systeme"
+              options={ROLE_OPTIONS}
+              value={roleSysteme}
+              onChange={(event) => {
+                setRoleSysteme(event.target.value)
+                if (event.target.value !== 'AGENT') {
+                  setRefAgence('')
+                }
+                clearMessage()
+              }}
+              icon={<IconUser size={16} />}
+            />
 
+            {roleSysteme === 'AGENT' && (
+              <Input
+                id="register-ref-agence"
+                name="ref_agence"
+                label="Reference agence"
+                type="text"
+                placeholder="UUID de l'agence"
+                autoComplete="off"
+                variant="login"
+                value={refAgence}
+                onChange={(event) => {
+                  setRefAgence(event.target.value)
+                  clearMessage()
+                }}
+                aria-invalid={Boolean(message)}
+                aria-describedby={message ? 'register-message' : undefined}
+              />
+            )}
             <Input
-              id="register-noms"
-              name="noms"
-              label="Noms"
+              id="register-nom-affichage"
+              name="nom_affichage"
+              label="Nom d'affichage"
               type="text"
               placeholder="ex: Jean Mutombo"
               autoComplete="name"
               variant="login"
               icon={<IconUser size={16} />}
-              value={noms}
+              value={nomAffichage}
               onChange={(event) => {
-                setNoms(event.target.value)
+                setNomAffichage(event.target.value)
                 clearMessage()
               }}
               aria-invalid={Boolean(message)}
@@ -141,17 +195,20 @@ const Register = () => {
               aria-describedby={message ? 'register-message' : undefined}
             />
 
+            
+
+           
             <Input
               id="register-password"
-              name="password"
+              name="mot_de_passe"
               label="Mot de passe"
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               autoComplete="new-password"
               variant="login"
-              value={password}
+              value={motDePasse}
               onChange={(event) => {
-                setPassword(event.target.value)
+                setMotDePasse(event.target.value)
                 clearMessage()
               }}
               aria-invalid={Boolean(message)}
@@ -167,7 +224,6 @@ const Register = () => {
                 </button>
               )}
             />
-
             <Input
               id="register-confirm-password"
               name="confirmPassword"

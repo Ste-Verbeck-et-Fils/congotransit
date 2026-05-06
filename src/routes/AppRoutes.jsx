@@ -9,6 +9,7 @@ import Contact from '../pages/Contact.jsx'
 import Expedients from '../pages/Expedients.jsx'
 import ExpeditionsList from '../pages/ExpeditionsList.jsx'
 import ExpeditionDetail from '../pages/ExpeditionDetail.jsx'
+import CreateColis from '../pages/CreateColis.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 
 const PlaceholderPage = ({ title, description }) => (
@@ -47,6 +48,10 @@ const AppRoutes = () => {
           <Route
             path="expedients/:expeditionNumero"
             element={<ExpeditionDetail />}
+          />
+          <Route
+            path="colis/nouveau"
+            element={<CreateColis />}
           />
           <Route
             path="trajet"

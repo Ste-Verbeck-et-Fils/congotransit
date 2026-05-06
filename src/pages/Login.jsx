@@ -4,9 +4,11 @@ import { IconArrowRight, IconBox, IconEye, IconEyeOff, IconPhone } from '../comp
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import { apiRequest } from '../lib/api'
+import { getPostLoginRoute, saveAuthSession } from '../lib/authSession'
 import deliveryImage from '../assets/images/livraison.avif'
 import '../styles/Login.css'
 
+/* Ce composant gere la connexion via telephone et initialise la session utilisateur. */
 const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -28,24 +30,26 @@ const Login = () => {
     }
 
     setIsSubmitting(true)
+    setMessage('')
+    setSuccessMessage('')
 
     try {
       const data = await apiRequest('/auth/login', {
         method: 'POST',
         body: JSON.stringify({
           telephone: cleanTelephone,
+          mot_de_passe: password,
           password,
         }),
       })
 
-      localStorage.setItem('congotransit.token', data.token)
-      localStorage.setItem('congotransit.user', JSON.stringify(data.user))
+      saveAuthSession({ token: data.token, user: data.user })
       setSuccessMessage('')
       setMessage('')
-      navigate('/dashboard')
+      navigate(getPostLoginRoute(data.user?.role_systeme ?? data.user?.role), { replace: true })
     } catch (error) {
       setSuccessMessage('')
-      setMessage(error.message)
+      setMessage(`Connexion impossible : ${error.message}`)
     } finally {
       setIsSubmitting(false)
     }

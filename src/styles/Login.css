@@ -115,14 +115,20 @@
 .login-message {
   min-height: 1rem;
   color: #b42318;
-  font-size: 0.64rem;
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.45;
   margin: -0.1rem 0 0.85rem;
 }
 
 .login-message-success {
   color: var(--color-primary);
+  background: #edf7ee;
+  border-color: #cde8d1;
 }
 
 .login-password-toggle:hover {
@@ -201,7 +207,7 @@
 
   .register-shell {
     max-width: 920px;
-    height: min(560px, calc(100dvh - 2rem));
+    height: min(650px, calc(100dvh - 2rem));
   }
 
   .login-brand-panel {

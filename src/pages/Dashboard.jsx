@@ -4,9 +4,9 @@ import '../styles/Dashboard.css'
 
 /* ── Données ───────────────────────────────────────────────── */
 const KPIS = [
-  { icon: <IconBox size={20} color="var(--color-primary)" />,  label: 'Total colis',   value: '1 284', trend: '+18%', up: true  },
-  { icon: <IconTruck size={20} color="#f59e0b" />,             label: 'En transit',    value: '342',   trend: '+5%',  up: true  },
-  { icon: <IconPin size={20} color="#2b6623" />,               label: 'Livrés',        value: '891',   trend: '+22%', up: true  },
+  { icon: <IconBox size={26} color="var(--color-primary)" />,  label: 'Total colis',   value: '1 284', trend: '+18%', up: true  },
+  { icon: <IconTruck size={26} color="#f59e0b" />,             label: 'En transit',    value: '342',   trend: '+5%',  up: true  },
+  { icon: <IconPin size={26} color="#2b6623" />,               label: 'Livrés',        value: '891',   trend: '+22%', up: true  },
 ]
 
 const FLOW_DATA = [
@@ -55,7 +55,7 @@ const Dashboard = () => (
       <div className="dash-header-actions">
         <span className="dash-date">{todayLabel}</span>
         <button className="dash-action" type="button">
-          <IconPlus size={17} />
+          <IconPlus size={18} />
           <span>Nouveau colis</span>
         </button>
       </div>

@@ -6,6 +6,9 @@ import Home from '../pages/Home.jsx'
 import Login from '../pages/Login.jsx'
 import Register from '../pages/Register.jsx'
 import Contact from '../pages/Contact.jsx'
+import Expedients from '../pages/Expedients.jsx'
+import ExpeditionsList from '../pages/ExpeditionsList.jsx'
+import ExpeditionDetail from '../pages/ExpeditionDetail.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 
 const PlaceholderPage = ({ title, description }) => (
@@ -31,7 +34,19 @@ const AppRoutes = () => {
           <Route index element={<Dashboard />} />
           <Route
             path="expedients"
-            element={<PlaceholderPage title="Expeditions" description="Gerez les colis, expediteurs et destinataires depuis un espace dedie." />}
+            element={<ExpeditionsList />}
+          />
+          <Route
+            path="expedients/nouveau"
+            element={<Expedients />}
+          />
+          <Route
+            path="expedients/:expeditionNumero/modifier"
+            element={<Expedients />}
+          />
+          <Route
+            path="expedients/:expeditionNumero"
+            element={<ExpeditionDetail />}
           />
           <Route
             path="trajet"

@@ -59,7 +59,7 @@
 }
 
 @media (max-width: 576px) {
-  .btn:not(.btn-icon-only) {
+  .btn:not(.btn-icon-only):not(.expedition-action-btn) {
     width: 100%;
     min-height: 38px;
   }

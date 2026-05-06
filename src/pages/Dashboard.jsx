@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { IconBox, IconTruck, IconPin, IconPlus } from '../components/ui/Icons'
 import '../styles/Dashboard.css'
 
@@ -45,7 +46,9 @@ const TransitFlow = ({ data }) => (
 )
 
 /* ── Dashboard ──────────────────────────────────────────────── */
-const Dashboard = () => (
+const Dashboard = () => {
+  const navigate = useNavigate()
+  return (
   <div className="dash fade-in">
     <div className="dash-header">
       <div>
@@ -53,10 +56,9 @@ const Dashboard = () => (
         <p className="dash-sub">Vue rapide de l'activite colis et transit</p>
       </div>
       <div className="dash-header-actions">
-        <span className="dash-date">{todayLabel}</span>
-        <button className="dash-action" type="button">
+        <button className="dash-action" type="button" onClick={() => navigate('/dashboard/expedients/nouveau')}>
           <IconPlus size={17} />
-          <span>Nouveau colis</span>
+          <span>Ajouter une expedition</span>
         </button>
       </div>
     </div>
@@ -82,6 +84,7 @@ const Dashboard = () => (
       </div>
     </div>
   </div>
-)
+  )
+}
 
 export default Dashboard

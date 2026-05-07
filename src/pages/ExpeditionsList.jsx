@@ -10,9 +10,8 @@ import '../styles/Expedients.css'
 const ExpeditionsList = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [expeditions, setExpeditions] = useState(() => listExpeditions())
   const [openActionNumero, setOpenActionNumero] = useState('')
-  const expeditions = useMemo(() => listExpeditions(), [refreshKey])
   const normalizedSearch = searchTerm.trim().toLowerCase()
 
   const filteredExpeditions = useMemo(() => {
@@ -41,7 +40,7 @@ const ExpeditionsList = () => {
     const isDeleted = deleteExpeditionByNumero(numero)
     if (isDeleted) {
       setOpenActionNumero('')
-      setRefreshKey((previous) => previous + 1)
+      setExpeditions(listExpeditions())
     }
   }
 

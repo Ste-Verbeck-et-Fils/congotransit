@@ -1,4 +1,7 @@
 import { apiRequest } from './api'
+import { createEmptyAddress } from './addressUtils'
+
+export { formatAddressLabel } from './addressUtils'
 
 export const AGENCY_STATUS_OPTIONS = [
   { value: 'ACTIVE', label: 'Active' },
@@ -6,27 +9,7 @@ export const AGENCY_STATUS_OPTIONS = [
   { value: 'SUSPENDED', label: 'Suspendue' },
 ]
 
-export const EMPTY_ADDRESS = {
-  province: '',
-  ville: '',
-  commune: '',
-  quartier: '',
-  avenue: '',
-  numero: '',
-  repere: '',
-}
-
-const joinParts = (parts) => parts.filter(Boolean).join(', ')
-
-export const formatAddressLabel = (address) => {
-  if (!address) return 'Adresse non renseignee'
-
-  const primary = joinParts([address.ville, address.commune, address.quartier])
-  const secondary = joinParts([address.avenue, address.numero, address.province])
-  const repere = address.repere?.trim()
-
-  return [primary, secondary, repere].filter(Boolean).join(' - ') || 'Adresse non renseignee'
-}
+export const EMPTY_ADDRESS = createEmptyAddress()
 
 export async function listAgencies() {
   const data = await apiRequest('/agences')

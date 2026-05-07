@@ -3,38 +3,39 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
-import { IconOffice } from '../components/ui/Icons'
 import AddressFormSection from '../components/forms/AddressFormSection'
-import {
-  AGENCY_STATUS_OPTIONS,
-  createAgency,
-  getAgencyById,
-  listAddresses,
-  updateAgency,
-} from '../lib/agencesApi'
 import { createEmptyAddress, trimAddress, validateAddress } from '../lib/addressUtils'
+import { listAddresses } from '../lib/agencesApi'
+import { PERSON_STATUS_OPTIONS, createPerson, getPersonById, updatePerson } from '../lib/personnesApi'
 import '../styles/Agences.css'
 
-/* Ce composant gere la creation et la modification d une agence avec adresse existante ou nouvelle. */
-const AgencyForm = () => {
+const phoneRegex = /^\+?[0-9]{8,15}$/
+
+/* Ce composant gere la creation et la modification d une personne avec adresse reutilisable. */
+const PersonForm = () => {
   const navigate = useNavigate()
-  const { agencyId } = useParams()
-  const isEditMode = Boolean(agencyId)
+  const { personId } = useParams()
+  const isEditMode = Boolean(personId)
 
   const [isLoading, setIsLoading] = useState(isEditMode)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
-  const [addressOptions, setAddressOptions] = useState([])
 
-  const [nomAgence, setNomAgence] = useState('')
-  const [codeAgence, setCodeAgence] = useState('')
+  const [nomComplet, setNomComplet] = useState('')
   const [telephone, setTelephone] = useState('')
   const [status, setStatus] = useState('ACTIVE')
+
+  const [addressOptions, setAddressOptions] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState('')
   const [useNewAddress, setUseNewAddress] = useState(false)
   const [addressForm, setAddressForm] = useState(createEmptyAddress())
   const [addressErrors, setAddressErrors] = useState({})
+
+  const clearMessages = () => {
+    if (errorMessage) setErrorMessage('')
+    if (successMessage) setSuccessMessage('')
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -44,22 +45,21 @@ const AgencyForm = () => {
       setErrorMessage('')
 
       try {
-        const [addresses, agency] = await Promise.all([
+        const [addresses, person] = await Promise.all([
           listAddresses(),
-          isEditMode ? getAgencyById(agencyId) : Promise.resolve(null),
+          isEditMode ? getPersonById(personId) : Promise.resolve(null),
         ])
 
         if (cancelled) return
 
         setAddressOptions(addresses)
 
-        if (agency) {
-          setNomAgence(agency.nom_agence ?? '')
-          setCodeAgence(agency.code_agence ?? '')
-          setTelephone(agency.telephone ?? '')
-          setStatus(agency.status ?? 'ACTIVE')
-          setSelectedAddressId(agency.ref_adresse ?? '')
-          setAddressForm(agency.adresse ? trimAddress(agency.adresse) : createEmptyAddress())
+        if (person) {
+          setNomComplet(person.nom_complet ?? '')
+          setTelephone(person.telephone ?? '')
+          setStatus(person.status ?? 'ACTIVE')
+          setSelectedAddressId(person.ref_adresse ?? '')
+          setAddressForm(person.adresse ? trimAddress(person.adresse) : createEmptyAddress())
           setUseNewAddress(false)
         }
       } catch (error) {
@@ -74,24 +74,31 @@ const AgencyForm = () => {
     return () => {
       cancelled = true
     }
-  }, [agencyId, isEditMode])
-
-  const clearMessages = () => {
-    if (errorMessage) setErrorMessage('')
-    if (successMessage) setSuccessMessage('')
-  }
+  }, [isEditMode, personId])
 
   const handleAddressFieldChange = (field, value) => {
     clearMessages()
     if (Object.keys(addressErrors).length > 0) setAddressErrors({})
-    setAddressForm((current) => ({
-      ...current,
-      [field]: value,
-    }))
+    setAddressForm((current) => ({ ...current, [field]: value }))
   }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+
+    const cleanNomComplet = nomComplet.trim()
+    const cleanTelephone = telephone.replace(/\s+/g, '')
+
+    if (!cleanNomComplet || !cleanTelephone) {
+      setSuccessMessage('')
+      setErrorMessage('Le nom complet et le telephone sont obligatoires.')
+      return
+    }
+
+    if (!phoneRegex.test(cleanTelephone)) {
+      setSuccessMessage('')
+      setErrorMessage('Veuillez saisir un numero de telephone valide.')
+      return
+    }
 
     let cleanedAddress = trimAddress(addressForm)
     if (useNewAddress) {
@@ -107,18 +114,11 @@ const AgencyForm = () => {
     }
 
     const payload = {
-      nom_agence: nomAgence.trim(),
-      code_agence: codeAgence.trim().toUpperCase(),
-      telephone: telephone.trim(),
+      nom_complet: cleanNomComplet,
+      telephone: cleanTelephone,
       status,
       ref_adresse: useNewAddress ? null : selectedAddressId || null,
       adresse: useNewAddress ? cleanedAddress : null,
-    }
-
-    if (!payload.nom_agence || !payload.code_agence) {
-      setSuccessMessage('')
-      setErrorMessage('Le nom de l agence et le code agence sont obligatoires.')
-      return
     }
 
     setIsSubmitting(true)
@@ -126,14 +126,12 @@ const AgencyForm = () => {
 
     try {
       const response = isEditMode
-        ? await updateAgency(agencyId, payload)
-        : await createAgency(payload)
+        ? await updatePerson(personId, payload)
+        : await createPerson(payload)
 
       setSuccessMessage(response.message)
-      navigate('/dashboard/agences', {
-        replace: true,
-        state: { successMessage: response.message },
-      })
+      setErrorMessage('')
+      setAddressErrors({})
     } catch (error) {
       setSuccessMessage('')
       setErrorMessage(error.message)
@@ -143,47 +141,37 @@ const AgencyForm = () => {
   }
 
   return (
-    <section className="agencies-form-page fade-in" aria-label={isEditMode ? 'Modification agence' : 'Creation agence'}>
+    <section className="agencies-form-page fade-in" aria-label={isEditMode ? 'Modification personne' : 'Nouvelle personne'}>
       <header className="agencies-header">
         <div>
-          <h1>{isEditMode ? 'Modification agence' : 'Nouvelle agence'}</h1>
+          <h1>{isEditMode ? 'Modification personne' : 'Nouvelle personne'}</h1>
           <p>
             {isEditMode
-              ? 'Mettez a jour les informations de l agence et son rattachement d adresse.'
-              : 'Enregistrez une agence et associez une adresse existante ou une nouvelle adresse.'}
+              ? 'Mettez a jour les informations de la personne et son adresse.'
+              : 'Enregistrez une personne et associez une adresse existante ou nouvelle.'}
           </p>
         </div>
 
-        <Button variant="outline" type="button" icon={null} onClick={() => navigate('/dashboard/agences')}>
-          Retour a la liste
+        <Button variant="outline" type="button" icon={null} onClick={() => navigate('/dashboard')}>
+          Retour
         </Button>
       </header>
 
       <form className="agencies-form-stack" onSubmit={handleSubmit}>
         <article className="card agencies-card">
-          <h2>Informations generales</h2>
+          <h2>Informations personne</h2>
           <div className="agencies-divider" aria-hidden="true" />
+
           <div className="agencies-grid-two">
             <Input
-              label="Nom agence"
-              placeholder="Agence Goma Centre"
-              value={nomAgence}
+              label="Nom complet"
+              placeholder="Ex: Jean Mutombo"
+              value={nomComplet}
               onChange={(event) => {
-                setNomAgence(event.target.value)
+                setNomComplet(event.target.value)
                 clearMessages()
               }}
             />
-            <Input
-              label="Code agence"
-              placeholder="GOM-CENTRE"
-              value={codeAgence}
-              onChange={(event) => {
-                setCodeAgence(event.target.value.toUpperCase())
-                clearMessages()
-              }}
-            />
-          </div>
-          <div className="agencies-grid-two">
             <Input
               label="Telephone"
               type="tel"
@@ -194,21 +182,22 @@ const AgencyForm = () => {
                 clearMessages()
               }}
             />
-            <Select
-              label="Status"
-              value={status}
-              onChange={(event) => {
-                setStatus(event.target.value)
-                clearMessages()
-              }}
-              options={AGENCY_STATUS_OPTIONS}
-            />
           </div>
+
+          <Select
+            label="Status"
+            value={status}
+            onChange={(event) => {
+              setStatus(event.target.value)
+              clearMessages()
+            }}
+            options={PERSON_STATUS_OPTIONS}
+          />
         </article>
 
         <AddressFormSection
-          title="Adresse associee"
-          description="Selectionnez une adresse existante ou creez-en une nouvelle pour cette agence."
+          title="Adresse personne"
+          description="Selectionnez une adresse existante ou saisissez une nouvelle adresse pour cette personne."
           addresses={addressOptions}
           selectedAddressId={selectedAddressId}
           useNewAddress={useNewAddress}
@@ -228,7 +217,6 @@ const AgencyForm = () => {
 
         {isLoading && (
           <article className="agencies-empty-state agencies-loading-state" aria-live="polite">
-            <IconOffice size={24} color="var(--color-primary)" />
             <h3>Chargement du formulaire...</h3>
           </article>
         )}
@@ -237,11 +225,11 @@ const AgencyForm = () => {
         {successMessage && !errorMessage && <p className="agencies-alert agencies-alert-success" role="status">{successMessage}</p>}
 
         <Button className="btn-full agencies-submit-btn" type="submit" icon={null} disabled={isSubmitting || isLoading}>
-          {isSubmitting ? 'Enregistrement...' : isEditMode ? 'Enregistrer les modifications' : 'Creer l agence'}
+          {isSubmitting ? 'Enregistrement...' : isEditMode ? 'Enregistrer les modifications' : 'Creer la personne'}
         </Button>
       </form>
     </section>
   )
 }
 
-export default AgencyForm
+export default PersonForm

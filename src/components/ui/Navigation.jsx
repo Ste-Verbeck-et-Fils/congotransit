@@ -21,6 +21,7 @@ const getNavItems = (roleSysteme) => [
     ? [
       { to: '/dashboard/agences', label: 'Agences', icon: <IconOffice size={20} /> },
       { to: '/dashboard/personnes/nouvelle', label: 'Personnes', icon: <IconUser size={20} /> },
+      { to: '/dashboard/utilisateurs', label: 'Utilisateurs', icon: <IconUser size={20} /> },
     ]
     : []),
   { to: '/dashboard/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },

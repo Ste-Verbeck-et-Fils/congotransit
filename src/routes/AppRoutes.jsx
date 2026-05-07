@@ -4,6 +4,8 @@ import MainLayout from '../layout/MainLayout.jsx'
 import AgenciesList from '../pages/AgenciesList.jsx'
 import AgencyForm from '../pages/AgencyForm.jsx'
 import PersonForm from '../pages/PersonForm.jsx'
+import UsersList from '../pages/UsersList.jsx'
+import UserForm from '../pages/UserForm.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Home from '../pages/Home.jsx'
 import Login from '../pages/Login.jsx'
@@ -42,6 +44,9 @@ const AppRoutes = () => {
             <Route path="agences/:agencyId/modifier" element={<AgencyForm />} />
             <Route path="personnes/nouvelle" element={<PersonForm />} />
             <Route path="personnes/:personId/modifier" element={<PersonForm />} />
+            <Route path="utilisateurs" element={<UsersList />} />
+            <Route path="utilisateurs/nouveau" element={<UserForm />} />
+            <Route path="utilisateurs/:userId/modifier" element={<UserForm />} />
           </Route>
           <Route
             path="expedients"

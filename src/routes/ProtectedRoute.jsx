@@ -1,12 +1,16 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
-import { isAuthenticated } from '../lib/authSession'
+import { getCurrentRole, isAuthenticated } from '../lib/authSession'
 
 /* Ce composant bloque l'acces aux routes privees sans session valide. */
-const ProtectedRoute = () => {
+const ProtectedRoute = ({ allowedRoles = null }) => {
   const authenticated = isAuthenticated()
+  const currentRole = getCurrentRole()
 
-  return authenticated ? <Outlet /> : <Navigate to="/login" replace />
+  if (!authenticated) return <Navigate to="/login" replace />
+  if (allowedRoles && !allowedRoles.includes(currentRole)) return <Navigate to="/dashboard" replace />
+
+  return <Outlet />
 }
 
 export default ProtectedRoute

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   IconArrowRight,
@@ -21,6 +21,8 @@ const ROLE_OPTIONS = [
   { value: 'ADMIN', label: 'Administrateur' },
 ]
 
+const DEFAULT_AGENCY_OPTION = { value: '', label: 'Choisir une agence...' }
+
 /* Ce composant cree un utilisateur selon la structure finale et son role systeme. */
 const Register = () => {
   const navigate = useNavigate()
@@ -32,8 +34,44 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [roleSysteme, setRoleSysteme] = useState('CLIENT')
   const [refAgence, setRefAgence] = useState('')
+  const [agencyOptions, setAgencyOptions] = useState([DEFAULT_AGENCY_OPTION])
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadAgencies = async () => {
+      try {
+        const data = await apiRequest('/auth/agences')
+        if (cancelled) return
+
+        setAgencyOptions([
+          DEFAULT_AGENCY_OPTION,
+          ...(data.agencies ?? []).map((agency) => ({
+            value: agency.id_agence,
+            label: `${agency.nom_agence} (${agency.code_agence})`,
+          })),
+        ])
+      } catch {
+        if (!cancelled) {
+          setAgencyOptions([DEFAULT_AGENCY_OPTION])
+        }
+      }
+    }
+
+    loadAgencies()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const agentAgencyOptions = useMemo(() => {
+    if (agencyOptions.length > 1) return agencyOptions
+
+    return [{ value: '', label: 'Aucune agence active disponible' }]
+  }, [agencyOptions])
 
   const clearMessage = () => {
     if (message) setMessage('')
@@ -67,7 +105,7 @@ const Register = () => {
     }
 
     if (roleSysteme === 'AGENT' && !cleanRefAgence) {
-      setMessage('Le champ reference agence est obligatoire pour un agent.')
+      setMessage('Veuillez selectionner une agence pour ce compte agent.')
       return
     }
 
@@ -126,7 +164,7 @@ const Register = () => {
               <h1>Inscription</h1>
               <p>Nouveau compte employe</p>
             </div>
-             < Select
+            <Select
               id="register-role-systeme"
               label="Role systeme"
               options={ROLE_OPTIONS}
@@ -142,19 +180,17 @@ const Register = () => {
             />
 
             {roleSysteme === 'AGENT' && (
-              <Input
+              <Select
                 id="register-ref-agence"
                 name="ref_agence"
-                label="Reference agence"
-                type="text"
-                placeholder="UUID de l'agence"
-                autoComplete="off"
-                variant="login"
+                label="Agence rattachee"
+                options={agentAgencyOptions}
                 value={refAgence}
                 onChange={(event) => {
                   setRefAgence(event.target.value)
                   clearMessage()
                 }}
+                icon={<IconUser size={16} />}
                 aria-invalid={Boolean(message)}
                 aria-describedby={message ? 'register-message' : undefined}
               />

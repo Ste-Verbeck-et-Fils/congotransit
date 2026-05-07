@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -36,13 +36,6 @@ const defaultColis = {
   valeur: 450,
 }
 
-const createColis = (id) => ({
-  id,
-  type: `Colis standard ${id}`,
-  poids: Number((4.5 + id * 1.15).toFixed(1)),
-  valeur: 70 + id * 35,
-})
-
 const findOrCreateOption = (options, label, prefix) => {
   if (!label) return { options, selectedValue: '' }
 
@@ -57,55 +50,57 @@ const findOrCreateOption = (options, label, prefix) => {
   }
 }
 
-/* Ce composant affiche un formulaire d'expedition interactif en frontend uniquement. */
-const Expedients = () => {
-  const navigate = useNavigate()
-  const { expeditionNumero } = useParams()
-  const isEditMode = Boolean(expeditionNumero)
-  const expedition = useMemo(
-    () => (isEditMode ? getExpeditionByNumero(expeditionNumero) : null),
-    [isEditMode, expeditionNumero],
-  )
-
-  const [expediteurOptions, setExpediteurOptions] = useState(defaultExpediteurs)
-  const [destinataireOptions, setDestinataireOptions] = useState(defaultDestinataires)
-  const [agenceOptions, setAgenceOptions] = useState(defaultAgences)
-
-  const [expediteur, setExpediteur] = useState('')
-  const [destinataire, setDestinataire] = useState('')
-  const [agenceDepart, setAgenceDepart] = useState('goma')
-  const [agenceArrivee, setAgenceArrivee] = useState('aru')
-  const [dateExpedition, setDateExpedition] = useState('2026-05-02')
-  const [observations, setObservations] = useState('')
-  const [colis, setColis] = useState([defaultColis])
-  const [errorMessage, setErrorMessage] = useState('')
-
-  useEffect(() => {
-    if (!isEditMode) return
-
-    if (!expedition) {
-      setErrorMessage("Impossible de charger cette expedition pour la modifier.")
-      return
+const getInitialFormState = (expedition) => {
+  if (!expedition) {
+    return {
+      expediteurOptions: defaultExpediteurs,
+      destinataireOptions: defaultDestinataires,
+      agenceOptions: defaultAgences,
+      expediteur: '',
+      destinataire: '',
+      agenceDepart: 'goma',
+      agenceArrivee: 'aru',
+      dateExpedition: '2026-05-02',
+      observations: '',
+      colis: [defaultColis],
     }
+  }
 
-    const expediteurEntry = findOrCreateOption(defaultExpediteurs, expedition.expediteurNom, 'expediteur')
-    const destinataireEntry = findOrCreateOption(defaultDestinataires, expedition.destinataireNom, 'destinataire')
-    const departAgencyEntry = findOrCreateOption(defaultAgences, expedition.agenceDepartNom, 'agence')
-    const arriveeAgencyEntry = findOrCreateOption(departAgencyEntry.options, expedition.agenceArriveeNom, 'agence')
+  const expediteurEntry = findOrCreateOption(defaultExpediteurs, expedition.expediteurNom, 'expediteur')
+  const destinataireEntry = findOrCreateOption(defaultDestinataires, expedition.destinataireNom, 'destinataire')
+  const departAgencyEntry = findOrCreateOption(defaultAgences, expedition.agenceDepartNom, 'agence')
+  const arriveeAgencyEntry = findOrCreateOption(departAgencyEntry.options, expedition.agenceArriveeNom, 'agence')
 
-    setExpediteurOptions(expediteurEntry.options)
-    setDestinataireOptions(destinataireEntry.options)
-    setAgenceOptions(arriveeAgencyEntry.options)
+  return {
+    expediteurOptions: expediteurEntry.options,
+    destinataireOptions: destinataireEntry.options,
+    agenceOptions: arriveeAgencyEntry.options,
+    expediteur: expediteurEntry.selectedValue,
+    destinataire: destinataireEntry.selectedValue,
+    agenceDepart: departAgencyEntry.selectedValue,
+    agenceArrivee: arriveeAgencyEntry.selectedValue,
+    dateExpedition: expedition.dateExpedition,
+    observations: expedition.observations || '',
+    colis: expedition.colis.map((item, index) => ({ ...item, id: index + 1 })),
+  }
+}
 
-    setExpediteur(expediteurEntry.selectedValue)
-    setDestinataire(destinataireEntry.selectedValue)
-    setAgenceDepart(departAgencyEntry.selectedValue)
-    setAgenceArrivee(arriveeAgencyEntry.selectedValue)
-    setDateExpedition(expedition.dateExpedition)
-    setObservations(expedition.observations || '')
-    setColis(expedition.colis.map((item, index) => ({ ...item, id: index + 1 })))
-    setErrorMessage('')
-  }, [isEditMode, expedition])
+/* Ce composant porte le formulaire d'expedition avec un etat initialise au montage. */
+const ExpedientsForm = ({ expedition, expeditionNumero, isEditMode }) => {
+  const navigate = useNavigate()
+  const initialState = useMemo(() => getInitialFormState(expedition), [expedition])
+
+  const [expediteurOptions] = useState(initialState.expediteurOptions)
+  const [destinataireOptions, setDestinataireOptions] = useState(initialState.destinataireOptions)
+  const [agenceOptions, setAgenceOptions] = useState(initialState.agenceOptions)
+  const [expediteur, setExpediteur] = useState(initialState.expediteur)
+  const [destinataire, setDestinataire] = useState(initialState.destinataire)
+  const [agenceDepart, setAgenceDepart] = useState(initialState.agenceDepart)
+  const [agenceArrivee, setAgenceArrivee] = useState(initialState.agenceArrivee)
+  const [dateExpedition, setDateExpedition] = useState(initialState.dateExpedition)
+  const [observations, setObservations] = useState(initialState.observations)
+  const [colis] = useState(initialState.colis)
+  const [errorMessage, setErrorMessage] = useState('')
 
   const total = useMemo(
     () => colis.reduce((sum, item) => sum + Number(item.valeur || 0), 0).toFixed(2),
@@ -206,7 +201,7 @@ const Expedients = () => {
               onAdd={() => addNamedOption(setDestinataireOptions, 'Destinataire')}
             />
           </div>
-          </article>
+        </article>
 
         <article className="card expedients-card">
           <h2>Itineraire & Date</h2>
@@ -302,6 +297,31 @@ const Expedients = () => {
       </Button>
     </section>
   )
+}
+
+/* Ce composant affiche un formulaire d'expedition interactif en frontend uniquement. */
+const Expedients = () => {
+  const { expeditionNumero } = useParams()
+  const isEditMode = Boolean(expeditionNumero)
+  const expedition = useMemo(
+    () => (isEditMode ? getExpeditionByNumero(expeditionNumero) : null),
+    [isEditMode, expeditionNumero],
+  )
+
+  if (isEditMode && !expedition) {
+    return (
+      <section className="expedients-page fade-in" aria-label="Erreur de chargement expedition">
+        <header className="expedients-header">
+          <div>
+            <h1>Modification d'expedition</h1>
+            <p>Impossible de charger cette expedition pour la modifier.</p>
+          </div>
+        </header>
+      </section>
+    )
+  }
+
+  return <ExpedientsForm key={expeditionNumero ?? 'new'} expedition={expedition} expeditionNumero={expeditionNumero} isEditMode={isEditMode} />
 }
 
 export default Expedients

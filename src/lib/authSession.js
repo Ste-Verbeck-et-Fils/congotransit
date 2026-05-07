@@ -61,6 +61,8 @@ export const saveAuthSession = ({ token, user }) => {
 
 export const getAccessToken = () => readAuthSession()?.jwtToken ?? ''
 
+export const getCurrentRole = () => readAuthSession()?.role_systeme ?? 'CLIENT'
+
 export const isAuthenticated = () => Boolean(getAccessToken())
 
 export const clearAuthSession = () => {

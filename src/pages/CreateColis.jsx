@@ -39,12 +39,6 @@ const CreateColis = () => {
   const [observations, setObservations] = useState('')
   const [errors, setErrors] = useState({})
   const [successCode, setSuccessCode] = useState('')
-  const [continueAdding, setContinueAdding] = useState(false)
-
-  const selectedExpedition = useMemo(
-    () => listExpeditions().find((e) => e.numero === refExpedition) || null,
-    [refExpedition],
-  )
 
   const validate = () => {
     const next = {}
@@ -84,10 +78,8 @@ const CreateColis = () => {
     setSuccessCode(created.code_colis)
 
     if (shouldContinue) {
-      setContinueAdding(true)
       setTimeout(() => {
         resetForm()
-        setContinueAdding(false)
       }, 1800)
     } else {
       setTimeout(() => navigate('/dashboard/expedients'), 1800)

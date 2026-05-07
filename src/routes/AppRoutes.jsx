@@ -1,6 +1,8 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from '../layout/MainLayout.jsx'
+import AgenciesList from '../pages/AgenciesList.jsx'
+import AgencyForm from '../pages/AgencyForm.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Home from '../pages/Home.jsx'
 import Login from '../pages/Login.jsx'
@@ -33,6 +35,11 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<MainLayout />}>
           <Route index element={<Dashboard />} />
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+            <Route path="agences" element={<AgenciesList />} />
+            <Route path="agences/nouvelle" element={<AgencyForm />} />
+            <Route path="agences/:agencyId/modifier" element={<AgencyForm />} />
+          </Route>
           <Route
             path="expedients"
             element={<ExpeditionsList />}

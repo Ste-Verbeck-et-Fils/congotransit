@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { clearAuthSession } from '../../lib/authSession'
+import { clearAuthSession, readAuthSession } from '../../lib/authSession'
 import './Navigation.css'
 import {
   IconBell,
@@ -8,21 +8,25 @@ import {
   IconDashboard,
   IconLogout,
   IconMenu,
+  IconOffice,
   IconTimeline,
   IconTruck,
   IconUser,
 } from './Icons'
 
-const NAV_ITEMS = [
+const getNavItems = (roleSysteme) => [
   { to: '/dashboard', label: 'Tableau de bord', icon: <IconDashboard size={20} /> },
   { to: '/dashboard/expedients', label: 'Expéditions', icon: <IconTruck size={20} /> },
+  ...(roleSysteme === 'ADMIN'
+    ? [{ to: '/dashboard/agences', label: 'Agences', icon: <IconOffice size={20} /> }]
+    : []),
   { to: '/dashboard/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },
   { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
 ]
 
-const NavigationLinks = ({ variant = 'desktop', onNavigate }) => (
+const NavigationLinks = ({ items, variant = 'desktop', onNavigate }) => (
   <nav className={`${variant}-nav-links`} aria-label="Navigation principale">
-    {NAV_ITEMS.map((item) => (
+    {items.map((item) => (
       <NavLink
         key={item.to}
         to={item.to}
@@ -44,13 +48,13 @@ const LogoutButton = ({ variant = 'desktop', onLogout }) => (
   </button>
 )
 
-const DesktopSidebar = ({ onLogout }) => (
+const DesktopSidebar = ({ items, onLogout }) => (
   <aside className="desktop-sidebar">
     <NavLink to="/dashboard" className="sidebar-brand" aria-label="Congo Transit">
       <img src="/favicon.png" alt="" className="sidebar-logo" />
       <span className="sidebar-brand-text">CONGO TRANSIT</span>
     </NavLink>
-    <NavigationLinks />
+    <NavigationLinks items={items} />
     <LogoutButton onLogout={onLogout} />
   </aside>
 )
@@ -59,6 +63,7 @@ const DesktopSidebar = ({ onLogout }) => (
 export const TopBar = () => {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const navItems = getNavItems(readAuthSession()?.role_systeme)
 
   const openMenu = () => setIsMenuOpen(true)
   const closeMenu = () => setIsMenuOpen(false)
@@ -85,7 +90,7 @@ export const TopBar = () => {
 
   return (
     <>
-      <DesktopSidebar onLogout={handleLogout} />
+      <DesktopSidebar items={navItems} onLogout={handleLogout} />
 
       <header className="top-bar">
         <NavLink to="/dashboard" className="mobile-brand" aria-label="Congo Transit">
@@ -136,7 +141,7 @@ export const TopBar = () => {
           </button>
         </div>
 
-        <NavigationLinks variant="mobile" onNavigate={closeMenu} />
+        <NavigationLinks items={navItems} variant="mobile" onNavigate={closeMenu} />
         <LogoutButton variant="mobile" onLogout={handleLogout} />
       </div>
     </>

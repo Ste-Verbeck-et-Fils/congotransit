@@ -16,13 +16,6 @@ const FLOW_DATA = [
   { label: 'Livraison', value: 891, percent: 86, color: '#2b6623' },
 ]
 
-const todayLabel = new Intl.DateTimeFormat('fr-FR', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-}).format(new Date())
-
 const TransitFlow = ({ data }) => (
   <div className="flow-chart" aria-label="Progression des colis">
     {data.map((item) => (

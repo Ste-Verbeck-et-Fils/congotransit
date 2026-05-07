@@ -6,12 +6,13 @@ import Select from '../components/ui/Select'
 import AddressFormSection from '../components/forms/AddressFormSection'
 import { createEmptyAddress, trimAddress, validateAddress } from '../lib/addressUtils'
 import { listAddresses } from '../lib/agencesApi'
-import { PERSON_STATUS_OPTIONS, createPerson, getPersonById, updatePerson } from '../lib/personnesApi'
+import { PERSON_TYPE_OPTIONS, createPerson, getPersonById, updatePerson } from '../lib/personnesApi'
 import '../styles/Agences.css'
 
 const phoneRegex = /^\+?[0-9]{8,15}$/
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-/* Ce composant gere la creation et la modification d une personne avec adresse reutilisable. */
+/* Ce composant gere la creation et la modification d une personne (expediteur ou destinataire). */
 const PersonForm = () => {
   const navigate = useNavigate()
   const { personId } = useParams()
@@ -22,9 +23,12 @@ const PersonForm = () => {
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
 
-  const [nomComplet, setNomComplet] = useState('')
+  const [nom, setNom] = useState('')
+  const [postnom, setPostnom] = useState('')
+  const [prenom, setPrenom] = useState('')
   const [telephone, setTelephone] = useState('')
-  const [status, setStatus] = useState('ACTIVE')
+  const [email, setEmail] = useState('')
+  const [typePersonne, setTypePersonne] = useState('EXPEDITEUR')
 
   const [addressOptions, setAddressOptions] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState('')
@@ -55,9 +59,12 @@ const PersonForm = () => {
         setAddressOptions(addresses)
 
         if (person) {
-          setNomComplet(person.nom_complet ?? '')
+          setNom(person.nom ?? '')
+          setPostnom(person.postnom ?? '')
+          setPrenom(person.prenom ?? '')
           setTelephone(person.telephone ?? '')
-          setStatus(person.status ?? 'ACTIVE')
+          setEmail(person.email ?? '')
+          setTypePersonne(person.type_personne ?? 'EXPEDITEUR')
           setSelectedAddressId(person.ref_adresse ?? '')
           setAddressForm(person.adresse ? trimAddress(person.adresse) : createEmptyAddress())
           setUseNewAddress(false)
@@ -85,18 +92,22 @@ const PersonForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault()
 
-    const cleanNomComplet = nomComplet.trim()
+    const cleanNom = nom.trim()
     const cleanTelephone = telephone.replace(/\s+/g, '')
+    const cleanEmail = email.trim()
 
-    if (!cleanNomComplet || !cleanTelephone) {
-      setSuccessMessage('')
-      setErrorMessage('Le nom complet et le telephone sont obligatoires.')
+    if (!cleanNom || !cleanTelephone) {
+      setErrorMessage('Le nom et le telephone sont obligatoires.')
       return
     }
 
     if (!phoneRegex.test(cleanTelephone)) {
-      setSuccessMessage('')
       setErrorMessage('Veuillez saisir un numero de telephone valide.')
+      return
+    }
+
+    if (cleanEmail && !emailRegex.test(cleanEmail)) {
+      setErrorMessage('Veuillez saisir une adresse email valide.')
       return
     }
 
@@ -105,18 +116,19 @@ const PersonForm = () => {
       const validation = validateAddress(cleanedAddress)
       if (!validation.isValid) {
         setAddressErrors(validation.errors)
-        setSuccessMessage('')
         setErrorMessage('Veuillez corriger les informations d adresse.')
         return
       }
-
       cleanedAddress = validation.cleanedAddress
     }
 
     const payload = {
-      nom_complet: cleanNomComplet,
+      nom: cleanNom,
+      postnom: postnom.trim(),
+      prenom: prenom.trim(),
       telephone: cleanTelephone,
-      status,
+      email: cleanEmail || null,
+      type_personne: typePersonne,
       ref_adresse: useNewAddress ? null : selectedAddressId || null,
       adresse: useNewAddress ? cleanedAddress : null,
     }
@@ -129,11 +141,17 @@ const PersonForm = () => {
         ? await updatePerson(personId, payload)
         : await createPerson(payload)
 
-      setSuccessMessage(response.message)
+      setSuccessMessage(response.message ?? (isEditMode ? 'Modifications enregistrees.' : 'Personne creee.'))
       setErrorMessage('')
       setAddressErrors({})
+
+      if (!isEditMode) {
+        setTimeout(
+          () => navigate('/dashboard/personnes', { state: { successMessage: response.message ?? 'Personne creee.' } }),
+          800,
+        )
+      }
     } catch (error) {
-      setSuccessMessage('')
       setErrorMessage(error.message)
     } finally {
       setIsSubmitting(false)
@@ -144,60 +162,69 @@ const PersonForm = () => {
     <section className="agencies-form-page fade-in" aria-label={isEditMode ? 'Modification personne' : 'Nouvelle personne'}>
       <header className="agencies-header">
         <div>
-          <h1>{isEditMode ? 'Modification personne' : 'Nouvelle personne'}</h1>
+          <h1>{isEditMode ? 'Modifier la personne' : 'Nouvelle personne'}</h1>
           <p>
             {isEditMode
-              ? 'Mettez a jour les informations de la personne et son adresse.'
-              : 'Enregistrez une personne et associez une adresse existante ou nouvelle.'}
+              ? 'Mettez a jour les informations de la personne.'
+              : 'Enregistrez un expediteur ou destinataire et associez-lui une adresse.'}
           </p>
         </div>
 
-        <Button variant="outline" type="button" icon={null} onClick={() => navigate('/dashboard')}>
+        <Button variant="outline" type="button" icon={null} onClick={() => navigate('/dashboard/personnes')}>
           Retour
         </Button>
       </header>
 
       <form className="agencies-form-stack" onSubmit={handleSubmit}>
         <article className="card agencies-card">
-          <h2>Informations personne</h2>
+          <h2>Identite</h2>
           <div className="agencies-divider" aria-hidden="true" />
 
           <div className="agencies-grid-two">
             <Input
-              label="Nom complet"
-              placeholder="Ex: Jean Mutombo"
-              value={nomComplet}
-              onChange={(event) => {
-                setNomComplet(event.target.value)
-                clearMessages()
-              }}
+              label="Nom *"
+              placeholder="Ex: Mutombo"
+              value={nom}
+              onChange={(e) => { setNom(e.target.value); clearMessages() }}
             />
             <Input
-              label="Telephone"
+              label="Postnom"
+              placeholder="Ex: Kabila"
+              value={postnom}
+              onChange={(e) => { setPostnom(e.target.value); clearMessages() }}
+            />
+            <Input
+              label="Prenom"
+              placeholder="Ex: Jean"
+              value={prenom}
+              onChange={(e) => { setPrenom(e.target.value); clearMessages() }}
+            />
+            <Input
+              label="Telephone *"
               type="tel"
               placeholder="+243 990 000 000"
               value={telephone}
-              onChange={(event) => {
-                setTelephone(event.target.value)
-                clearMessages()
-              }}
+              onChange={(e) => { setTelephone(e.target.value); clearMessages() }}
+            />
+            <Input
+              label="Email"
+              type="email"
+              placeholder="jean@example.com"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); clearMessages() }}
+            />
+            <Select
+              label="Type de personne"
+              value={typePersonne}
+              onChange={(e) => { setTypePersonne(e.target.value); clearMessages() }}
+              options={PERSON_TYPE_OPTIONS}
             />
           </div>
-
-          <Select
-            label="Status"
-            value={status}
-            onChange={(event) => {
-              setStatus(event.target.value)
-              clearMessages()
-            }}
-            options={PERSON_STATUS_OPTIONS}
-          />
         </article>
 
         <AddressFormSection
-          title="Adresse personne"
-          description="Selectionnez une adresse existante ou saisissez une nouvelle adresse pour cette personne."
+          title="Adresse"
+          description="Selectionnez une adresse existante ou saisissez-en une nouvelle."
           addresses={addressOptions}
           selectedAddressId={selectedAddressId}
           useNewAddress={useNewAddress}

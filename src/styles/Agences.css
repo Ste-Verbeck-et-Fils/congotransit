@@ -370,6 +370,52 @@
 
 /* ── Module utilisateurs ─────────────────────────────────────── */
 
+/* ── Module personnes ────────────────────────────────────────── */
+
+.persons-toolbar {
+  width: 80%;
+  max-width: none;
+  margin: 0;
+  margin-left: 10%;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-md);
+}
+
+.persons-toolbar .input-container {
+  flex: 1 1 auto;
+  min-width: 160px;
+}
+
+.persons-table-head,
+.persons-row {
+  grid-template-columns: 1.5fr 1fr 1fr 1.4fr auto !important;
+}
+
+.agencies-status-chip.type-chip-expediteur {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.agencies-status-chip.type-chip-destinataire {
+  background: #faf5ff;
+  color: #7e22ce;
+}
+
+.agencies-status-chip.type-chip-les_deux {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+@media (max-width: 920px) {
+  .persons-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
 .users-toolbar {
   width: 80%;
   max-width: none;

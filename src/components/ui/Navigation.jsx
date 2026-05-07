@@ -20,7 +20,7 @@ const getNavItems = (roleSysteme) => [
   ...(roleSysteme === 'ADMIN'
     ? [
       { to: '/dashboard/agences', label: 'Agences', icon: <IconOffice size={20} /> },
-      { to: '/dashboard/personnes/nouvelle', label: 'Personnes', icon: <IconUser size={20} /> },
+      { to: '/dashboard/personnes', label: 'Personnes', icon: <IconUser size={20} /> },
       { to: '/dashboard/utilisateurs', label: 'Utilisateurs', icon: <IconUser size={20} /> },
     ]
     : []),

@@ -1,9 +1,9 @@
 import { apiRequest } from './api'
 
-export const PERSON_STATUS_OPTIONS = [
-  { value: 'ACTIVE', label: 'Actif' },
-  { value: 'INACTIVE', label: 'Inactif' },
-  { value: 'SUSPENDED', label: 'Suspendu' },
+export const PERSON_TYPE_OPTIONS = [
+  { value: 'EXPEDITEUR', label: 'Expéditeur' },
+  { value: 'DESTINATAIRE', label: 'Destinataire' },
+  { value: 'LES_DEUX', label: 'Expéditeur & Destinataire' },
 ]
 
 export async function listPersons() {

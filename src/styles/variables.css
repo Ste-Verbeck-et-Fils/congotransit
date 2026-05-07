@@ -63,6 +63,15 @@ html {
   }
 }
 
+/* Evite le zoom automatique mobile au focus des champs */
+@media (hover: none) and (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

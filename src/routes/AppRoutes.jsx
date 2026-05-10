@@ -36,6 +36,8 @@ const AppRoutes = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      {/* Route de test pour preview ExpeditionDetail avec données démo - À supprimer après tests */}
+      <Route path="/test/expedition/:expeditionNumero" element={<ExpeditionDetail />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<MainLayout />}>
           <Route index element={<Dashboard />} />

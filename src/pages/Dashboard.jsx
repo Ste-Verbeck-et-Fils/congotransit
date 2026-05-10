@@ -5,9 +5,9 @@ import '../styles/Dashboard.css'
 
 /* ── Données ───────────────────────────────────────────────── */
 const KPIS = [
-  { icon: <IconBox size={20} color="var(--color-primary)" />,  label: 'Total colis',   value: '1 284', trend: '+18%', up: true  },
-  { icon: <IconTruck size={20} color="#f59e0b" />,             label: 'En transit',    value: '342',   trend: '+5%',  up: true  },
-  { icon: <IconPin size={20} color="#2b6623" />,               label: 'Livrés',        value: '891',   trend: '+22%', up: true  },
+  { icon: <IconBox size={26} color="var(--color-primary)" />, label: 'Total colis', value: '1 284', trend: '+18%', up: true },
+  { icon: <IconTruck size={26} color="#f59e0b" />, label: 'En transit', value: '342', trend: '+5%', up: true },
+  { icon: <IconPin size={26} color="#2b6623" />, label: 'Livrés', value: '891', trend: '+22%', up: true },
 ]
 
 const FLOW_DATA = [
@@ -41,42 +41,52 @@ const TransitFlow = ({ data }) => (
 /* ── Dashboard ──────────────────────────────────────────────── */
 const Dashboard = () => {
   const navigate = useNavigate()
+
   return (
-  <div className="dash fade-in">
-    <div className="dash-header">
-      <div>
-        <h1 className="dash-title">Tableau de bord</h1>
-        <p className="dash-sub">Vue rapide de l'activite colis et transit</p>
-      </div>
-      <div className="dash-header-actions">
-        <button className="dash-action" type="button" onClick={() => navigate('/dashboard/expedients/nouveau')}>
-          <IconPlus size={17} />
-          <span>Ajouter une expedition</span>
-        </button>
-      </div>
-    </div>
-
-    {/* KPIs */}
-    <div className="kpi-row">
-      {KPIS.map((k) => (
-        <div className="kpi" key={k.label}>
-          <div className="kpi-icon">{k.icon}</div>
-          <div>
-            <p className="kpi-val">{k.value}</p>
-            <p className="kpi-lbl">{k.label}</p>
-          </div>
-          <span className={`kpi-badge ${k.up ? 'up' : 'down'}`}>{k.trend}</span>
+    <div className="dash fade-in">
+      <div className="dash-header">
+        <div>
+          <h1 className="dash-title">Tableau de bord</h1>
+          <p className="dash-sub">Vue rapide de l'activité colis et transit</p>
         </div>
-      ))}
-    </div>
 
-    <div className="dash-grid">
-      <div className="card-panel">
-        <p className="panel-title">Flux operationnel des colis</p>
-        <TransitFlow data={FLOW_DATA} />
+        <div className="dash-header-actions">
+          <span className="dash-date">{todayLabel}</span>
+
+          <button
+            className="dash-action"
+            type="button"
+            onClick={() => navigate('/dashboard/expedients/nouveau')}
+          >
+            <IconPlus size={18} />
+            <span>Ajouter une expédition</span>
+          </button>
+        </div>
+      </div>
+
+      {/* KPIs */}
+      <div className="kpi-row">
+        {KPIS.map((k) => (
+          <div className="kpi" key={k.label}>
+            <div className="kpi-icon">{k.icon}</div>
+            <div>
+              <p className="kpi-val">{k.value}</p>
+              <p className="kpi-lbl">{k.label}</p>
+            </div>
+            <span className={`kpi-badge ${k.up ? 'up' : 'down'}`}>
+              {k.trend}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="dash-grid">
+        <div className="card-panel">
+          <p className="panel-title">Flux opérationnel des colis</p>
+          <TransitFlow data={FLOW_DATA} />
+        </div>
       </div>
     </div>
-  </div>
   )
 }
 

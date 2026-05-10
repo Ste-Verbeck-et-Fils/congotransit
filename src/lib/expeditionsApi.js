@@ -35,3 +35,13 @@ export async function deleteExpeditionByCodeSuivi(codeSuivi) {
 
   return data
 }
+
+export async function getExpeditionSuiviByCodeSuivi(codeSuivi) {
+  const data = await apiRequest(`/expeditions/${encodeURIComponent(codeSuivi)}/suivi`)
+  return data.suivi ?? []
+}
+
+export async function getExpeditionConfirmationByCodeSuivi(codeSuivi) {
+  const data = await apiRequest(`/expeditions/${encodeURIComponent(codeSuivi)}/confirmation`)
+  return data.confirmation ?? null
+}

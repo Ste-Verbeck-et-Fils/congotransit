@@ -1,0 +1,181 @@
+.colis-manager-note {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+.colis-manager-add-btn {
+  margin-bottom: var(--spacing-lg);
+}
+
+.colis-manager-empty {
+  color: var(--color-text-muted);
+  font-style: italic;
+  font-size: 0.88rem;
+  margin-top: var(--spacing-sm);
+}
+
+.colis-manager-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.colis-manager-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: #f8faf9;
+  border: 1px solid #eef3ef;
+  border-radius: var(--radius-md);
+}
+
+.colis-manager-item-icon {
+  width: 32px;
+  height: 32px;
+  background: #e6f1e8;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.colis-manager-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.colis-manager-item-info strong {
+  font-size: 0.88rem;
+  color: var(--color-text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.colis-manager-item-info span {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.colis-manager-item-meta {
+  font-size: 0.77rem !important;
+  font-weight: 600;
+  color: var(--color-primary) !important;
+}
+
+.colis-manager-remove-btn {
+  border: 1px solid #f5c2be;
+  border-radius: var(--radius-sm);
+  background: #fff5f5;
+  color: #b42318;
+  font: 700 0.76rem var(--font-heading);
+  min-height: 32px;
+  padding: 0 0.8rem;
+  cursor: pointer;
+}
+
+.colis-manager-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: var(--spacing-md);
+  animation: colisFadeOverlay 0.18s ease;
+}
+
+@keyframes colisFadeOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.colis-manager-modal {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 560px;
+  animation: colisSlideModal 0.2s ease;
+}
+
+@keyframes colisSlideModal {
+  from { opacity: 0; transform: translateY(-14px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.colis-manager-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border, #edf2ee);
+}
+
+.colis-manager-modal-header h3 {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.colis-manager-modal-close {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.colis-manager-modal-close:hover {
+  background: #f5f5f5;
+  color: var(--color-text-dark);
+}
+
+.colis-manager-modal-body {
+  padding: var(--spacing-lg);
+}
+
+.colis-manager-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: 1px solid var(--color-border, #edf2ee);
+}
+
+@media (max-width: 640px) {
+  .colis-manager-modal-body .expedients-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .colis-manager-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .colis-manager-modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

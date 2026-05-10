@@ -1,11 +1,11 @@
 /* Ce composant affiche le formulaire de creation d'un colis lie a une expedition. */
-import React, { useState, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import Button from '../components/ui/Button'
 import { IconBox } from '../components/ui/Icons'
-import { listExpeditions } from '../lib/expeditionsStore'
+import { listExpeditions } from '../lib/expeditionsApi'
 import { createColis } from '../lib/colisStore'
 import '../styles/CreateColis.css'
 
@@ -24,13 +24,17 @@ const CreateColis = () => {
   const location = useLocation()
   const prefilledRef = location.state?.refExpedition || ''
 
+  const [expeditions, setExpeditions] = useState([])
+
   const expeditionOptions = useMemo(() => {
-    const all = listExpeditions()
     return [
       { value: '', label: 'Choisir une expedition...' },
-      ...all.map((e) => ({ value: e.numero, label: `${e.numero} — ${e.expediteurNom} → ${e.destinataireNom}` })),
+      ...expeditions.map((e) => ({
+        value: e.code_suivi,
+        label: `${e.code_suivi} — ${e.expediteur_nom_complet || '-'} → ${e.destinataire_nom_complet || '-'}`,
+      })),
     ]
-  }, [])
+  }, [expeditions])
 
   const [refExpedition, setRefExpedition] = useState(prefilledRef)
   const [description, setDescription] = useState('')
@@ -39,6 +43,25 @@ const CreateColis = () => {
   const [observations, setObservations] = useState('')
   const [errors, setErrors] = useState({})
   const [successCode, setSuccessCode] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadExpeditions = async () => {
+      try {
+        const data = await listExpeditions()
+        if (!cancelled) setExpeditions(data)
+      } catch {
+        if (!cancelled) setExpeditions([])
+      }
+    }
+
+    loadExpeditions()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const validate = () => {
     const next = {}

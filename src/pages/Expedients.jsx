@@ -4,22 +4,13 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
-import { IconPlus, IconBox } from '../components/ui/Icons'
+import ColisManagerSection from '../components/forms/ColisManagerSection'
 import { listAgencies } from '../lib/agencesApi'
 import { createExpedition, getExpeditionByCodeSuivi, updateExpeditionByCodeSuivi } from '../lib/expeditionsApi'
+import { buildColisApiPayload } from '../lib/colisUtils'
 import { createPerson, listPersons } from '../lib/personnesApi'
 import { listUsers } from '../lib/usersApi'
 import '../styles/Expedients.css'
-
-const COLIS_CATEGORIES = [
-  { value: '', label: 'Choisir une categorie...' },
-  { value: 'Documents', label: 'Documents' },
-  { value: 'Electronique', label: 'Electronique' },
-  { value: 'Vetements', label: 'Vetements' },
-  { value: 'Alimentaire', label: 'Alimentaire' },
-  { value: 'Fragile', label: 'Fragile' },
-  { value: 'Autre', label: 'Autre' },
-]
 
 const formatPersonName = (person) =>
   [person.nom, person.postnom, person.prenom].filter(Boolean).join(' ').trim()
@@ -52,6 +43,8 @@ const buildPersonOptions = (persons, type) => {
   ]
 }
 
+const phoneRegex = /^\+?[0-9]{8,15}$/
+
 /* Formulaire principal de creation et de modification d'expedition. */
 const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
   const navigate = useNavigate()
@@ -73,13 +66,15 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
   const [observations, setObservations] = useState('')
 
   const [colis, setColis] = useState([])
-  const [isColisModalOpen, setIsColisModalOpen] = useState(false)
-  const [modalColisData, setModalColisData] = useState({ description: '', categorie: '', poids: '', observations: '' })
-  const [modalErrors, setModalErrors] = useState({})
 
   const [fieldErrors, setFieldErrors] = useState({})
   const [apiError, setApiError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [quickPersonType, setQuickPersonType] = useState('')
+  const [quickPersonNom, setQuickPersonNom] = useState('')
+  const [quickPersonTelephone, setQuickPersonTelephone] = useState('')
+  const [quickPersonErrors, setQuickPersonErrors] = useState({})
+  const [quickPersonSubmitting, setQuickPersonSubmitting] = useState(false)
 
   const totalPoids = useMemo(
     () => colis.reduce((sum, item) => sum + Number(item.poids || 0), 0).toFixed(2),
@@ -143,44 +138,11 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
     return () => { active = false }
   }, [isEditMode, expeditionNumero])
 
-  const handleOpenColisModal = () => {
-    setModalColisData({ description: '', categorie: '', poids: '', observations: '' })
-    setModalErrors({})
-    setIsColisModalOpen(true)
-  }
-
-  const handleModalFieldChange = (key, value) => {
-    setModalColisData((prev) => ({ ...prev, [key]: value }))
-    setModalErrors((prev) => ({ ...prev, [key]: '' }))
-  }
-
-  const handleSaveColisFromModal = () => {
-    const errors = {}
-    if (!modalColisData.description.trim()) errors.description = 'Description obligatoire.'
-    if (!modalColisData.categorie) errors.categorie = 'Categorie obligatoire.'
-    if (!modalColisData.poids || Number(modalColisData.poids) <= 0) errors.poids = 'Poids invalide (> 0).'
-
-    if (Object.keys(errors).length > 0) {
-      setModalErrors(errors)
-      return
+  const handleColisChange = (nextColis) => {
+    setColis(nextColis)
+    if (fieldErrors.colis) {
+      setFieldErrors((prev) => ({ ...prev, colis: '' }))
     }
-
-    setColis((prev) => [
-      ...prev,
-      {
-        id: (prev.at(-1)?.id || 0) + 1,
-        description: modalColisData.description.trim(),
-        categorie: modalColisData.categorie,
-        poids: modalColisData.poids,
-        observations: modalColisData.observations.trim(),
-      },
-    ])
-    setFieldErrors((prev) => ({ ...prev, colis: '' }))
-    setIsColisModalOpen(false)
-  }
-
-  const handleRemoveColis = (id) => {
-    setColis((prev) => prev.filter((item) => item.id !== id))
   }
 
   const refreshPersons = async () => {
@@ -190,13 +152,38 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
     return persons
   }
 
-  const handleQuickCreatePerson = async (type) => {
-    const nom = window.prompt(type === 'EXPEDITEUR' ? "Nom de l'expediteur:" : 'Nom du destinataire:')
-    if (!nom) return
-    const telephone = window.prompt('Telephone (format numerique):')
-    if (!telephone) return
+  const openQuickPersonForm = (type) => {
+    setQuickPersonType(type)
+    setQuickPersonNom('')
+    setQuickPersonTelephone('')
+    setQuickPersonErrors({})
+  }
+
+  const closeQuickPersonForm = () => {
+    setQuickPersonType('')
+    setQuickPersonNom('')
+    setQuickPersonTelephone('')
+    setQuickPersonErrors({})
+  }
+
+  const handleQuickCreatePerson = async () => {
+    const nom = quickPersonNom.trim()
+    const telephone = quickPersonTelephone.replace(/\s+/g, '')
+    const type = quickPersonType
+
+    const nextErrors = {}
+    if (!type) nextErrors.type = 'Type de personne invalide.'
+    if (!nom) nextErrors.nom = 'Le nom est obligatoire.'
+    if (!telephone) nextErrors.telephone = 'Le telephone est obligatoire.'
+    if (telephone && !phoneRegex.test(telephone)) nextErrors.telephone = 'Numero de telephone invalide.'
+
+    if (Object.keys(nextErrors).length > 0) {
+      setQuickPersonErrors(nextErrors)
+      return
+    }
 
     try {
+      setQuickPersonSubmitting(true)
       setApiError('')
       const response = await createPerson({ nom, telephone, type_personne: type })
       const allPersons = await refreshPersons()
@@ -205,8 +192,11 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
         if (type === 'EXPEDITEUR') setRefExpediteur(created.id_personne)
         if (type === 'DESTINATAIRE') setRefDestinataire(created.id_personne)
       }
+      closeQuickPersonForm()
     } catch (error) {
       setApiError(error.message || 'Impossible de creer la personne.')
+    } finally {
+      setQuickPersonSubmitting(false)
     }
   }
 
@@ -256,12 +246,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
         ref_agent: refAgent,
         date_expedition: `${dateExpedition}T00:00:00.000Z`,
         observations: observations.trim(),
-        colis: colis.map((item) => ({
-          description: item.description.trim(),
-          categorie: item.categorie,
-          poids: Number(item.poids),
-          observations: item.observations.trim(),
-        })),
+        colis: buildColisApiPayload(colis),
       }
       const response = isEditMode
         ? await updateExpeditionByCodeSuivi(expeditionNumero, payload)
@@ -286,7 +271,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
       <section className="expedients-page fade-in" aria-label={isEditMode ? 'Chargement modification expedition' : 'Chargement creation expedition'}>
         <header className="expedients-header">
           <div>
-            <h1>{isEditMode ? 'Modification d&apos;expedition' : 'Creation d&apos;expedition'}</h1>
+            <h1>{isEditMode ? "Modification d'expedition" : "Creation d'expedition"}</h1>
             <p>Chargement des donnees du formulaire...</p>
           </div>
         </header>
@@ -298,7 +283,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
     <section className="expedients-page fade-in" aria-label={isEditMode ? 'Modification expedition' : "Creation d'expedition"}>
       <header className="expedients-header">
         <div>
-          <h1>{isEditMode ? 'Modification d&apos;expedition' : 'Creation d&apos;expedition'}</h1>
+          <h1>{isEditMode ? "Modification d'expedition" : "Creation d'expedition"}</h1>
           <p>
             {isEditMode
               ? 'Mettez a jour les parties prenantes, le trajet, l\'agent et les colis de cette expedition.'
@@ -326,7 +311,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
                 onChange={(e) => setRefExpediteur(e.target.value)}
                 options={expediteurOptions}
                 withAdd
-                onAdd={() => handleQuickCreatePerson('EXPEDITEUR')}
+                onAdd={() => openQuickPersonForm('EXPEDITEUR')}
               />
               {fieldErrors.refExpediteur && <p className="expedients-field-error">{fieldErrors.refExpediteur}</p>}
             </div>
@@ -337,11 +322,53 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
                 onChange={(e) => setRefDestinataire(e.target.value)}
                 options={destinataireOptions}
                 withAdd
-                onAdd={() => handleQuickCreatePerson('DESTINATAIRE')}
+                onAdd={() => openQuickPersonForm('DESTINATAIRE')}
               />
               {fieldErrors.refDestinataire && <p className="expedients-field-error">{fieldErrors.refDestinataire}</p>}
             </div>
           </div>
+
+          {quickPersonType && (
+            <div className="expedients-quick-person">
+              <p className="expedients-quick-person-title">
+                Nouveau {quickPersonType === 'EXPEDITEUR' ? 'expediteur' : 'destinataire'}
+              </p>
+              <div className="expedients-grid-two">
+                <div>
+                  <Input
+                    label="Nom complet *"
+                    placeholder="Ex: Jean Mutombo"
+                    value={quickPersonNom}
+                    onChange={(e) => {
+                      setQuickPersonNom(e.target.value)
+                      setQuickPersonErrors((prev) => ({ ...prev, nom: '' }))
+                    }}
+                  />
+                  {quickPersonErrors.nom && <p className="expedients-field-error">{quickPersonErrors.nom}</p>}
+                </div>
+                <div>
+                  <Input
+                    label="Telephone *"
+                    placeholder="Ex: +243990000000"
+                    value={quickPersonTelephone}
+                    onChange={(e) => {
+                      setQuickPersonTelephone(e.target.value)
+                      setQuickPersonErrors((prev) => ({ ...prev, telephone: '' }))
+                    }}
+                  />
+                  {quickPersonErrors.telephone && <p className="expedients-field-error">{quickPersonErrors.telephone}</p>}
+                </div>
+              </div>
+              <div className="expedients-quick-person-actions">
+                <Button variant="outline" type="button" icon={null} onClick={closeQuickPersonForm}>
+                  Annuler
+                </Button>
+                <Button variant="primary" type="button" icon={null} onClick={handleQuickCreatePerson} disabled={quickPersonSubmitting}>
+                  {quickPersonSubmitting ? 'Ajout...' : 'Ajouter la personne'}
+                </Button>
+              </div>
+            </div>
+          )}
         </article>
 
         <article className="card expedients-card">
@@ -389,52 +416,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
           </div>
         </article>
 
-        <article className="card expedients-card">
-          <h2>Colis de l&apos;expedition</h2>
-          <p className="expedients-note">
-            Cliquez sur &quot;Ajouter un colis&quot; pour saisir les details dans une fenetre, puis validez pour l&apos;ajouter a la liste.
-          </p>
-          <Button
-            className="expedients-add-colis"
-            variant="secondary"
-            icon={<IconPlus size={18} />}
-            onClick={handleOpenColisModal}
-          >
-            Ajouter un colis
-          </Button>
-
-          {fieldErrors.colis && <p className="expedients-field-error">{fieldErrors.colis}</p>}
-
-          {colis.length === 0 ? (
-            <p className="expedients-colis-empty">Aucun colis ajoute. Utilisez le bouton ci-dessus pour commencer.</p>
-          ) : (
-            <ul className="expedients-colis-todo" aria-live="polite">
-              {colis.map((item, index) => (
-                <li className="expedients-colis-todo-item" key={item.id}>
-                  <div className="expedients-colis-todo-icon" aria-hidden="true">
-                    <IconBox size={16} color="var(--color-primary)" />
-                  </div>
-                  <div className="expedients-colis-todo-info">
-                    <strong>Colis {index + 1} &mdash; {item.categorie}</strong>
-                    <span>{item.description}</span>
-                    <span className="expedients-colis-todo-meta">
-                      {Number(item.poids).toFixed(2)} kg
-                      {item.observations ? ' \u00b7 ' + item.observations : ''}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    className="expedients-remove-btn"
-                    onClick={() => handleRemoveColis(item.id)}
-                    aria-label={'Supprimer colis ' + (index + 1)}
-                  >
-                    Supprimer
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
+        <ColisManagerSection colis={colis} onChange={handleColisChange} fieldError={fieldErrors.colis} />
 
         <article className="card expedients-card">
           <div className="expedients-grid-two">
@@ -469,82 +451,6 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
           : isEditMode ? 'Enregistrer les modifications' : "Creer l'expedition"}
       </Button>
 
-      {isColisModalOpen && (
-        <div
-          className="expedients-modal-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Ajouter un colis"
-        >
-          <div className="expedients-modal">
-            <div className="expedients-modal-header">
-              <h3>Nouveau colis</h3>
-              <button
-                type="button"
-                className="expedients-modal-close"
-                onClick={() => setIsColisModalOpen(false)}
-                aria-label="Fermer la fenetre"
-              >
-                &times;
-              </button>
-            </div>
-            <div className="expedients-modal-body">
-              <div className="expedients-grid-two">
-                <div>
-                  <Input
-                    label="Description *"
-                    value={modalColisData.description}
-                    onChange={(e) => handleModalFieldChange('description', e.target.value)}
-                    placeholder="Ex: Carton d'effets personnels"
-                  />
-                  {modalErrors.description && (
-                    <p className="expedients-field-error">{modalErrors.description}</p>
-                  )}
-                </div>
-                <div>
-                  <Select
-                    label="Categorie *"
-                    value={modalColisData.categorie}
-                    onChange={(e) => handleModalFieldChange('categorie', e.target.value)}
-                    options={COLIS_CATEGORIES}
-                  />
-                  {modalErrors.categorie && (
-                    <p className="expedients-field-error">{modalErrors.categorie}</p>
-                  )}
-                </div>
-                <div>
-                  <Input
-                    label="Poids (kg) *"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={modalColisData.poids}
-                    onChange={(e) => handleModalFieldChange('poids', e.target.value)}
-                    placeholder="Ex: 4.5"
-                  />
-                  {modalErrors.poids && (
-                    <p className="expedients-field-error">{modalErrors.poids}</p>
-                  )}
-                </div>
-                <Input
-                  label="Observations"
-                  value={modalColisData.observations}
-                  onChange={(e) => handleModalFieldChange('observations', e.target.value)}
-                  placeholder="Fragile, sensible a l'humidite..."
-                />
-              </div>
-            </div>
-            <div className="expedients-modal-footer">
-              <Button variant="outline" type="button" icon={null} onClick={() => setIsColisModalOpen(false)}>
-                Annuler
-              </Button>
-              <Button variant="primary" type="button" icon={null} onClick={handleSaveColisFromModal}>
-                Ajouter le colis
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   )
 }

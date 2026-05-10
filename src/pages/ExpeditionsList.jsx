@@ -3,27 +3,52 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import { IconMoreVertical, IconPlus, IconSearch } from '../components/ui/Icons'
-import { deleteExpeditionByNumero, listExpeditions } from '../lib/expeditionsStore'
+import { deleteExpeditionByCodeSuivi, listExpeditions } from '../lib/expeditionsApi'
 import '../styles/Expedients.css'
 
 /* Ce composant affiche la liste principale des expeditions avec acces au detail. */
 const ExpeditionsList = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
-  const [expeditions, setExpeditions] = useState(() => listExpeditions())
+  const [expeditions, setExpeditions] = useState([])
   const [openActionNumero, setOpenActionNumero] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
   const normalizedSearch = searchTerm.trim().toLowerCase()
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadExpeditions = async () => {
+      try {
+        setIsLoading(true)
+        setErrorMessage('')
+        const data = await listExpeditions()
+        if (!cancelled) setExpeditions(data)
+      } catch (error) {
+        if (!cancelled) setErrorMessage(error.message || 'Impossible de charger les expeditions.')
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+
+    loadExpeditions()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const filteredExpeditions = useMemo(() => {
     if (!normalizedSearch) return expeditions
 
     return expeditions.filter((item) => {
-      const dateLabel = new Date(item.dateExpedition).toLocaleDateString('fr-FR')
+      const dateLabel = new Date(item.date_expedition).toLocaleDateString('fr-FR')
       const haystack = [
-        item.numero,
-        item.expediteurNom,
-        item.destinataireNom,
-        item.statut,
+        item.code_suivi,
+        item.expediteur_nom_complet,
+        item.destinataire_nom_complet,
+        item.status,
         dateLabel,
       ]
         .join(' ')
@@ -33,14 +58,16 @@ const ExpeditionsList = () => {
     })
   }, [expeditions, normalizedSearch])
 
-  const handleDelete = (numero) => {
+  const handleDelete = async (codeSuivi) => {
     const isConfirmed = window.confirm('Confirmer la suppression de cette expedition ?')
     if (!isConfirmed) return
 
-    const isDeleted = deleteExpeditionByNumero(numero)
-    if (isDeleted) {
+    try {
+      await deleteExpeditionByCodeSuivi(codeSuivi)
       setOpenActionNumero('')
-      setExpeditions(listExpeditions())
+      setExpeditions((previous) => previous.filter((item) => item.code_suivi !== codeSuivi))
+    } catch (error) {
+      setErrorMessage(error.message || 'Suppression impossible.')
     }
   }
 
@@ -92,6 +119,8 @@ const ExpeditionsList = () => {
         />
       </div>
 
+      {errorMessage && <p className="expedients-error" role="alert">{errorMessage}</p>}
+
       <article className="expeditions-table-card">
         <div className="expeditions-table-head" aria-hidden="true">
           <span>Expedition</span>
@@ -103,37 +132,43 @@ const ExpeditionsList = () => {
         </div>
 
         <div className="expeditions-table-body">
-          {filteredExpeditions.map((item) => (
-            <article className="expeditions-row" key={item.numero}>
+          {isLoading && (
+            <article className="expeditions-empty-state" aria-live="polite">
+              <h3>Chargement des expeditions...</h3>
+            </article>
+          )}
+
+          {!isLoading && filteredExpeditions.map((item) => (
+            <article className="expeditions-row" key={item.code_suivi}>
               <span className="expeditions-main-cell">
-                <strong>{item.numero}</strong>
-                <small>{item.colis.length} colis</small>
+                <strong>{item.code_suivi}</strong>
+                <small>{item.total_colis || 0} colis</small>
               </span>
-              <span>{item.expediteurNom}</span>
-              <span>{item.destinataireNom}</span>
-              <span>{new Date(item.dateExpedition).toLocaleDateString('fr-FR')}</span>
+              <span>{item.expediteur_nom_complet || '-'}</span>
+              <span>{item.destinataire_nom_complet || '-'}</span>
+              <span>{new Date(item.date_expedition).toLocaleDateString('fr-FR')}</span>
               <span>
-                <em className="expeditions-status-chip">{item.statut}</em>
+                <em className="expeditions-status-chip">{item.status}</em>
               </span>
               <span className="expeditions-inline-actions">
                 <button
                   type="button"
                   className="expeditions-inline-btn"
-                  onClick={() => navigate(`/dashboard/expedients/${item.numero}`)}
+                  onClick={() => navigate(`/dashboard/expedients/${item.code_suivi}`)}
                 >
                   Detail
                 </button>
                 <button
                   type="button"
                   className="expeditions-inline-btn"
-                  onClick={() => navigate(`/dashboard/expedients/${item.numero}/modifier`)}
+                  onClick={() => navigate(`/dashboard/expedients/${item.code_suivi}/modifier`)}
                 >
                   Modifier
                 </button>
                 <button
                   type="button"
                   className="expeditions-inline-btn danger"
-                  onClick={() => handleDelete(item.numero)}
+                  onClick={() => handleDelete(item.code_suivi)}
                 >
                   Supprimer
                 </button>
@@ -144,16 +179,16 @@ const ExpeditionsList = () => {
                     type="button"
                     className="expeditions-actions-trigger"
                     aria-label="Ouvrir les actions"
-                    aria-expanded={openActionNumero === item.numero}
-                    onClick={() => setOpenActionNumero((p) => (p === item.numero ? '' : item.numero))}
+                    aria-expanded={openActionNumero === item.code_suivi}
+                    onClick={() => setOpenActionNumero((p) => (p === item.code_suivi ? '' : item.code_suivi))}
                   >
                     <IconMoreVertical size={18} />
                   </button>
-                  {openActionNumero === item.numero && (
+                  {openActionNumero === item.code_suivi && (
                     <div className="expeditions-actions-dropdown" role="menu">
-                      <button type="button" role="menuitem" onClick={() => { setOpenActionNumero(''); navigate(`/dashboard/expedients/${item.numero}`) }}>Details</button>
-                      <button type="button" role="menuitem" onClick={() => { setOpenActionNumero(''); navigate(`/dashboard/expedients/${item.numero}/modifier`) }}>Modifier</button>
-                      <button type="button" role="menuitem" className="danger" onClick={() => handleDelete(item.numero)}>Supprimer</button>
+                      <button type="button" role="menuitem" onClick={() => { setOpenActionNumero(''); navigate(`/dashboard/expedients/${item.code_suivi}`) }}>Details</button>
+                      <button type="button" role="menuitem" onClick={() => { setOpenActionNumero(''); navigate(`/dashboard/expedients/${item.code_suivi}/modifier`) }}>Modifier</button>
+                      <button type="button" role="menuitem" className="danger" onClick={() => handleDelete(item.code_suivi)}>Supprimer</button>
                     </div>
                   )}
                 </div>
@@ -161,7 +196,7 @@ const ExpeditionsList = () => {
             </article>
           ))}
 
-          {filteredExpeditions.length === 0 && (
+          {!isLoading && filteredExpeditions.length === 0 && (
             <article className="expeditions-empty-state" aria-live="polite">
               <h3>Aucune expedition trouvee</h3>
               <p>Essayez un autre mot-cle pour afficher vos expeditions.</p>

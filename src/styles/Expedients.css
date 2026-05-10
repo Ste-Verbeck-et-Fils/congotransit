@@ -213,6 +213,38 @@
   font-weight: 600;
 }
 
+.expedients-quick-person {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px dashed #dbe7df;
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+.expedients-quick-person-title {
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.expedients-quick-person-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+}
+
+@media (max-width: 640px) {
+  .expedients-quick-person-actions {
+    flex-direction: column-reverse;
+  }
+
+  .expedients-quick-person-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .expedients-colis-header {
   display: flex;
   align-items: center;

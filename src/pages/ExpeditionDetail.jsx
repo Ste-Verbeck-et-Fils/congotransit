@@ -157,13 +157,6 @@ const ExpeditionDetail = () => {
         <div className="expedition-detail-actions">
           <Button
             type="button"
-            variant="primary"
-            onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/modifier`)}
-          >
-            Modifier
-          </Button>
-          <Button
-            type="button"
             variant="secondary"
             onClick={() => navigate('/dashboard/expedients')}
           >
@@ -182,6 +175,20 @@ const ExpeditionDetail = () => {
               <>
                 <div className="expedition-actions-overlay" onClick={() => setDropdownOpen(false)} />
                 <div className="expedition-actions-menu">
+                  <button
+                    type="button"
+                    className="expedition-actions-item"
+                    onClick={() => { setDropdownOpen(false); }}
+                  >
+                    Détails
+                  </button>
+                  <button
+                    type="button"
+                    className="expedition-actions-item"
+                    onClick={() => { setDropdownOpen(false); navigate(`/dashboard/expedients/${expedition.code_suivi}/modifier`) }}
+                  >
+                    Modifier
+                  </button>
                   <button
                     type="button"
                     className="expedition-actions-item expedition-actions-item--danger"

@@ -1,0 +1,37 @@
+import { apiRequest } from './api'
+
+export async function listExpeditions() {
+  const data = await apiRequest('/expeditions')
+  return data.expeditions ?? []
+}
+
+export async function createExpedition(payload) {
+  const data = await apiRequest('/expeditions', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+  return data
+}
+
+export async function getExpeditionByCodeSuivi(codeSuivi) {
+  const data = await apiRequest(`/expeditions/${encodeURIComponent(codeSuivi)}`)
+  return data
+}
+
+export async function updateExpeditionByCodeSuivi(codeSuivi, payload) {
+  const data = await apiRequest(`/expeditions/${encodeURIComponent(codeSuivi)}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+
+  return data
+}
+
+export async function deleteExpeditionByCodeSuivi(codeSuivi) {
+  const data = await apiRequest(`/expeditions/${encodeURIComponent(codeSuivi)}`, {
+    method: 'DELETE',
+  })
+
+  return data
+}

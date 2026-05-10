@@ -22,6 +22,7 @@ export const readAuthSession = () => {
   if (currentSession?.jwtToken) {
     return {
       jwtToken: currentSession.jwtToken,
+      id_utilisateur: currentSession.id_utilisateur ?? null,
       role_systeme: normalizeRole(currentSession.role_systeme),
       ref_agence: currentSession.ref_agence ?? null,
       telephone: currentSession.telephone ?? '',
@@ -36,6 +37,7 @@ export const readAuthSession = () => {
 
   return {
     jwtToken: legacyToken,
+    id_utilisateur: legacyUser?.id_utilisateur ?? legacyUser?.id ?? null,
     role_systeme: normalizeRole(legacyUser?.role_systeme ?? legacyUser?.role),
     ref_agence: legacyUser?.ref_agence ?? null,
     telephone: legacyUser?.telephone ?? '',
@@ -48,6 +50,7 @@ export const saveAuthSession = ({ token, user }) => {
 
   const session = {
     jwtToken: token,
+    id_utilisateur: user?.id_utilisateur ?? user?.id ?? null,
     role_systeme: normalizeRole(user?.role_systeme ?? user?.role),
     ref_agence: user?.ref_agence ?? null,
     telephone: user?.telephone ?? '',

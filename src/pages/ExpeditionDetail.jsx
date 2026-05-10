@@ -1,12 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
+import Select from '../components/ui/Select'
 import { IconBox, IconArrowRight, IconTimeline, IconUser, IconPin, IconBell, IconMessage } from '../components/ui/Icons'
-import { getExpeditionByCodeSuivi, getExpeditionSuiviByCodeSuivi, getExpeditionConfirmationByCodeSuivi } from '../lib/expeditionsApi'
+import {
+  createExpeditionSuiviByCodeSuivi,
+  getExpeditionByCodeSuivi,
+  getExpeditionSuiviByCodeSuivi,
+  getExpeditionConfirmationByCodeSuivi,
+} from '../lib/expeditionsApi'
+import { readAuthSession } from '../lib/authSession'
 import '../styles/ExpeditionDetail.css'
 
 // TODO: Mettre DEMO_MODE = false quand les données réelles sont disponibles
-const DEMO_MODE = true
+const DEMO_MODE = false
 const DEMO_DATA = {
   expedition: {
     code_suivi: 'EXP-2026-AB12CD',
@@ -33,6 +41,15 @@ const DEMO_DATA = {
   confirmation: null,
 }
 
+const SUIVI_STATUS_OPTIONS = [
+  { value: 'EXPEDIE', label: 'Expedie' },
+  { value: 'EN_TRANSIT', label: 'En transit' },
+  { value: 'LIVRE', label: 'Livre' },
+  { value: 'ANNULE', label: 'Annule' },
+  { value: 'NON_RECUPERE', label: 'Non recupere' },
+  { value: 'PERDU', label: 'Perdu' },
+]
+
 /* Ce composant affiche les informations lisibles et completes d'une expedition avec detail complet. */
 const ExpeditionDetail = () => {
   const navigate = useNavigate()
@@ -43,6 +60,41 @@ const ExpeditionDetail = () => {
   const [suivi, setSuivi] = useState([])
   const [confirmation, setConfirmation] = useState(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [isSubmittingSuivi, setIsSubmittingSuivi] = useState(false)
+  const [suiviSubmitError, setSuiviSubmitError] = useState('')
+  const [suiviSubmitSuccess, setSuiviSubmitSuccess] = useState('')
+  const [suiviForm, setSuiviForm] = useState({
+    status: 'EN_TRANSIT',
+    localisation_texte: '',
+    commentaire: '',
+  })
+
+  const session = readAuthSession()
+  const isAdmin = session?.role_systeme === 'ADMIN'
+  const isAssignedAgent = session?.role_systeme === 'AGENT' && expedition?.ref_agent && String(session?.id_utilisateur) === String(expedition?.ref_agent)
+  const canEditSuivi = DEMO_MODE || isAdmin || isAssignedAgent
+
+  const refreshExpeditionDetail = async (codeSuivi, { showGlobalLoading = false } = {}) => {
+    if (showGlobalLoading) {
+      setIsLoading(true)
+      setErrorMessage('')
+    }
+
+    const data = await getExpeditionByCodeSuivi(codeSuivi)
+    setExpedition(data.expedition)
+
+    const [suiviData, confirmationData] = await Promise.all([
+      getExpeditionSuiviByCodeSuivi(codeSuivi),
+      getExpeditionConfirmationByCodeSuivi(codeSuivi),
+    ])
+
+    setSuivi(suiviData)
+    setConfirmation(confirmationData)
+
+    if (showGlobalLoading) {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -58,18 +110,7 @@ const ExpeditionDetail = () => {
 
     const loadDetail = async () => {
       try {
-        setIsLoading(true)
-        setErrorMessage('')
-        const data = await getExpeditionByCodeSuivi(expeditionNumero)
-        if (!cancelled) setExpedition(data.expedition)
-        const [suiviData, confirmationData] = await Promise.all([
-          getExpeditionSuiviByCodeSuivi(expeditionNumero),
-          getExpeditionConfirmationByCodeSuivi(expeditionNumero),
-        ])
-        if (!cancelled) {
-          setSuivi(suiviData)
-          setConfirmation(confirmationData)
-        }
+        await refreshExpeditionDetail(expeditionNumero, { showGlobalLoading: true })
       } catch (error) {
         if (!cancelled) setErrorMessage(error.message || 'Chargement impossible.')
       } finally {
@@ -116,6 +157,76 @@ const ExpeditionDetail = () => {
       PERDU: 'Perdu',
     }
     return statusMap[status] || status
+  }
+
+  useEffect(() => {
+    if (expedition?.status) {
+      setSuiviForm((prev) => ({ ...prev, status: expedition.status }))
+    }
+  }, [expedition?.status])
+
+  const handleSuiviFormChange = (field, value) => {
+    setSuiviSubmitError('')
+    setSuiviSubmitSuccess('')
+    setSuiviForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubmitSuivi = async (event) => {
+    event.preventDefault()
+
+    if (!canEditSuivi) {
+      setSuiviSubmitError('Vous n\'avez pas les droits pour mettre a jour ce suivi.')
+      return
+    }
+
+    if (!suiviForm.status) {
+      setSuiviSubmitError('Veuillez choisir un statut de suivi.')
+      return
+    }
+
+    if (!suiviForm.localisation_texte.trim()) {
+      setSuiviSubmitError('La localisation est obligatoire.')
+      return
+    }
+
+    setIsSubmittingSuivi(true)
+    setSuiviSubmitError('')
+    setSuiviSubmitSuccess('')
+
+    try {
+      if (DEMO_MODE) {
+        const newSuivi = {
+          id_suivi: `demo-${Date.now()}`,
+          status: suiviForm.status,
+          localisation_texte: suiviForm.localisation_texte.trim(),
+          commentaire: suiviForm.commentaire.trim() || null,
+          date_maj: new Date().toISOString(),
+          agent_nom: session?.nom_affichage || 'Agent',
+        }
+
+        setSuivi((prev) => [newSuivi, ...prev])
+        setExpedition((prev) => ({ ...prev, status: suiviForm.status, updated_at: new Date().toISOString() }))
+      } else {
+        await createExpeditionSuiviByCodeSuivi(expedition.code_suivi, {
+          status: suiviForm.status,
+          localisation_texte: suiviForm.localisation_texte.trim(),
+          commentaire: suiviForm.commentaire.trim(),
+        })
+
+        await refreshExpeditionDetail(expedition.code_suivi)
+      }
+
+      setSuiviSubmitSuccess('Suivi ajoute avec succes.')
+      setSuiviForm((prev) => ({
+        ...prev,
+        localisation_texte: '',
+        commentaire: '',
+      }))
+    } catch (error) {
+      setSuiviSubmitError(error.message || 'Impossible d\'ajouter ce suivi.')
+    } finally {
+      setIsSubmittingSuivi(false)
+    }
   }
 
   if (isLoading) {
@@ -365,13 +476,65 @@ const ExpeditionDetail = () => {
         </article>
       )}
 
-      {/* Historique de suivi */}
-      {suivi && suivi.length > 0 && (
-        <article className="expedition-detail-card">
-          <div className="card-header">
-            <IconTimeline size={20} />
-            <h2>Historique de suivi</h2>
+      {/* Formulaire de mise a jour du suivi */}
+      <article className="expedition-detail-card">
+        <div className="card-header">
+          <IconTimeline size={20} />
+          <h2>Ajouter une mise a jour de suivi</h2>
+        </div>
+
+        {!canEditSuivi && (
+          <p className="expedition-empty expedition-suivi-permission-note">
+            Seul l'agent affecte a cette expedition ou un administrateur peut ajouter un suivi.
+          </p>
+        )}
+
+        <form className="expedition-suivi-form" onSubmit={handleSubmitSuivi}>
+          <Select
+            label="Statut"
+            value={suiviForm.status}
+            onChange={(event) => handleSuiviFormChange('status', event.target.value)}
+            options={SUIVI_STATUS_OPTIONS}
+            disabled={!canEditSuivi || isSubmittingSuivi}
+          />
+
+          <Input
+            label="Localisation"
+            placeholder="Ex: Depot de Goma"
+            value={suiviForm.localisation_texte}
+            onChange={(event) => handleSuiviFormChange('localisation_texte', event.target.value)}
+            disabled={!canEditSuivi || isSubmittingSuivi}
+          />
+
+          <label className="expedition-suivi-textarea-label" htmlFor="suivi-commentaire">Commentaire</label>
+          <textarea
+            id="suivi-commentaire"
+            className="expedition-suivi-textarea"
+            placeholder="Informations complementaires sur le suivi"
+            value={suiviForm.commentaire}
+            onChange={(event) => handleSuiviFormChange('commentaire', event.target.value)}
+            disabled={!canEditSuivi || isSubmittingSuivi}
+            rows={4}
+          />
+
+          {suiviSubmitError && <p className="expedition-suivi-feedback expedition-suivi-feedback-error">{suiviSubmitError}</p>}
+          {suiviSubmitSuccess && <p className="expedition-suivi-feedback expedition-suivi-feedback-success">{suiviSubmitSuccess}</p>}
+
+          <div className="expedition-suivi-form-actions">
+            <Button type="submit" variant="primary" disabled={!canEditSuivi || isSubmittingSuivi}>
+              {isSubmittingSuivi ? 'Enregistrement...' : 'Ajouter le suivi'}
+            </Button>
           </div>
+        </form>
+      </article>
+
+      {/* Historique de suivi */}
+      <article className="expedition-detail-card">
+        <div className="card-header">
+          <IconTimeline size={20} />
+          <h2>Historique de suivi</h2>
+        </div>
+        {suivi && suivi.length > 0 ? (
           <div className="expedition-suivi-list">
             {suivi.map((item, index) => (
               <div key={item.id_suivi || index} className="suivi-item">
@@ -396,8 +559,10 @@ const ExpeditionDetail = () => {
               </div>
             ))}
           </div>
-        </article>
-      )}
+        ) : (
+          <p className="expedition-empty">Aucun historique de suivi pour cette expedition.</p>
+        )}
+      </article>
     </section>
   )
 }

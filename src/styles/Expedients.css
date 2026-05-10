@@ -443,9 +443,17 @@
 
 .expeditions-list-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
+}
+
+.expeditions-list-header-left {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .expeditions-list-header h1 {
@@ -453,6 +461,7 @@
   font-family: var(--font-heading);
   font-size: clamp(1.35rem, 2.8vw, 1.9rem);
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .expeditions-list-header p {
@@ -460,8 +469,18 @@
   color: var(--color-text-muted);
 }
 
+.expeditions-header-search {
+  flex: 0 0 280px;
+  min-width: 0;
+}
+
+.expeditions-header-search .input-container {
+  margin-bottom: 0;
+}
+
 .expeditions-add-btn {
-  margin-right: 20%;
+  min-width: 180px;
+  margin-right: 5%;
   margin-top: 3%;
 }
 
@@ -487,10 +506,11 @@
 .expeditions-table-head,
 .expeditions-row {
   display: grid;
-  grid-template-columns: 1.2fr 1.2fr 1fr 0.8fr 1fr auto;
-  gap: var(--spacing-md);
+  grid-template-columns: 1fr 1.1fr 1.1fr 1fr 1fr 0.9fr 0.8fr 0.8fr auto;
+  gap: var(--spacing-sm);
   align-items: center;
   padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 0.92rem;
 }
 
 .expeditions-table-head {
@@ -565,6 +585,41 @@
   font-weight: 700;
   color: var(--color-primary);
   background: #eaf4ec;
+}
+
+.expeditions-status-chip.status-expedie {
+  background: #e6f1e8;
+  color: #136c2e;
+}
+
+.expeditions-status-chip.status-en_transit {
+  background: #e3f2fd;
+  color: #0d47a1;
+}
+
+.expeditions-status-chip.status-livre {
+  background: #edf9ef;
+  color: #0c7c3e;
+}
+
+.expeditions-status-chip.status-annule {
+  background: #fff2f0;
+  color: #b42318;
+}
+
+.expeditions-status-chip.status-non_recupere {
+  background: #fff8e8;
+  color: #9a6700;
+}
+
+.expeditions-status-chip.status-perdu {
+  background: #f3e5f5;
+  color: #6a1b9a;
+}
+
+.expeditions-actions-menu-shell {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .expeditions-actions-menu {
@@ -833,9 +888,66 @@
   filter: brightness(1.05);
 }
 
+.expeditions-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-md);
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+.expeditions-toolbar .select-container {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+  margin-bottom: 0;
+}
+
+@media (max-width: 1200px) {
+  .expeditions-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .expeditions-toolbar .input-container {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .expeditions-toolbar .select-container {
+    flex: 1 1 calc(50% - var(--spacing-md));
+    max-width: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .expeditions-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .expeditions-toolbar .input-container {
+    min-width: auto;
+  }
+
+  .expeditions-toolbar .select-container {
+    flex: auto;
+  }
+}
+
 @media (max-width: 640px) {
   .expeditions-list-header {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .expeditions-list-header-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .expeditions-header-search {
+    flex: auto;
   }
 
   .expeditions-add-btn {
@@ -875,6 +987,10 @@
     max-width: 100%;
     margin-left: 0;
     margin-right: 0;
+  }
+
+  .expeditions-toolbar {
+    grid-template-columns: 1fr;
   }
 
   .expeditions-table-head {

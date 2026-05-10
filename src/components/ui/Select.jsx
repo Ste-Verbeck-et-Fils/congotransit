@@ -2,7 +2,8 @@ import React, { useId } from 'react'
 import './Select.css'
 import { IconPlus } from './Icons'
 
-const Select = ({ id, label, options, value, onChange, icon, withAdd = false, onAdd }) => {
+/* Ce composant affiche un select reutilisable avec options et bouton d'ajout optionnel. */
+const Select = ({ id, label, options, value, onChange, icon, withAdd = false, onAdd, ...selectProps }) => {
   const generatedId = useId()
   const selectId = id || generatedId
 
@@ -12,7 +13,7 @@ const Select = ({ id, label, options, value, onChange, icon, withAdd = false, on
       <div className="select-row">
         <div className="select-wrapper">
           {icon && <span className="select-icon">{icon}</span>}
-          <select id={selectId} value={value} onChange={onChange} className="select-field">
+          <select id={selectId} value={value} onChange={onChange} className="select-field" {...selectProps}>
             {options.map((option) => (
               <option key={option.value} value={option.value}>{option.label}</option>
             ))}

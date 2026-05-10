@@ -438,6 +438,65 @@
   opacity: 0.75;
 }
 
+.expedition-suivi-form {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.expedition-suivi-permission-note {
+  text-align: left;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: #fff8eb;
+  border: 1px solid #ffe3b4;
+  border-radius: var(--radius-sm);
+}
+
+.expedition-suivi-textarea-label {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.expedition-suivi-textarea {
+  width: 100%;
+  border: 1px solid var(--color-border, #d8e0db);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  padding: 0.75rem 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--color-text-dark);
+  resize: vertical;
+  min-height: 96px;
+}
+
+.expedition-suivi-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(50, 104, 59, 0.14);
+}
+
+.expedition-suivi-feedback {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.expedition-suivi-feedback-error {
+  color: #b42318;
+}
+
+.expedition-suivi-feedback-success {
+  color: #166534;
+}
+
+.expedition-suivi-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* Historique de suivi */
 .expedition-suivi-list {
   display: grid;
@@ -515,7 +574,6 @@
   color: #666;
   margin: 0;
   font-style: italic;
-}
 }
 
 /* Responsive design */

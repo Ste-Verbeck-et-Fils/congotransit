@@ -70,26 +70,8 @@
   min-width: 0;
 }
 
-.dash-action {
-  min-height: 38px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  border: none;
-  border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: var(--color-white);
-  padding: 0 1.2rem;
-  font-family: var(--font-heading);
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.dash-action:hover {
-  background: var(--color-primary-optimized);
+.dash-add-btn {
+  min-width: 190px;
 }
 
 /* ── KPIs ──────────────────────────────────────────────────── */
@@ -297,17 +279,13 @@
   }
 
   .dash-date,
-  .dash-action {
+  .dash-add-btn {
     flex: 1 1 100%;
     width: 100%;
   }
 
   .dash-date {
     text-align: center;
-  }
-
-  .dash-action {
-    min-height: 36px;
   }
 
   .kpi-row {

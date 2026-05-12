@@ -113,12 +113,47 @@
   align-items: center;
   gap: var(--spacing-sm);
   flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .expedition-detail-actions .btn {
   min-width: 110px;
   padding: 0.5rem 1rem;
   font-size: 0.88rem;
+}
+
+.expedition-module-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+}
+
+.expedition-module-link {
+  min-height: 38px;
+  border-radius: var(--radius-md);
+  border: 1px solid #dbe6dd;
+  background: #fff;
+  color: var(--color-text-dark);
+  font: 700 0.82rem var(--font-body);
+  cursor: pointer;
+  padding: 0 0.75rem;
+}
+
+.expedition-module-link:hover {
+  background: #f6faf7;
+}
+
+.expedition-module-link.active {
+  background: #eaf4ec;
+  border-color: #b9d7bf;
+  color: var(--color-primary);
+}
+
+.expedition-module-link:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* Dropdown trois points */
@@ -624,10 +659,16 @@
 
   .expedition-detail-actions {
     width: 100%;
+    justify-content: stretch;
   }
 
   .expedition-detail-actions .btn {
-    flex: 1;
+    flex: 1 1 calc(50% - var(--spacing-sm));
+    min-width: 0;
+  }
+
+  .expedition-module-nav {
+    grid-template-columns: 1fr;
   }
 
   .expedition-detail-grid {

@@ -1,6 +1,7 @@
 /* Ce composant affiche le tableau de bord avec des statistiques reelles de l'API. */
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Button from '../components/ui/Button'
 import { IconBox, IconTruck, IconPin, IconPlus } from '../components/ui/Icons'
 import { getCurrentRole } from '../lib/authSession'
 import { getDashboardOverview } from '../lib/expeditionsApi'
@@ -131,10 +132,15 @@ const Dashboard = () => {
       </div>
       {(role === 'ADMIN' || role === 'AGENT') && (
       <div className="dash-header-actions">
-        <button className="dash-action" type="button" onClick={() => navigate('/dashboard/expedients/nouveau')}>
-          <IconPlus size={17} />
-          <span>Ajouter une expedition</span>
-        </button>
+        <Button
+          type="button"
+          variant="primary"
+          className="dash-add-btn"
+          icon={<IconPlus size={17} />}
+          onClick={() => navigate('/dashboard/expedients/nouveau')}
+        >
+          Ajouter une expedition
+        </Button>
       </div>
       )}
     </div>

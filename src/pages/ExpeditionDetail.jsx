@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -7,6 +7,7 @@ import { IconBox, IconArrowRight, IconTimeline, IconUser, IconPin, IconBell, Ico
 import {
   createExpeditionSuiviByCodeSuivi,
   createExpeditionConfirmationByCodeSuivi,
+  deleteExpeditionByCodeSuivi,
   getExpeditionByCodeSuivi,
   getExpeditionSuiviByCodeSuivi,
   getExpeditionConfirmationByCodeSuivi,
@@ -52,7 +53,7 @@ const SUIVI_STATUS_OPTIONS = [
 ]
 
 /* Ce composant affiche les informations lisibles et completes d'une expedition avec detail complet. */
-const ExpeditionDetail = () => {
+const ExpeditionDetail = ({ viewMode = 'detail' }) => {
   const navigate = useNavigate()
   const { expeditionNumero } = useParams()
   const [expedition, setExpedition] = useState(null)
@@ -60,7 +61,6 @@ const ExpeditionDetail = () => {
   const [errorMessage, setErrorMessage] = useState('')
   const [suivi, setSuivi] = useState([])
   const [confirmation, setConfirmation] = useState(null)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
   const [isSubmittingSuivi, setIsSubmittingSuivi] = useState(false)
   const [suiviSubmitError, setSuiviSubmitError] = useState('')
   const [suiviSubmitSuccess, setSuiviSubmitSuccess] = useState('')
@@ -80,9 +80,19 @@ const ExpeditionDetail = () => {
   })
 
   const session = readAuthSession()
+  const role = session?.role_systeme || 'CLIENT'
+  const isClient = role === 'CLIENT'
   const isAdmin = session?.role_systeme === 'ADMIN'
   const isAssignedAgent = session?.role_systeme === 'AGENT' && expedition?.ref_agent && String(session?.id_utilisateur) === String(expedition?.ref_agent)
   const canEditSuivi = DEMO_MODE || isAdmin || isAssignedAgent
+  const canManageExpedition = isAdmin || isAssignedAgent
+  const canModifyExpedition = canManageExpedition && !['LIVRE', 'ANNULE', 'PERDU'].includes(String(expedition?.status || '').toUpperCase())
+  const canDeleteExpedition = isAdmin && !['LIVRE', 'ANNULE', 'PERDU'].includes(String(expedition?.status || '').toUpperCase())
+
+  const confirmationSectionRef = useRef(null)
+  const suiviSectionRef = useRef(null)
+
+  const listPath = isClient ? '/dashboard/mes-expeditions' : '/dashboard/expedients'
 
   const refreshExpeditionDetail = async (codeSuivi, { showGlobalLoading = false } = {}) => {
     if (showGlobalLoading) {
@@ -171,6 +181,17 @@ const ExpeditionDetail = () => {
 
   const isDelivered = expedition?.status === 'LIVRE'
   const canShowConfirmationForm = isDelivered && !confirmation
+  const canOpenConfirmation = Boolean(isDelivered || confirmation)
+
+  useEffect(() => {
+    if (viewMode === 'suivi' && suiviSectionRef.current) {
+      suiviSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+
+    if (viewMode === 'confirmation' && confirmationSectionRef.current) {
+      confirmationSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [viewMode, confirmation, expedition?.status])
 
   useEffect(() => {
     if (expedition?.status) {
@@ -317,6 +338,20 @@ const ExpeditionDetail = () => {
     }
   }
 
+  const handleDeleteExpedition = async () => {
+    if (!canDeleteExpedition || !expedition?.code_suivi) return
+
+    const isConfirmed = window.confirm('Confirmer la suppression de cette expedition ?')
+    if (!isConfirmed) return
+
+    try {
+      await deleteExpeditionByCodeSuivi(expedition.code_suivi)
+      navigate('/dashboard/expedients', { replace: true })
+    } catch (error) {
+      setErrorMessage(error.message || 'Suppression impossible.')
+    }
+  }
+
   if (isLoading) {
     return (
       <section className="expedition-detail-page fade-in" aria-label="Chargement detail expedition">
@@ -334,7 +369,7 @@ const ExpeditionDetail = () => {
         <article className="expedition-detail-card">
           <h1>Expédition introuvable</h1>
           <p>{errorMessage || "Cette expédition n'existe pas ou a été supprimée."}</p>
-          <Link to="/dashboard/expedients" className="expedition-link-inline">Retour à la liste</Link>
+          <Link to={listPath} className="expedition-link-inline">Retour à la liste</Link>
         </article>
       </section>
     )
@@ -357,50 +392,78 @@ const ExpeditionDetail = () => {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => navigate('/dashboard/expedients')}
+            onClick={() => navigate(listPath)}
           >
             Retour
           </Button>
-          <div className="expedition-actions-dropdown">
-            <button
+          <Button
+            type="button"
+            variant={viewMode === 'detail' ? 'primary' : 'outline'}
+            onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}`)}
+          >
+            Detail
+          </Button>
+          <Button
+            type="button"
+            variant={viewMode === 'suivi' ? 'primary' : 'outline'}
+            onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/suivi`)}
+          >
+            {canEditSuivi ? 'Suivi' : 'Voir suivi'}
+          </Button>
+          {canOpenConfirmation && (
+            <Button
               type="button"
-              className="expedition-actions-trigger"
-              onClick={() => setDropdownOpen(prev => !prev)}
-              aria-label="Plus d'actions"
+              variant={viewMode === 'confirmation' ? 'primary' : 'outline'}
+              onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/confirmation`)}
             >
-              <span>&#8226;&#8226;&#8226;</span>
-            </button>
-            {dropdownOpen && (
-              <>
-                <div className="expedition-actions-overlay" onClick={() => setDropdownOpen(false)} />
-                <div className="expedition-actions-menu">
-                  <button
-                    type="button"
-                    className="expedition-actions-item"
-                    onClick={() => { setDropdownOpen(false); }}
-                  >
-                    Détails
-                  </button>
-                  <button
-                    type="button"
-                    className="expedition-actions-item"
-                    onClick={() => { setDropdownOpen(false); navigate(`/dashboard/expedients/${expedition.code_suivi}/modifier`) }}
-                  >
-                    Modifier
-                  </button>
-                  <button
-                    type="button"
-                    className="expedition-actions-item expedition-actions-item--danger"
-                    onClick={() => { setDropdownOpen(false); alert('Supprimer : à implémenter') }}
-                  >
-                    Supprimer
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+              {confirmation ? 'Confirmation' : 'Confirmer reception'}
+            </Button>
+          )}
+          {canModifyExpedition && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/modifier`)}
+            >
+              Modifier
+            </Button>
+          )}
+          {canDeleteExpedition && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDeleteExpedition}
+            >
+              Supprimer
+            </Button>
+          )}
         </div>
       </header>
+
+      <article className="expedition-detail-card expedition-module-nav">
+        <button
+          type="button"
+          className={`expedition-module-link ${viewMode === 'detail' ? 'active' : ''}`}
+          onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}`)}
+        >
+          Informations generales
+        </button>
+        <button
+          type="button"
+          className={`expedition-module-link ${viewMode === 'suivi' ? 'active' : ''}`}
+          onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/suivi`)}
+        >
+          Suivi
+        </button>
+        <button
+          type="button"
+          className={`expedition-module-link ${viewMode === 'confirmation' ? 'active' : ''}`}
+          onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/confirmation`)}
+          disabled={!canOpenConfirmation}
+        >
+          Confirmation
+        </button>
+      </article>
 
       {/* Parties prenantes */}
       <article className="expedition-detail-card">
@@ -525,7 +588,7 @@ const ExpeditionDetail = () => {
 
       {/* Confirmation de réception */}
       {confirmation && (
-        <article className="expedition-detail-card">
+        <article className="expedition-detail-card" ref={confirmationSectionRef}>
           <div className="card-header">
             <IconBell size={20} />
             <h2>Confirmation de réception</h2>
@@ -572,7 +635,7 @@ const ExpeditionDetail = () => {
 
       {/* Formulaire de confirmation de reception */}
       {canShowConfirmationForm && (
-        <article className="expedition-detail-card">
+        <article className="expedition-detail-card" ref={confirmationSectionRef}>
           <div className="card-header">
             <IconBell size={20} />
             <h2>Confirmer la reception</h2>
@@ -630,7 +693,7 @@ const ExpeditionDetail = () => {
       )}
 
       {!isDelivered && !confirmation && (
-        <article className="expedition-detail-card">
+        <article className="expedition-detail-card" ref={confirmationSectionRef}>
           <div className="card-header">
             <IconBell size={20} />
             <h2>Confirmation de reception</h2>
@@ -642,7 +705,7 @@ const ExpeditionDetail = () => {
       )}
 
       {/* Formulaire de mise a jour du suivi */}
-      <article className="expedition-detail-card">
+      <article className="expedition-detail-card" ref={suiviSectionRef}>
         <div className="card-header">
           <IconTimeline size={20} />
           <h2>Ajouter une mise a jour de suivi</h2>

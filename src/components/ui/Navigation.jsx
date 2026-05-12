@@ -3,7 +3,6 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { clearAuthSession, getPostLoginRoute, readAuthSession } from '../../lib/authSession'
 import './Navigation.css'
 import {
-  IconBell,
   IconClose,
   IconDashboard,
   IconLogout,
@@ -115,18 +114,9 @@ export const TopBar = () => {
         </NavLink>
 
         <div className="top-actions" aria-label="Actions utilisateur">
-          <button className="top-icon-btn notification-btn" type="button" aria-label="Notifications">
-            <IconBell size={20} />
-            <span className="notification-dot" aria-hidden="true" />
-          </button>
-
           <NavLink to="/dashboard/profil" className="profile-action" aria-label="Profil utilisateur">
             <IconUser size={20} />
           </NavLink>
-
-          <button className="logout-btn" type="button" aria-label="Déconnexion" onClick={handleLogout}>
-            <IconLogout size={19} />
-          </button>
         </div>
 
         <button

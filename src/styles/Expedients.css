@@ -598,14 +598,17 @@
 }
 
 .expeditions-search-row {
-  width: 40%;
-  max-width: none;
+  width: 100%;
   margin: 0;
-  margin-left: 10%;
 }
 
 .expeditions-search-row .input-container {
   margin-bottom: 0;
+}
+
+.expeditions-search-row .input-wrapper {
+  min-height: 40px;
+  height: 40px;
 }
 
 .expeditions-table-card {
@@ -635,8 +638,7 @@
   font-weight: 700;
   border: 1px solid #edf2ee;
   border-radius: var(--radius-md);
-  width: 80%;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .expeditions-table-body {
@@ -650,8 +652,7 @@
   border-radius: var(--radius-md);
   background: var(--color-white);
   box-shadow: var(--shadow-sm);
-  width: 80%;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .expeditions-empty-state {
@@ -659,8 +660,7 @@
   border-radius: var(--radius-md);
   background: #f8fbf9;
   padding: var(--spacing-lg);
-  width: 80%;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .expeditions-empty-state h3 {

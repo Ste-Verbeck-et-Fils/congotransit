@@ -10,6 +10,11 @@ export async function listClientExpeditions() {
   return data.expeditions ?? []
 }
 
+export async function getDashboardOverview() {
+  const data = await apiRequest('/dashboard/overview')
+  return data
+}
+
 export async function createExpedition(payload) {
   const data = await apiRequest('/expeditions', {
     method: 'POST',

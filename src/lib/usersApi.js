@@ -45,3 +45,7 @@ export async function updateUser(idUser, payload) {
     body: JSON.stringify(payload),
   })
 }
+
+export async function deleteUser(idUser) {
+  return apiRequest(`/utilisateurs/${idUser}`, { method: 'DELETE' })
+}

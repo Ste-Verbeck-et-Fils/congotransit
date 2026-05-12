@@ -4,7 +4,7 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import { IconMoreVertical, IconPlus, IconSearch, IconUser } from '../components/ui/Icons'
 import { formatAddressLabel } from '../lib/addressUtils'
-import { PERSON_TYPE_OPTIONS, listPersons } from '../lib/personnesApi'
+import { PERSON_TYPE_OPTIONS, deletePerson, listPersons } from '../lib/personnesApi'
 import '../styles/Agences.css'
 
 const typeLabelMap = Object.fromEntries(PERSON_TYPE_OPTIONS.map((o) => [o.value, o.label]))
@@ -80,6 +80,19 @@ const PersonsList = () => {
 
   const getFullName = (p) => [p.nom, p.postnom, p.prenom].filter(Boolean).join(' ') || 'Sans nom'
 
+  const handleDelete = async (idPersonne) => {
+    const isConfirmed = window.confirm('Confirmer la suppression de cette personne ?')
+    if (!isConfirmed) return
+
+    try {
+      await deletePerson(idPersonne)
+      setOpenActionId('')
+      setPersons((previous) => previous.filter((item) => item.id_personne !== idPersonne))
+    } catch (error) {
+      setErrorMessage(error.message || 'Suppression impossible.')
+    }
+  }
+
   return (
     <section className="agencies-page fade-in" aria-label="Liste des personnes">
       <header className="agencies-header">
@@ -146,7 +159,6 @@ const PersonsList = () => {
             <article className="agencies-row persons-row" key={person.id_personne}>
               <span className="agencies-main-cell">
                 <strong>{getFullName(person)}</strong>
-                <small>{person.id_personne.slice(0, 8)}</small>
               </span>
               <span>{person.telephone || 'Non renseigne'}</span>
               <span>
@@ -155,15 +167,6 @@ const PersonsList = () => {
                 </em>
               </span>
               <span>{formatAddressLabel(person.adresse)}</span>
-              <span className="agencies-inline-actions">
-                <button
-                  type="button"
-                  className="agencies-inline-btn"
-                  onClick={() => navigate(`/dashboard/personnes/${person.id_personne}/modifier`)}
-                >
-                  Modifier
-                </button>
-              </span>
               <span className="agencies-actions-menu-shell">
                 <div className="agencies-actions-menu">
                   <button
@@ -189,7 +192,25 @@ const PersonsList = () => {
                           navigate(`/dashboard/personnes/${person.id_personne}/modifier`)
                         }}
                       >
+                        Détails
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setOpenActionId('')
+                          navigate(`/dashboard/personnes/${person.id_personne}/modifier`)
+                        }}
+                      >
                         Modifier
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="danger"
+                        onClick={() => handleDelete(person.id_personne)}
+                      >
+                        Supprimer
                       </button>
                     </div>
                   )}

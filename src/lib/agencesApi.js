@@ -43,3 +43,7 @@ export async function listAddresses() {
   const data = await apiRequest('/adresses')
   return data.addresses ?? []
 }
+
+export async function deleteAgency(idAgence) {
+  return apiRequest(`/agences/${idAgence}`, { method: 'DELETE' })
+}

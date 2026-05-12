@@ -46,6 +46,15 @@ export async function getExpeditionConfirmationByCodeSuivi(codeSuivi) {
   return data.confirmation ?? null
 }
 
+export async function createExpeditionConfirmationByCodeSuivi(codeSuivi, payload) {
+  const data = await apiRequest(`/expeditions/${encodeURIComponent(codeSuivi)}/confirmation`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+  return data
+}
+
 export async function createExpeditionSuiviByCodeSuivi(codeSuivi, payload) {
   const data = await apiRequest(`/expeditions/${encodeURIComponent(codeSuivi)}/suivi`, {
     method: 'POST',

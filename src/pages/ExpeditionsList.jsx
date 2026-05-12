@@ -293,15 +293,6 @@ const ExpeditionsList = () => {
                 </em>
               </span>
               <span>{new Date(item.date_expedition).toLocaleDateString('fr-FR')}</span>
-              <span className="expeditions-inline-actions">
-                <button
-                  type="button"
-                  className="expeditions-inline-btn"
-                  onClick={() => navigate(`/dashboard/expedients/${item.code_suivi}`)}
-                >
-                  Detail
-                </button>
-              </span>
               <span className="expeditions-actions-menu-shell">
                 <div className="expeditions-actions-menu">
                   <button

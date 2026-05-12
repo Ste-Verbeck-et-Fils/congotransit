@@ -90,9 +90,6 @@ const ColisManagerSection = ({
                 <div className="colis-manager-item-info">
                   <strong>Colis {index + 1} - {item.categorie}</strong>
                   <span>{item.description}</span>
-                  <span className="colis-manager-item-meta">
-                    {Number(item.poids || 0).toFixed(2)} kg{item.observations ? ` - ${item.observations}` : ''}
-                  </span>
                 </div>
                 <button
                   type="button"

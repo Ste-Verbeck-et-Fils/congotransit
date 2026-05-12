@@ -30,7 +30,7 @@
 
 ```bash
 npm install
-```
+``
 
 ## Lancement du projet
 

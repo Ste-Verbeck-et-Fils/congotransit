@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import { IconMoreVertical, IconOffice, IconPlus, IconSearch } from '../components/ui/Icons'
-import { formatAddressLabel, listAgencies } from '../lib/agencesApi'
+import { deleteAgency, formatAddressLabel, listAgencies } from '../lib/agencesApi'
 import '../styles/Agences.css'
 
 /* Ce composant affiche la liste des agences avec recherche et acces aux actions admin. */
@@ -68,6 +68,19 @@ const AgenciesList = () => {
   }, [])
 
   const normalizedSearch = searchTerm.trim().toLowerCase()
+
+  const handleDelete = async (idAgence) => {
+    const isConfirmed = window.confirm('Confirmer la suppression de cette agence ?')
+    if (!isConfirmed) return
+
+    try {
+      await deleteAgency(idAgence)
+      setOpenActionId('')
+      setAgencies((previous) => previous.filter((item) => item.id_agence !== idAgence))
+    } catch (error) {
+      setErrorMessage(error.message || 'Suppression impossible.')
+    }
+  }
 
   const filteredAgencies = useMemo(() => {
     if (!normalizedSearch) return agencies
@@ -150,7 +163,6 @@ const AgenciesList = () => {
             <article className="agencies-row" key={agency.id_agence}>
               <span className="agencies-main-cell">
                 <strong>{agency.nom_agence}</strong>
-                <small>{agency.id_agence.slice(0, 8)}</small>
               </span>
               <span>{agency.code_agence}</span>
               <span>{agency.telephone || 'Non renseigne'}</span>
@@ -158,15 +170,6 @@ const AgenciesList = () => {
                 <em className={`agencies-status-chip status-${agency.status.toLowerCase()}`}>{agency.status}</em>
               </span>
               <span>{formatAddressLabel(agency.adresse)}</span>
-              <span className="agencies-inline-actions">
-                <button
-                  type="button"
-                  className="agencies-inline-btn"
-                  onClick={() => navigate(`/dashboard/agences/${agency.id_agence}/modifier`)}
-                >
-                  Modifier
-                </button>
-              </span>
               <span className="agencies-actions-menu-shell">
                 <div className="agencies-actions-menu">
                   <button
@@ -188,7 +191,25 @@ const AgenciesList = () => {
                           navigate(`/dashboard/agences/${agency.id_agence}/modifier`)
                         }}
                       >
+                        Détails
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setOpenActionId('')
+                          navigate(`/dashboard/agences/${agency.id_agence}/modifier`)
+                        }}
+                      >
                         Modifier
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="danger"
+                        onClick={() => handleDelete(agency.id_agence)}
+                      >
+                        Supprimer
                       </button>
                     </div>
                   )}

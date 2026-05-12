@@ -6,6 +6,7 @@ import Select from '../components/ui/Select'
 import { IconBox, IconArrowRight, IconTimeline, IconUser, IconPin, IconBell, IconMessage } from '../components/ui/Icons'
 import {
   createExpeditionSuiviByCodeSuivi,
+  createExpeditionConfirmationByCodeSuivi,
   getExpeditionByCodeSuivi,
   getExpeditionSuiviByCodeSuivi,
   getExpeditionConfirmationByCodeSuivi,
@@ -63,10 +64,19 @@ const ExpeditionDetail = () => {
   const [isSubmittingSuivi, setIsSubmittingSuivi] = useState(false)
   const [suiviSubmitError, setSuiviSubmitError] = useState('')
   const [suiviSubmitSuccess, setSuiviSubmitSuccess] = useState('')
+  const [isSubmittingConfirmation, setIsSubmittingConfirmation] = useState(false)
+  const [confirmationSubmitError, setConfirmationSubmitError] = useState('')
+  const [confirmationSubmitSuccess, setConfirmationSubmitSuccess] = useState('')
   const [suiviForm, setSuiviForm] = useState({
     status: 'EN_TRANSIT',
     localisation_texte: '',
     commentaire: '',
+  })
+  const [confirmationForm, setConfirmationForm] = useState({
+    nom_recepteur: '',
+    telephone_recepteur: '',
+    commentaire: '',
+    colis_recu_en_bon_etat: true,
   })
 
   const session = readAuthSession()
@@ -159,6 +169,9 @@ const ExpeditionDetail = () => {
     return statusMap[status] || status
   }
 
+  const isDelivered = expedition?.status === 'LIVRE'
+  const canShowConfirmationForm = isDelivered && !confirmation
+
   useEffect(() => {
     if (expedition?.status) {
       setSuiviForm((prev) => ({ ...prev, status: expedition.status }))
@@ -169,6 +182,12 @@ const ExpeditionDetail = () => {
     setSuiviSubmitError('')
     setSuiviSubmitSuccess('')
     setSuiviForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleConfirmationFormChange = (field, value) => {
+    setConfirmationSubmitError('')
+    setConfirmationSubmitSuccess('')
+    setConfirmationForm((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleSubmitSuivi = async (event) => {
@@ -226,6 +245,75 @@ const ExpeditionDetail = () => {
       setSuiviSubmitError(error.message || 'Impossible d\'ajouter ce suivi.')
     } finally {
       setIsSubmittingSuivi(false)
+    }
+  }
+
+  const handleSubmitConfirmation = async (event) => {
+    event.preventDefault()
+
+    if (!expedition?.code_suivi) {
+      setConfirmationSubmitError('Code expedition invalide.')
+      return
+    }
+
+    if (!isDelivered) {
+      setConfirmationSubmitError('La confirmation est possible uniquement pour une expedition livree.')
+      return
+    }
+
+    if (confirmation) {
+      setConfirmationSubmitError('Cette expedition a deja une confirmation de reception.')
+      return
+    }
+
+    if (!confirmationForm.nom_recepteur.trim()) {
+      setConfirmationSubmitError('Le nom du recepteur est obligatoire.')
+      return
+    }
+
+    setIsSubmittingConfirmation(true)
+    setConfirmationSubmitError('')
+    setConfirmationSubmitSuccess('')
+
+    try {
+      const payload = {
+        nom_recepteur: confirmationForm.nom_recepteur.trim(),
+        telephone_recepteur: confirmationForm.telephone_recepteur.trim(),
+        commentaire: confirmationForm.commentaire.trim(),
+        colis_recu_en_bon_etat: Boolean(confirmationForm.colis_recu_en_bon_etat),
+        mode_confirmation: 'CLIENT',
+      }
+
+      if (DEMO_MODE) {
+        setConfirmation({
+          id_confirmation: `demo-${Date.now()}`,
+          ref_expedition: expedition.id_expedition,
+          nom_recepteur: payload.nom_recepteur,
+          telephone_recepteur: payload.telephone_recepteur || null,
+          commentaire: payload.commentaire || null,
+          colis_recu_en_bon_etat: payload.colis_recu_en_bon_etat,
+          date_reception: new Date().toISOString(),
+          ref_confirme_par: session?.id_utilisateur || null,
+          mode_confirmation: payload.mode_confirmation,
+          agent_nom: session?.nom_affichage || null,
+          created_at: new Date().toISOString(),
+        })
+      } else {
+        await createExpeditionConfirmationByCodeSuivi(expedition.code_suivi, payload)
+        await refreshExpeditionDetail(expedition.code_suivi)
+      }
+
+      setConfirmationSubmitSuccess('Confirmation de reception enregistree avec succes.')
+      setConfirmationForm({
+        nom_recepteur: '',
+        telephone_recepteur: '',
+        commentaire: '',
+        colis_recu_en_bon_etat: true,
+      })
+    } catch (error) {
+      setConfirmationSubmitError(error.message || 'Impossible d\'enregistrer la confirmation.')
+    } finally {
+      setIsSubmittingConfirmation(false)
     }
   }
 
@@ -473,6 +561,83 @@ const ExpeditionDetail = () => {
           {confirmation.commentaire && (
             <p className="expedition-detail-note">{confirmation.commentaire}</p>
           )}
+        </article>
+      )}
+
+      {confirmationSubmitSuccess && (
+        <p className="expedition-suivi-feedback expedition-suivi-feedback-success expedition-confirmation-feedback">
+          {confirmationSubmitSuccess}
+        </p>
+      )}
+
+      {/* Formulaire de confirmation de reception */}
+      {canShowConfirmationForm && (
+        <article className="expedition-detail-card">
+          <div className="card-header">
+            <IconBell size={20} />
+            <h2>Confirmer la reception</h2>
+          </div>
+
+          <form className="expedition-suivi-form" onSubmit={handleSubmitConfirmation}>
+            <Input
+              label="Nom du recepteur"
+              placeholder="Ex: Marie Kalala"
+              value={confirmationForm.nom_recepteur}
+              onChange={(event) => handleConfirmationFormChange('nom_recepteur', event.target.value)}
+              disabled={isSubmittingConfirmation}
+            />
+
+            <Input
+              label="Telephone du recepteur"
+              placeholder="Ex: +243 900 000 000"
+              value={confirmationForm.telephone_recepteur}
+              onChange={(event) => handleConfirmationFormChange('telephone_recepteur', event.target.value)}
+              disabled={isSubmittingConfirmation}
+            />
+
+            <label className="expedition-suivi-textarea-label" htmlFor="confirmation-commentaire">Commentaire</label>
+            <textarea
+              id="confirmation-commentaire"
+              className="expedition-suivi-textarea"
+              placeholder="Informations complementaires sur la reception"
+              value={confirmationForm.commentaire}
+              onChange={(event) => handleConfirmationFormChange('commentaire', event.target.value)}
+              disabled={isSubmittingConfirmation}
+              rows={4}
+            />
+
+            <label className="expedition-confirmation-checkbox" htmlFor="colis-bon-etat">
+              <input
+                id="colis-bon-etat"
+                type="checkbox"
+                checked={Boolean(confirmationForm.colis_recu_en_bon_etat)}
+                onChange={(event) => handleConfirmationFormChange('colis_recu_en_bon_etat', event.target.checked)}
+                disabled={isSubmittingConfirmation}
+              />
+              <span>Colis recu en bon etat</span>
+            </label>
+
+            {confirmationSubmitError && <p className="expedition-suivi-feedback expedition-suivi-feedback-error">{confirmationSubmitError}</p>}
+            {confirmationSubmitSuccess && <p className="expedition-suivi-feedback expedition-suivi-feedback-success">{confirmationSubmitSuccess}</p>}
+
+            <div className="expedition-suivi-form-actions">
+              <Button type="submit" variant="primary" disabled={isSubmittingConfirmation}>
+                {isSubmittingConfirmation ? 'Enregistrement...' : 'Confirmer la reception'}
+              </Button>
+            </div>
+          </form>
+        </article>
+      )}
+
+      {!isDelivered && !confirmation && (
+        <article className="expedition-detail-card">
+          <div className="card-header">
+            <IconBell size={20} />
+            <h2>Confirmation de reception</h2>
+          </div>
+          <p className="expedition-empty expedition-confirmation-pending-note">
+            La confirmation de reception sera disponible une fois l'expedition marquee comme livree.
+          </p>
         </article>
       )}
 

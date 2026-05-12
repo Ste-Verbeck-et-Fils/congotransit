@@ -119,10 +119,6 @@
   color: var(--color-text-dark);
 }
 
-.agencies-main-cell small {
-  color: var(--color-text-muted);
-}
-
 .agencies-status-chip {
   display: inline-flex;
   align-items: center;
@@ -216,6 +212,14 @@
 
 .agencies-actions-dropdown button:hover {
   background: #f6faf7;
+}
+
+.agencies-actions-dropdown button.danger {
+  color: #b42318;
+}
+
+.agencies-actions-dropdown button.danger:hover {
+  background: #fff5f5;
 }
 
 .agencies-empty-state,

@@ -45,6 +45,12 @@ const buildPersonOptions = (persons, type) => {
 
 const phoneRegex = /^\+?[0-9]{8,15}$/
 
+const PERSON_TYPE_LABELS = {
+  EXPEDITEUR: 'Expediteur',
+  DESTINATAIRE: 'Destinataire',
+  LES_DEUX: 'Expediteur et destinataire',
+}
+
 /* Formulaire principal de creation et de modification d'expedition. */
 const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
   const navigate = useNavigate()
@@ -56,6 +62,9 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
   const [destinataireOptions, setDestinataireOptions] = useState([{ value: '', label: 'Choisir un destinataire...' }])
   const [agenceOptions, setAgenceOptions] = useState([{ value: '', label: 'Choisir une agence...' }])
   const [agentOptions, setAgentOptions] = useState([{ value: '', label: 'Choisir un agent...' }])
+  const [personsById, setPersonsById] = useState({})
+  const [agenciesById, setAgenciesById] = useState({})
+  const [agentsById, setAgentsById] = useState({})
 
   const [refExpediteur, setRefExpediteur] = useState('')
   const [refDestinataire, setRefDestinataire] = useState('')
@@ -98,6 +107,10 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
 
         const [persons, agencies, users, expeditionResponse] = await Promise.all(requests)
         if (!active) return
+
+        setPersonsById(Object.fromEntries(persons.map((person) => [person.id_personne, person])))
+        setAgenciesById(Object.fromEntries(agencies.map((agency) => [agency.id_agence, agency])))
+        setAgentsById(Object.fromEntries(users.map((user) => [user.id_utilisateur, user])))
 
         setExpediteurOptions(buildPersonOptions(persons, 'EXPEDITEUR'))
         setDestinataireOptions(buildPersonOptions(persons, 'DESTINATAIRE'))
@@ -143,6 +156,88 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
     if (fieldErrors.colis) {
       setFieldErrors((prev) => ({ ...prev, colis: '' }))
     }
+  }
+
+  const buildValidationErrors = ({
+    refExpediteurValue = refExpediteur,
+    refDestinataireValue = refDestinataire,
+    refAgenceDepartValue = refAgenceDepart,
+    refAgenceDestinationValue = refAgenceDestination,
+    refAgentValue = refAgent,
+    dateExpeditionValue = dateExpedition,
+    colisValue = colis,
+  } = {}) => {
+    const nextErrors = {}
+
+    if (!refExpediteurValue) nextErrors.refExpediteur = 'Selectionnez un expediteur.'
+    if (!refDestinataireValue) nextErrors.refDestinataire = 'Selectionnez un destinataire.'
+    if (!refAgenceDepartValue) nextErrors.refAgenceDepart = 'Selectionnez une agence de depart.'
+    if (!refAgenceDestinationValue) nextErrors.refAgenceDestination = 'Selectionnez une agence de destination.'
+    if (!refAgentValue) nextErrors.refAgent = 'Selectionnez un agent affecte.'
+    if (!dateExpeditionValue) nextErrors.dateExpedition = "La date d'expedition est obligatoire."
+    if (
+      refAgenceDepartValue
+      && refAgenceDestinationValue
+      && refAgenceDepartValue === refAgenceDestinationValue
+    ) {
+      nextErrors.refAgenceDestination = "L'agence de destination doit etre differente."
+    }
+    if (!Array.isArray(colisValue) || colisValue.length === 0) {
+      nextErrors.colis = 'Ajoutez au moins un colis avant la soumission.'
+    }
+
+    return nextErrors
+  }
+
+  const summaryErrors = buildValidationErrors()
+
+  const selectedExpediteur = personsById[refExpediteur] ?? null
+  const selectedDestinataire = personsById[refDestinataire] ?? null
+  const selectedAgenceDepart = agenciesById[refAgenceDepart] ?? null
+  const selectedAgenceDestination = agenciesById[refAgenceDestination] ?? null
+  const selectedAgent = agentsById[refAgent] ?? null
+
+  const handleChangeExpediteur = (value) => {
+    setRefExpediteur(value)
+    setFieldErrors((prev) => ({ ...prev, refExpediteur: value ? '' : 'Selectionnez un expediteur.' }))
+  }
+
+  const handleChangeDestinataire = (value) => {
+    setRefDestinataire(value)
+    setFieldErrors((prev) => ({ ...prev, refDestinataire: value ? '' : 'Selectionnez un destinataire.' }))
+  }
+
+  const handleChangeAgenceDepart = (value) => {
+    setRefAgenceDepart(value)
+    setFieldErrors((prev) => ({
+      ...prev,
+      refAgenceDepart: value ? '' : 'Selectionnez une agence de depart.',
+      refAgenceDestination: value && refAgenceDestination && value === refAgenceDestination
+        ? "L'agence de destination doit etre differente."
+        : prev.refAgenceDestination,
+    }))
+  }
+
+  const handleChangeAgenceDestination = (value) => {
+    setRefAgenceDestination(value)
+    setFieldErrors((prev) => ({
+      ...prev,
+      refAgenceDestination: !value
+        ? 'Selectionnez une agence de destination.'
+        : value === refAgenceDepart
+          ? "L'agence de destination doit etre differente."
+          : '',
+    }))
+  }
+
+  const handleChangeAgent = (value) => {
+    setRefAgent(value)
+    setFieldErrors((prev) => ({ ...prev, refAgent: value ? '' : 'Selectionnez un agent affecte.' }))
+  }
+
+  const handleChangeDate = (value) => {
+    setDateExpedition(value)
+    setFieldErrors((prev) => ({ ...prev, dateExpedition: value ? '' : "La date d'expedition est obligatoire." }))
   }
 
   const refreshPersons = async () => {
@@ -201,20 +296,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
   }
 
   const validateForm = () => {
-    const nextErrors = {}
-    if (!refExpediteur) nextErrors.refExpediteur = 'Selectionnez un expediteur.'
-    if (!refDestinataire) nextErrors.refDestinataire = 'Selectionnez un destinataire.'
-    if (!refAgenceDepart) nextErrors.refAgenceDepart = 'Selectionnez une agence de depart.'
-    if (!refAgenceDestination) nextErrors.refAgenceDestination = 'Selectionnez une agence de destination.'
-    if (!refAgent) nextErrors.refAgent = 'Selectionnez un agent affecte.'
-    if (!dateExpedition) nextErrors.dateExpedition = "La date d'expedition est obligatoire."
-    if (refAgenceDepart && refAgenceDestination && refAgenceDepart === refAgenceDestination) {
-      nextErrors.refAgenceDestination = "L'agence de destination doit etre differente."
-    }
-    if (!Array.isArray(colis) || colis.length === 0) {
-      nextErrors.colis = 'Ajoutez au moins un colis avant la soumission.'
-    }
-    return nextErrors
+    return buildValidationErrors()
   }
 
   const resetForm = () => {
@@ -230,6 +312,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
   }
 
   const handleSubmit = async () => {
+    if (submitting) return
+
     const validation = validateForm()
     setFieldErrors(validation)
     setApiError('')
@@ -301,30 +385,45 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
       <div className="expedients-stack">
 
         <article className="card expedients-card">
-          <h2>Parties prenantes</h2>
+          <h2>1. Parties prenantes</h2>
+          <p className="expedients-section-note">Selectionnez clairement l'expediteur et le destinataire, ou ajoutez-les rapidement.</p>
           <div className="expedients-divider" aria-hidden="true" />
           <div className="expedients-grid-two">
             <div>
               <Select
                 label="Expediteur *"
                 value={refExpediteur}
-                onChange={(e) => setRefExpediteur(e.target.value)}
+                onChange={(e) => handleChangeExpediteur(e.target.value)}
                 options={expediteurOptions}
                 withAdd
                 onAdd={() => openQuickPersonForm('EXPEDITEUR')}
               />
               {fieldErrors.refExpediteur && <p className="expedients-field-error">{fieldErrors.refExpediteur}</p>}
+              {selectedExpediteur && (
+                <div className="expedients-person-preview">
+                  <strong>{formatPersonName(selectedExpediteur) || 'Nom non renseigne'}</strong>
+                  <span>{selectedExpediteur.telephone || 'Telephone non renseigne'}</span>
+                  <em>{PERSON_TYPE_LABELS[selectedExpediteur.type_personne] || selectedExpediteur.type_personne || 'Type inconnu'}</em>
+                </div>
+              )}
             </div>
             <div>
               <Select
                 label="Destinataire *"
                 value={refDestinataire}
-                onChange={(e) => setRefDestinataire(e.target.value)}
+                onChange={(e) => handleChangeDestinataire(e.target.value)}
                 options={destinataireOptions}
                 withAdd
                 onAdd={() => openQuickPersonForm('DESTINATAIRE')}
               />
               {fieldErrors.refDestinataire && <p className="expedients-field-error">{fieldErrors.refDestinataire}</p>}
+              {selectedDestinataire && (
+                <div className="expedients-person-preview">
+                  <strong>{formatPersonName(selectedDestinataire) || 'Nom non renseigne'}</strong>
+                  <span>{selectedDestinataire.telephone || 'Telephone non renseigne'}</span>
+                  <em>{PERSON_TYPE_LABELS[selectedDestinataire.type_personne] || selectedDestinataire.type_personne || 'Type inconnu'}</em>
+                </div>
+              )}
             </div>
           </div>
 
@@ -372,14 +471,15 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
         </article>
 
         <article className="card expedients-card">
-          <h2>Affectation et trajet</h2>
+          <h2>2. Affectation et trajet</h2>
+          <p className="expedients-section-note">Definissez les agences de transit et l'agent responsable de l'expedition.</p>
           <div className="expedients-divider" aria-hidden="true" />
           <div className="expedients-grid-two">
             <div>
               <Select
                 label="Agence de depart *"
                 value={refAgenceDepart}
-                onChange={(e) => setRefAgenceDepart(e.target.value)}
+                onChange={(e) => handleChangeAgenceDepart(e.target.value)}
                 options={agenceOptions}
               />
               {fieldErrors.refAgenceDepart && <p className="expedients-field-error">{fieldErrors.refAgenceDepart}</p>}
@@ -388,7 +488,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
               <Select
                 label="Agence de destination *"
                 value={refAgenceDestination}
-                onChange={(e) => setRefAgenceDestination(e.target.value)}
+                onChange={(e) => handleChangeAgenceDestination(e.target.value)}
                 options={agenceOptions}
               />
               {fieldErrors.refAgenceDestination && (
@@ -399,7 +499,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
               <Select
                 label="Agent affecte *"
                 value={refAgent}
-                onChange={(e) => setRefAgent(e.target.value)}
+                onChange={(e) => handleChangeAgent(e.target.value)}
                 options={agentOptions}
               />
               {fieldErrors.refAgent && <p className="expedients-field-error">{fieldErrors.refAgent}</p>}
@@ -409,7 +509,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
                 label="Date d'expedition *"
                 type="date"
                 value={dateExpedition}
-                onChange={(e) => setDateExpedition(e.target.value)}
+                onChange={(e) => handleChangeDate(e.target.value)}
               />
               {fieldErrors.dateExpedition && <p className="expedients-field-error">{fieldErrors.dateExpedition}</p>}
             </div>
@@ -419,6 +519,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
         <ColisManagerSection colis={colis} onChange={handleColisChange} fieldError={fieldErrors.colis} />
 
         <article className="card expedients-card">
+          <h2>3. Details de l'expedition</h2>
           <div className="expedients-grid-two">
             <div>
               <p className="expedients-total-label">Poids total estime</p>
@@ -436,20 +537,80 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
           </div>
         </article>
 
+        <article className="card expedients-card expedients-summary-card">
+          <h2>4. Resume avant enregistrement</h2>
+          <p className="expedients-section-note">Verifiez les informations principales avant de soumettre.</p>
+          <div className="expedients-divider" aria-hidden="true" />
+
+          <div className="expedients-summary-grid">
+            <div>
+              <span>Expediteur</span>
+              <strong>{selectedExpediteur ? (formatPersonName(selectedExpediteur) || selectedExpediteur.telephone) : '-'}</strong>
+            </div>
+            <div>
+              <span>Destinataire</span>
+              <strong>{selectedDestinataire ? (formatPersonName(selectedDestinataire) || selectedDestinataire.telephone) : '-'}</strong>
+            </div>
+            <div>
+              <span>Agence depart</span>
+              <strong>{selectedAgenceDepart?.nom_agence || '-'}</strong>
+            </div>
+            <div>
+              <span>Agence destination</span>
+              <strong>{selectedAgenceDestination?.nom_agence || '-'}</strong>
+            </div>
+            <div>
+              <span>Agent</span>
+              <strong>{selectedAgent?.nom_affichage || '-'}</strong>
+            </div>
+            <div>
+              <span>Date expedition</span>
+              <strong>{dateExpedition || '-'}</strong>
+            </div>
+            <div>
+              <span>Nombre de colis</span>
+              <strong>{colis.length}</strong>
+            </div>
+            <div>
+              <span>Poids total</span>
+              <strong>{totalPoids} kg</strong>
+            </div>
+          </div>
+
+          {colis.length > 0 && (
+            <ul className="expedients-summary-colis" aria-label="Colis enregistres">
+              {colis.map((item, index) => (
+                <li key={item.id || `${item.categorie}-${index}`}>
+                  <strong>Colis {index + 1}</strong>
+                  <span>{item.categorie} - {Number(item.poids || 0).toFixed(2)} kg</span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {Object.keys(summaryErrors).length > 0 && (
+            <p className="expedients-summary-warning" role="status">
+              Finalisez les champs obligatoires pour continuer en toute securite.
+            </p>
+          )}
+        </article>
+
       </div>
 
-      <Button
-        className="btn-full expedients-submit"
-        variant="primary"
-        type="button"
-        icon={null}
-        onClick={handleSubmit}
-        disabled={submitting}
-      >
-        {submitting
-          ? isEditMode ? 'Mise a jour en cours...' : 'Creation en cours...'
-          : isEditMode ? 'Enregistrer les modifications' : "Creer l'expedition"}
-      </Button>
+      <div className="expedients-submit-wrap">
+        <Button
+          className="btn-full expedients-submit"
+          variant="primary"
+          type="button"
+          icon={null}
+          onClick={handleSubmit}
+          disabled={submitting}
+        >
+          {submitting
+            ? isEditMode ? 'Mise a jour en cours...' : 'Creation en cours...'
+            : isEditMode ? 'Enregistrer les modifications' : "Creer l'expedition"}
+        </Button>
+      </div>
 
     </section>
   )

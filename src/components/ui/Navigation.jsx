@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { clearAuthSession, readAuthSession } from '../../lib/authSession'
+import { clearAuthSession, getPostLoginRoute, readAuthSession } from '../../lib/authSession'
 import './Navigation.css'
 import {
   IconBell,
@@ -15,19 +15,27 @@ import {
 } from './Icons'
 
 const getNavItems = (roleSysteme) => [
-  { to: '/dashboard', label: 'Tableau de bord', icon: <IconDashboard size={20} /> },
-  ...(roleSysteme === 'CLIENT'
-    ? [{ to: '/dashboard/mes-expeditions', label: 'Mes expeditions', icon: <IconTruck size={20} /> }]
-    : [{ to: '/dashboard/expedients', label: 'Expéditions', icon: <IconTruck size={20} /> }]),
   ...(roleSysteme === 'ADMIN'
     ? [
+      { to: '/dashboard', label: 'Tableau de bord', icon: <IconDashboard size={20} /> },
+      { to: '/dashboard/expedients', label: 'Expeditions', icon: <IconTruck size={20} /> },
       { to: '/dashboard/agences', label: 'Agences', icon: <IconOffice size={20} /> },
       { to: '/dashboard/personnes', label: 'Personnes', icon: <IconUser size={20} /> },
       { to: '/dashboard/utilisateurs', label: 'Utilisateurs', icon: <IconUser size={20} /> },
+      { to: '/dashboard/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },
+      { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
     ]
-    : []),
-  { to: '/dashboard/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },
-  { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
+    : roleSysteme === 'AGENT'
+      ? [
+        { to: '/dashboard/expedients', label: 'Expeditions', icon: <IconTruck size={20} /> },
+        { to: '/dashboard/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },
+        { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
+      ]
+      : [
+        { to: '/dashboard/mes-expeditions', label: 'Mes expeditions', icon: <IconTruck size={20} /> },
+        { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
+      ]
+  )
 ]
 
 const NavigationLinks = ({ items, variant = 'desktop', onNavigate }) => (
@@ -54,9 +62,9 @@ const LogoutButton = ({ variant = 'desktop', onLogout }) => (
   </button>
 )
 
-const DesktopSidebar = ({ items, onLogout }) => (
+const DesktopSidebar = ({ items, onLogout, homePath }) => (
   <aside className="desktop-sidebar">
-    <NavLink to="/dashboard" className="sidebar-brand" aria-label="Congo Transit">
+    <NavLink to={homePath} className="sidebar-brand" aria-label="Congo Transit">
       <img src="/favicon.png" alt="" className="sidebar-logo" />
       <span className="sidebar-brand-text">CONGO TRANSIT</span>
     </NavLink>
@@ -69,7 +77,9 @@ const DesktopSidebar = ({ items, onLogout }) => (
 export const TopBar = () => {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const navItems = getNavItems(readAuthSession()?.role_systeme)
+  const roleSysteme = readAuthSession()?.role_systeme
+  const navItems = getNavItems(roleSysteme)
+  const homePath = getPostLoginRoute(roleSysteme)
 
   const openMenu = () => setIsMenuOpen(true)
   const closeMenu = () => setIsMenuOpen(false)
@@ -96,10 +106,10 @@ export const TopBar = () => {
 
   return (
     <>
-      <DesktopSidebar items={navItems} onLogout={handleLogout} />
+      <DesktopSidebar items={navItems} onLogout={handleLogout} homePath={homePath} />
 
       <header className="top-bar">
-        <NavLink to="/dashboard" className="mobile-brand" aria-label="Congo Transit">
+        <NavLink to={homePath} className="mobile-brand" aria-label="Congo Transit">
           <img src="/favicon.png" alt="Congo Transit" className="logo-img" />
           <span className="logo-text">CONGO TRANSIT</span>
         </NavLink>

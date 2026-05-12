@@ -43,8 +43,8 @@ const AppRoutes = () => {
       <Route path="/test/expedition/:expeditionNumero" element={<ExpeditionDetail />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<MainLayout />}>
-          <Route index element={<Dashboard />} />
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+            <Route index element={<Dashboard />} />
             <Route path="agences" element={<AgenciesList />} />
             <Route path="agences/nouvelle" element={<AgencyForm />} />
             <Route path="agences/:agencyId/modifier" element={<AgencyForm />} />
@@ -55,18 +55,28 @@ const AppRoutes = () => {
             <Route path="utilisateurs/nouveau" element={<UserForm />} />
             <Route path="utilisateurs/:userId/modifier" element={<UserForm />} />
           </Route>
-          <Route
-            path="expedients"
-            element={<ExpeditionsList />}
-          />
-          <Route
-            path="expedients/nouveau"
-            element={<Expedients />}
-          />
-          <Route
-            path="expedients/:expeditionNumero/modifier"
-            element={<Expedients />}
-          />
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'AGENT']} />}>
+            <Route
+              path="expedients"
+              element={<ExpeditionsList />}
+            />
+            <Route
+              path="expedients/nouveau"
+              element={<Expedients />}
+            />
+            <Route
+              path="expedients/:expeditionNumero/modifier"
+              element={<Expedients />}
+            />
+            <Route
+              path="colis/nouveau"
+              element={<CreateColis />}
+            />
+            <Route
+              path="trajet"
+              element={<PlaceholderPage title="Suivi trajet" description="Consultez les mouvements, etapes et anomalies de transit." />}
+            />
+          </Route>
           <Route
             path="expedients/:expeditionNumero"
             element={<ExpeditionDetail />}
@@ -77,14 +87,6 @@ const AppRoutes = () => {
               element={<MyExpeditions />}
             />
           </Route>
-          <Route
-            path="colis/nouveau"
-            element={<CreateColis />}
-          />
-          <Route
-            path="trajet"
-            element={<PlaceholderPage title="Suivi trajet" description="Consultez les mouvements, etapes et anomalies de transit." />}
-          />
           <Route
             path="profil"
             element={<PlaceholderPage title="Profil" description="Mettez a jour les informations du compte et les preferences de securite." />}

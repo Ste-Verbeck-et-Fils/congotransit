@@ -149,3 +149,10 @@ export const IconEyeOff = ({ size = 20, color = "currentColor" }) => (
     <path d="M6.1 6.1C3.4 7.9 2 12 2 12s3 8 10 8a9.7 9.7 0 0 0 5.1-1.5"/>
   </svg>
 )
+
+export const IconLock = ({ size = 20, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+)

@@ -19,6 +19,11 @@ export async function getExpeditionByCodeSuivi(codeSuivi) {
   return data
 }
 
+export async function getPublicTrackingByCodeSuivi(codeSuivi) {
+  const data = await apiRequest(`/public/tracking/${encodeURIComponent(codeSuivi)}`)
+  return data
+}
+
 export async function updateExpeditionByCodeSuivi(codeSuivi, payload) {
   const data = await apiRequest(`/expeditions/${encodeURIComponent(codeSuivi)}`, {
     method: 'PUT',

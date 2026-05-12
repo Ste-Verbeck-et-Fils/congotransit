@@ -78,6 +78,6 @@ export const clearAuthSession = () => {
 
 export const getPostLoginRoute = (roleSysteme) => {
   if (roleSysteme === 'AGENT') return '/dashboard/expedients'
-  if (roleSysteme === 'CLIENT') return '/dashboard/profil'
+  if (roleSysteme === 'CLIENT') return '/dashboard/mes-expeditions'
   return '/dashboard'
 }

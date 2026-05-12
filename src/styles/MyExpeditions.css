@@ -1,0 +1,213 @@
+.my-expeditions-page {
+  width: 100%;
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.my-expeditions-header h1 {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 2.8vw, 1.9rem);
+  line-height: 1.1;
+}
+
+.my-expeditions-header p {
+  margin-top: 0.35rem;
+  color: var(--color-text-muted);
+  max-width: 62ch;
+}
+
+.my-expeditions-alert {
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+  font-weight: 600;
+}
+
+.my-expeditions-alert-error {
+  background: #fff2f0;
+  color: #b42318;
+  border: 1px solid #f8c2bb;
+}
+
+.my-expeditions-table-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.my-expeditions-table-head,
+.my-expeditions-row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 0.9fr 1.2fr 1.2fr auto;
+  gap: var(--spacing-md);
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.my-expeditions-table-head {
+  background: #f7faf7;
+  color: #6a706a;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  border: 1px solid #edf2ee;
+  border-radius: var(--radius-md);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.my-expeditions-table-body {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: var(--spacing-sm);
+}
+
+.my-expeditions-row {
+  background: var(--color-white);
+  border: 1px solid #edf2ee;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.my-expeditions-main-cell {
+  display: grid;
+}
+
+.my-expeditions-main-cell strong {
+  color: var(--color-text-dark);
+}
+
+.my-expeditions-status-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.my-expeditions-status-chip.status-expedie {
+  background: #e6f1e8;
+  color: #136c2e;
+}
+
+.my-expeditions-status-chip.status-en_transit {
+  background: #e3f2fd;
+  color: #0d47a1;
+}
+
+.my-expeditions-status-chip.status-livre {
+  background: #edf9ef;
+  color: #0c7c3e;
+}
+
+.my-expeditions-status-chip.status-annule,
+.my-expeditions-status-chip.status-perdu {
+  background: #fff2f0;
+  color: #b42318;
+}
+
+.my-expeditions-status-chip.status-non_recupere {
+  background: #fff8e8;
+  color: #9a6700;
+}
+
+.my-expeditions-actions-menu-shell {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.my-expeditions-actions-menu {
+  position: relative;
+}
+
+.my-expeditions-actions-trigger {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid #dbe6dd;
+  background: var(--color-white);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.my-expeditions-actions-trigger:hover {
+  background: #f6faf7;
+}
+
+.my-expeditions-actions-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 15;
+  min-width: 130px;
+  border-radius: var(--radius-md);
+  border: 1px solid #dbe6dd;
+  background: var(--color-white);
+  box-shadow: var(--shadow-md);
+  padding: 0.3rem;
+}
+
+.my-expeditions-actions-dropdown button {
+  min-height: 34px;
+  width: 100%;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-dark);
+  text-align: left;
+  padding: 0 0.65rem;
+  font: 600 0.82rem var(--font-body);
+  cursor: pointer;
+}
+
+.my-expeditions-actions-dropdown button:hover {
+  background: #f6faf7;
+}
+
+.my-expeditions-empty-state {
+  border: 1px dashed #d7e1d9;
+  border-radius: var(--radius-md);
+  background: #f8fbf9;
+  padding: var(--spacing-lg);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.my-expeditions-empty-state h3 {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: 1.02rem;
+}
+
+.my-expeditions-empty-state p {
+  color: var(--color-text-muted);
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 992px) {
+  .my-expeditions-table-head {
+    display: none;
+  }
+
+  .my-expeditions-row {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+    padding: 0.9rem;
+  }
+
+  .my-expeditions-actions-menu-shell {
+    justify-content: flex-start;
+  }
+}

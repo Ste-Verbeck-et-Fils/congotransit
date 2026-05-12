@@ -1,5 +1,6 @@
-import React from "react";
-import { Link } from "react-router-dom";
+/* Cette page presente l'accueil public et redirige vers le suivi par code. */
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import PublicFooter from "../components/layout/PublicFooter";
 import PublicHeader from "../components/layout/PublicHeader";
 import {
@@ -39,6 +40,16 @@ const deliveryStats = [
 ];
 
 const Home = () => {
+  const navigate = useNavigate()
+  const [trackingCode, setTrackingCode] = useState('')
+
+  const handleTrackingSubmit = (event) => {
+    event.preventDefault()
+    const code = trackingCode.trim().toUpperCase()
+    if (!code) return
+    navigate(`/suivi?code=${encodeURIComponent(code)}`)
+  }
+
   return (
     <div className="home-page">
       <PublicHeader />
@@ -60,7 +71,7 @@ const Home = () => {
                 </p>
               </div>
 
-              <form className="tracking-card" aria-label="Recherche de colis">
+              <form className="tracking-card" aria-label="Recherche de colis" onSubmit={handleTrackingSubmit}>
                 <label htmlFor="tracking-code">
                   Suivre une expédition active
                 </label>
@@ -69,6 +80,8 @@ const Home = () => {
                     id="tracking-code"
                     type="text"
                     placeholder="Ex: CT-2408-9572"
+                    value={trackingCode}
+                    onChange={(event) => setTrackingCode(event.target.value)}
                   />
                   <button type="submit" className="btn-primary">
                     <IconArrowRight size={18} />

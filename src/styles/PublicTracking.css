@@ -1,0 +1,337 @@
+.public-tracking-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(1300px 400px at 10% -10%, rgba(44, 121, 70, 0.12), transparent 55%),
+    radial-gradient(800px 320px at 100% 0%, rgba(245, 158, 11, 0.12), transparent 45%),
+    #f5faf6;
+}
+
+.public-tracking-main {
+  width: min(1080px, 100% - 2rem);
+  margin: 0 auto;
+  padding: 1.25rem 0 2.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.public-tracking-hero {
+  border: 1px solid #e1ebe2;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #ffffff, #f9fcfa);
+  box-shadow: 0 10px 28px rgba(16, 24, 16, 0.05);
+  padding: 1rem;
+}
+
+.public-tracking-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2b6623;
+}
+
+.public-tracking-hero h1 {
+  font-family: var(--font-heading);
+  color: var(--color-text-dark);
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  margin-top: 0.2rem;
+}
+
+.public-tracking-hero > p {
+  color: var(--color-text-muted);
+  margin-top: 0.35rem;
+  max-width: 62ch;
+}
+
+.public-tracking-form {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.public-tracking-form label {
+  font-weight: 700;
+  color: #254724;
+  font-size: 0.9rem;
+}
+
+.public-tracking-input-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.public-tracking-input-row input {
+  width: 100%;
+  min-height: 48px;
+  border-radius: var(--radius-md);
+  border: 1px solid #cfe0d1;
+  background: #fff;
+  color: var(--color-text-dark);
+  font: 600 0.95rem var(--font-body);
+  padding: 0 0.85rem;
+}
+
+.public-tracking-input-row input:focus {
+  outline: none;
+  border-color: #2d7a37;
+  box-shadow: 0 0 0 3px rgba(45, 122, 55, 0.2);
+}
+
+.public-tracking-input-row button {
+  width: 100%;
+  justify-content: center;
+}
+
+.public-tracking-alert {
+  margin-top: 0.7rem;
+  border-radius: var(--radius-md);
+  padding: 0.8rem 0.95rem;
+  font-weight: 600;
+}
+
+.public-tracking-alert-error {
+  background: #fff3f2;
+  border: 1px solid #f8c9c2;
+  color: #b42318;
+}
+
+.public-tracking-results {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.public-tracking-card {
+  border: 1px solid #e2ebe3;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(19, 31, 21, 0.04);
+  padding: 0.95rem;
+}
+
+.public-tracking-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.public-tracking-card-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.public-tracking-card h2 {
+  margin-top: 0.12rem;
+  color: var(--color-text-dark);
+  font-size: 1.12rem;
+  font-family: var(--font-heading);
+}
+
+.public-status-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 700;
+  padding: 0.34rem 0.72rem;
+  text-transform: uppercase;
+}
+
+.public-status-chip.status-expedie {
+  background: #e8f1e9;
+  color: #1f6c32;
+}
+
+.public-status-chip.status-en_transit {
+  background: #e8f1ff;
+  color: #0f4fa8;
+}
+
+.public-status-chip.status-livre {
+  background: #edf9ef;
+  color: #0f7a3b;
+}
+
+.public-status-chip.status-annule,
+.public-status-chip.status-perdu {
+  background: #fff2f1;
+  color: #b42318;
+}
+
+.public-status-chip.status-non_recupere {
+  background: #fff8e8;
+  color: #9a6700;
+}
+
+.public-tracking-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+}
+
+.public-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.15rem;
+}
+
+.public-tracking-grid strong {
+  color: var(--color-text-dark);
+  font-size: 0.92rem;
+}
+
+.public-section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #214c22;
+}
+
+.public-section-title h3 {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+}
+
+.public-empty {
+  margin-top: 0.55rem;
+  color: var(--color-text-muted);
+}
+
+.public-timeline {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.public-timeline-item {
+  border: 1px solid #edf3ee;
+  border-radius: 12px;
+  background: #fbfdfb;
+  padding: 0.72rem;
+}
+
+.public-timeline-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.public-timeline-top span {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.public-timeline-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-text-dark);
+  margin-top: 0.45rem;
+}
+
+.public-timeline-comment {
+  margin-top: 0.4rem;
+  color: #304332;
+}
+
+.public-timeline-agent {
+  margin-top: 0.3rem;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.public-colis-total {
+  margin-top: 0.5rem;
+  color: #2f4631;
+}
+
+.public-colis-list {
+  list-style: none;
+  margin: 0.65rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.public-colis-item {
+  border: 1px solid #edf3ee;
+  border-radius: 12px;
+  padding: 0.7rem;
+  background: #fcfefd;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.public-colis-item strong {
+  color: var(--color-text-dark);
+}
+
+.public-colis-item p {
+  margin: 0.1rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+}
+
+.public-colis-item span {
+  color: #1d5f2e;
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+
+.public-tracking-placeholder {
+  border: 1px dashed #ccddcf;
+  border-radius: 14px;
+  background: #f8fcf8;
+  padding: 1rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 768px) {
+  .public-tracking-main {
+    width: min(1120px, 100% - 2.6rem);
+    padding-top: 1.4rem;
+  }
+
+  .public-tracking-hero,
+  .public-tracking-card {
+    padding: 1.2rem;
+  }
+
+  .public-tracking-input-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .public-tracking-input-row button {
+    width: auto;
+    min-width: 150px;
+  }
+
+  .public-tracking-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1rem;
+  }
+
+  .public-colis-item {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.7rem;
+  }
+}

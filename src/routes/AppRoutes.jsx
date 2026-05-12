@@ -12,6 +12,7 @@ import Home from '../pages/Home.jsx'
 import Login from '../pages/Login.jsx'
 import Register from '../pages/Register.jsx'
 import Contact from '../pages/Contact.jsx'
+import PublicTracking from '../pages/PublicTracking.jsx'
 import Expedients from '../pages/Expedients.jsx'
 import ExpeditionsList from '../pages/ExpeditionsList.jsx'
 import ExpeditionDetail from '../pages/ExpeditionDetail.jsx'
@@ -34,6 +35,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/suivi" element={<PublicTracking />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       {/* Route de test pour preview ExpeditionDetail avec données démo - À supprimer après tests */}

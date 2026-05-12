@@ -19,6 +19,7 @@ import ExpeditionDetail from '../pages/ExpeditionDetail.jsx'
 import MyExpeditions from '../pages/MyExpeditions.jsx'
 import CreateColis from '../pages/CreateColis.jsx'
 import Profile from '../pages/Profile.jsx'
+import SuiviTrajet from '../pages/SuiviTrajet.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 
 const PlaceholderPage = ({ title, description }) => (
@@ -75,7 +76,7 @@ const AppRoutes = () => {
             />
             <Route
               path="trajet"
-              element={<PlaceholderPage title="Suivi trajet" description="Consultez les mouvements, etapes et anomalies de transit." />}
+              element={<SuiviTrajet />}
             />
           </Route>
           <Route

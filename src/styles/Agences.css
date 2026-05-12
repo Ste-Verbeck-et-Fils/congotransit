@@ -205,7 +205,7 @@
   text-align: left;
   border: none;
   background: transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   padding: 0.7rem 0.75rem;
   cursor: pointer;
 }

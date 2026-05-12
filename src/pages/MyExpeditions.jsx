@@ -126,6 +126,28 @@ const MyExpeditions = () => {
                       >
                         Details
                       </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setOpenActionCode('')
+                          navigate(`/dashboard/expedients/${item.code_suivi}/suivi`)
+                        }}
+                      >
+                        Suivi
+                      </button>
+                      {item.status === 'LIVRE' && (
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setOpenActionCode('')
+                            navigate(`/dashboard/expedients/${item.code_suivi}/confirmation`)
+                          }}
+                        >
+                          Confirmation
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

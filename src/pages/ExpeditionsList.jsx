@@ -6,12 +6,15 @@ import Select from '../components/ui/Select'
 import { IconMoreVertical, IconPlus, IconSearch, IconBox } from '../components/ui/Icons'
 import { deleteExpeditionByCodeSuivi, listExpeditions } from '../lib/expeditionsApi'
 import { listAgencies } from '../lib/agencesApi'
+import { readAuthSession } from '../lib/authSession'
 import { listUsers } from '../lib/usersApi'
 import '../styles/Expedients.css'
 
 /* Ce composant affiche la liste principale des expeditions avec acces au detail, recherche et filtres. */
 const ExpeditionsList = () => {
   const navigate = useNavigate()
+  const role = readAuthSession()?.role_systeme || 'CLIENT'
+  const isAdmin = role === 'ADMIN'
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
   const [filterAgenceDepart, setFilterAgenceDepart] = useState('')
@@ -149,6 +152,8 @@ const ExpeditionsList = () => {
 
   // Suppression d'une expédition
   const handleDelete = async (codeSuivi) => {
+    if (!isAdmin) return
+
     const isConfirmed = window.confirm('Confirmer la suppression de cette expedition ?')
     if (!isConfirmed) return
 
@@ -192,6 +197,8 @@ const ExpeditionsList = () => {
     }
     return statusMap[status] || status
   }
+
+  const isStatusTerminal = (status) => ['LIVRE', 'ANNULE', 'PERDU'].includes(String(status || '').toUpperCase())
 
   return (
     <section className="expeditions-list-page fade-in" aria-label="Liste des expeditions">
@@ -325,11 +332,36 @@ const ExpeditionsList = () => {
                         role="menuitem"
                         onClick={() => {
                           setOpenActionNumero('')
+                          navigate(`/dashboard/expedients/${item.code_suivi}/suivi`)
+                        }}
+                      >
+                        Suivi
+                      </button>
+                      {item.status === 'LIVRE' && (
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setOpenActionNumero('')
+                            navigate(`/dashboard/expedients/${item.code_suivi}/confirmation`)
+                          }}
+                        >
+                          Confirmation
+                        </button>
+                      )}
+                      {!isStatusTerminal(item.status) && (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setOpenActionNumero('')
                           navigate(`/dashboard/expedients/${item.code_suivi}/modifier`)
                         }}
                       >
                         Modifier
                       </button>
+                      )}
+                      {isAdmin && !isStatusTerminal(item.status) && (
                       <button
                         type="button"
                         role="menuitem"
@@ -338,6 +370,7 @@ const ExpeditionsList = () => {
                       >
                         Supprimer
                       </button>
+                      )}
                     </div>
                   )}
                 </div>

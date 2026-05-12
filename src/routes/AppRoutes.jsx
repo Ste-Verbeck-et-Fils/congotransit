@@ -81,6 +81,14 @@ const AppRoutes = () => {
             path="expedients/:expeditionNumero"
             element={<ExpeditionDetail />}
           />
+          <Route
+            path="expedients/:expeditionNumero/suivi"
+            element={<ExpeditionDetail viewMode="suivi" />}
+          />
+          <Route
+            path="expedients/:expeditionNumero/confirmation"
+            element={<ExpeditionDetail viewMode="confirmation" />}
+          />
           <Route element={<ProtectedRoute allowedRoles={['CLIENT']} />}>
             <Route
               path="mes-expeditions"

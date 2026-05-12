@@ -5,6 +5,11 @@ export async function listExpeditions() {
   return data.expeditions ?? []
 }
 
+export async function listClientExpeditions() {
+  const data = await apiRequest('/clients/mes-expeditions')
+  return data.expeditions ?? []
+}
+
 export async function createExpedition(payload) {
   const data = await apiRequest('/expeditions', {
     method: 'POST',

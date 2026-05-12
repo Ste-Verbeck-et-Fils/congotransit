@@ -16,6 +16,7 @@ import PublicTracking from '../pages/PublicTracking.jsx'
 import Expedients from '../pages/Expedients.jsx'
 import ExpeditionsList from '../pages/ExpeditionsList.jsx'
 import ExpeditionDetail from '../pages/ExpeditionDetail.jsx'
+import MyExpeditions from '../pages/MyExpeditions.jsx'
 import CreateColis from '../pages/CreateColis.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 
@@ -70,6 +71,12 @@ const AppRoutes = () => {
             path="expedients/:expeditionNumero"
             element={<ExpeditionDetail />}
           />
+          <Route element={<ProtectedRoute allowedRoles={['CLIENT']} />}>
+            <Route
+              path="mes-expeditions"
+              element={<MyExpeditions />}
+            />
+          </Route>
           <Route
             path="colis/nouveau"
             element={<CreateColis />}

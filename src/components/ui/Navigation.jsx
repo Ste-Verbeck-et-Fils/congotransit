@@ -16,7 +16,9 @@ import {
 
 const getNavItems = (roleSysteme) => [
   { to: '/dashboard', label: 'Tableau de bord', icon: <IconDashboard size={20} /> },
-  { to: '/dashboard/expedients', label: 'Expéditions', icon: <IconTruck size={20} /> },
+  ...(roleSysteme === 'CLIENT'
+    ? [{ to: '/dashboard/mes-expeditions', label: 'Mes expeditions', icon: <IconTruck size={20} /> }]
+    : [{ to: '/dashboard/expedients', label: 'Expéditions', icon: <IconTruck size={20} /> }]),
   ...(roleSysteme === 'ADMIN'
     ? [
       { to: '/dashboard/agences', label: 'Agences', icon: <IconOffice size={20} /> },

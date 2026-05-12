@@ -36,6 +36,21 @@
   overflow-wrap: anywhere;
 }
 
+.dash-feedback {
+  border-radius: var(--radius-md);
+  padding: 0.7rem 0.9rem;
+  background: #f4f8f5;
+  color: var(--color-text-muted);
+  border: 1px solid #e2ebe3;
+  margin-bottom: 0.85rem;
+}
+
+.dash-feedback-error {
+  background: #fff2f0;
+  border-color: #f8c2bb;
+  color: #b42318;
+}
+
 .dash-date {
   font-size: 0.68rem;
   color: var(--color-text-muted);
@@ -234,6 +249,43 @@
   background: var(--flow-color);
 }
 
+.dash-empty {
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+}
+
+.dash-recent-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.dash-recent-item {
+  width: 100%;
+  border: 1px solid #edf2ee;
+  border-radius: var(--radius-md);
+  background: #fbfdfb;
+  padding: 0.7rem;
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr 0.9fr 1fr 1fr;
+  gap: 0.6rem;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dash-recent-item:hover {
+  background: #f4faf5;
+}
+
+.dash-recent-item span {
+  font-size: 0.8rem;
+  color: var(--color-text-dark);
+}
+
+.dash-recent-item strong {
+  color: var(--color-primary);
+}
+
 @media (max-width: 575px) {
   .dash-header {
     align-items: stretch;
@@ -265,6 +317,11 @@
   .flow-chart {
     min-height: 118px;
     max-height: 140px;
+  }
+
+  .dash-recent-item {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
   }
 }
 

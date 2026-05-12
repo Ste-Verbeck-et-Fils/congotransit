@@ -18,6 +18,7 @@ import ExpeditionsList from '../pages/ExpeditionsList.jsx'
 import ExpeditionDetail from '../pages/ExpeditionDetail.jsx'
 import MyExpeditions from '../pages/MyExpeditions.jsx'
 import CreateColis from '../pages/CreateColis.jsx'
+import Profile from '../pages/Profile.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 
 const PlaceholderPage = ({ title, description }) => (
@@ -97,7 +98,7 @@ const AppRoutes = () => {
           </Route>
           <Route
             path="profil"
-            element={<PlaceholderPage title="Profil" description="Mettez a jour les informations du compte et les preferences de securite." />}
+            element={<Profile />}
           />
         </Route>
       </Route>

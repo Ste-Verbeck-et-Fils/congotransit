@@ -1,0 +1,234 @@
+/* ── Layout ───────────────────────────────────────────── */
+.profile-page {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.profile-form {
+  display: grid;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+
+.profile-loading {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  padding: 2rem 0;
+  text-align: center;
+}
+
+/* ── En-tete ──────────────────────────────────────────── */
+.profile-header h1 {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 2.8vw, 1.9rem);
+  line-height: 1.1;
+}
+
+.profile-header p {
+  margin-top: 0.35rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Carte identite ───────────────────────────────────── */
+.profile-identity-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.35rem 1.5rem;
+  border: 1px solid #e9f0ea;
+  background: linear-gradient(180deg, #f8fcf8 0%, #ffffff 100%);
+}
+
+.profile-avatar {
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.profile-identity-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.profile-identity-name {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-role-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.18rem 0.6rem;
+  border-radius: var(--radius-full);
+  background: #e6f1e8;
+  color: var(--color-primary);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.profile-identity-since {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 0.1rem;
+}
+
+/* ── Cartes formulaires ───────────────────────────────── */
+.profile-card {
+  padding: 1.25rem 1.5rem;
+  display: grid;
+  gap: 1rem;
+  border: 1px solid #e9f0ea;
+  box-shadow: 0 8px 20px rgba(22, 62, 31, 0.06);
+  width: 100%;
+}
+
+.profile-card h2 {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.profile-divider {
+  height: 1px;
+  background: var(--color-neutral-high);
+  margin: -0.1rem 0 0.1rem;
+}
+
+.profile-card-hint {
+  margin-top: -0.45rem;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+/* ── Feedback ─────────────────────────────────────────── */
+.profile-feedback {
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.profile-feedback-error {
+  background: #fff2f0;
+  color: #b42318;
+  border: 1px solid #f8c2bb;
+}
+
+.profile-feedback-success {
+  background: #f4f8f5;
+  color: var(--color-primary);
+  border: 1px solid #c8deca;
+}
+
+/* ── Grille 2 colonnes ────────────────────────────────── */
+.profile-grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 540px) {
+  .profile-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-identity-card {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .profile-role-badge {
+    margin: 0 auto;
+  }
+}
+
+/* ── Actions ──────────────────────────────────────────── */
+.profile-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.15rem;
+}
+
+/* ── Fiche personne ───────────────────────────────────── */
+.profile-person-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.profile-person-header h2 {
+  margin: 0;
+}
+
+.profile-person-empty {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.profile-person-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem 1.25rem;
+  margin: 0;
+  padding: 0.2rem 0;
+}
+
+@media (max-width: 540px) {
+  .profile-person-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-person-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.profile-person-field--full {
+  grid-column: 1 / -1;
+}
+
+.profile-person-field dt {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.profile-person-field dd {
+  font-size: 0.85rem;
+  color: var(--color-text-dark);
+  font-weight: 500;
+  margin: 0;
+  overflow-wrap: anywhere;
+}

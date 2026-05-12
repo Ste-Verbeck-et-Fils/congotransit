@@ -497,6 +497,35 @@
   justify-content: flex-end;
 }
 
+.expedition-confirmation-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: fit-content;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+.expedition-confirmation-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+.expedition-confirmation-pending-note {
+  text-align: left;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: #f4f8ff;
+  border: 1px solid #d6e4ff;
+  border-radius: var(--radius-sm);
+}
+
+.expedition-confirmation-feedback {
+  margin-top: calc(var(--spacing-sm) * -1);
+}
+
 /* Historique de suivi */
 .expedition-suivi-list {
   display: grid;

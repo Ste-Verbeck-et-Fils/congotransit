@@ -29,3 +29,7 @@ export async function updatePerson(idPersonne, payload) {
     body: JSON.stringify(payload),
   })
 }
+
+export async function deletePerson(idPersonne) {
+  return apiRequest(`/personnes/${idPersonne}`, { method: 'DELETE' })
+}

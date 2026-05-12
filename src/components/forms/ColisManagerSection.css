@@ -68,12 +68,6 @@
   text-overflow: ellipsis;
 }
 
-.colis-manager-item-meta {
-  font-size: 0.77rem !important;
-  font-weight: 600;
-  color: var(--color-primary) !important;
-}
-
 .colis-manager-remove-btn {
   border: 1px solid #f5c2be;
   border-radius: var(--radius-sm);

@@ -5,7 +5,7 @@ import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import { IconMoreVertical, IconPlus, IconSearch, IconUser } from '../components/ui/Icons'
 import { listAgencies } from '../lib/agencesApi'
-import { USER_ROLE_OPTIONS, listUsers } from '../lib/usersApi'
+import { USER_ROLE_OPTIONS, deleteUser, listUsers } from '../lib/usersApi'
 import '../styles/Agences.css'
 
 const ALL_ROLES_OPTION = { value: '', label: 'Tous les roles' }
@@ -127,7 +127,20 @@ const UsersList = () => {
   const getAgencyName = (refAgence) => {
     if (!refAgence) return 'Non rattache'
     const agency = agencies.find((a) => a.id_agence === refAgence)
-    return agency ? `${agency.nom_agence} (${agency.code_agence})` : refAgence.slice(0, 8)
+    return agency ? `${agency.nom_agence} (${agency.code_agence})` : 'Agence inconnue'
+  }
+
+  const handleDelete = async (idUser) => {
+    const isConfirmed = window.confirm('Confirmer la suppression de cet utilisateur ?')
+    if (!isConfirmed) return
+
+    try {
+      await deleteUser(idUser)
+      setOpenActionId('')
+      setUsers((previous) => previous.filter((item) => item.id_utilisateur !== idUser))
+    } catch (error) {
+      setErrorMessage(error.message || 'Suppression impossible.')
+    }
   }
 
   return (
@@ -209,7 +222,6 @@ const UsersList = () => {
             <article className="agencies-row users-row" key={user.id_utilisateur}>
               <span className="agencies-main-cell">
                 <strong>{user.nom_affichage}</strong>
-                <small>{user.id_utilisateur.slice(0, 8)}</small>
               </span>
               <span>{user.telephone || 'Non renseigne'}</span>
               <span>
@@ -222,15 +234,6 @@ const UsersList = () => {
                 <em className={`agencies-status-chip status-${user.status.toLowerCase()}`}>
                   {user.status}
                 </em>
-              </span>
-              <span className="agencies-inline-actions">
-                <button
-                  type="button"
-                  className="agencies-inline-btn"
-                  onClick={() => navigate(`/dashboard/utilisateurs/${user.id_utilisateur}/modifier`)}
-                >
-                  Modifier
-                </button>
               </span>
               <span className="agencies-actions-menu-shell">
                 <div className="agencies-actions-menu">
@@ -257,7 +260,25 @@ const UsersList = () => {
                           navigate(`/dashboard/utilisateurs/${user.id_utilisateur}/modifier`)
                         }}
                       >
+                        Détails
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setOpenActionId('')
+                          navigate(`/dashboard/utilisateurs/${user.id_utilisateur}/modifier`)
+                        }}
+                      >
                         Modifier
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="danger"
+                        onClick={() => handleDelete(user.id_utilisateur)}
+                      >
+                        Supprimer
                       </button>
                     </div>
                   )}

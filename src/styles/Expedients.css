@@ -557,49 +557,103 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
+  padding: 0.5rem 0;
 }
 
-.expeditions-list-header-left {
-  display: flex;
-  align-items: center;
-  gap: 3rem;
+.expeditions-header-title {
   flex: 1;
   min-width: 0;
 }
 
-.expeditions-list-header h1 {
-  color: var(--color-primary);
-  font-family: var(--font-heading);
-  font-size: clamp(1.35rem, 2.8vw, 1.9rem);
-  line-height: 1.1;
-  white-space: nowrap;
+.expeditions-header-title h1 {
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+  margin: 0;
 }
 
-.expeditions-list-header p {
-  margin-top: 0.35rem;
-  color: var(--color-text-muted);
+.expeditions-header-title p {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+}
+
+.expeditions-header-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
 }
 
 .expeditions-header-search {
-  flex: 0 0 280px;
-  min-width: 0;
-  margin-left: 10%;
+  width: 320px;
 }
 
 .expeditions-header-search .input-container {
   margin-bottom: 0;
 }
 
-.expeditions-add-btn {
-  min-width: 180px;
-  margin-right: 5%;
-  margin-top: 3%;
+.expeditions-header-search input {
+  height: 42px;
+  min-height: 42px;
 }
 
-.expeditions-search-row {
-  width: 100%;
-  margin: 0;
+.expeditions-add-btn {
+  min-height: 42px;
+  height: 42px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .expeditions-list-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+  }
+
+  .expeditions-header-controls {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .expeditions-header-search {
+    width: 100%;
+    order: 2;
+  }
+
+  .expeditions-add-btn {
+    width: 100%;
+    order: 1;
+  }
+
+  .expeditions-table-head {
+    display: none;
+  }
+
+  .expeditions-row {
+    grid-template-columns: 1fr !important;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-lg);
+  }
+
+  .expeditions-actions-menu-shell {
+    display: none;
+  }
+
+  .expeditions-inline-actions {
+    display: flex !important;
+    margin-top: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 600px) {
+  .expeditions-header-search {
+    text-align: left;
+  }
 }
 
 .expeditions-search-row .input-container {
@@ -622,11 +676,16 @@
 .expeditions-table-head,
 .expeditions-row {
   display: grid;
-  grid-template-columns: 1fr 1.1fr 1.1fr 1fr 1fr 0.9fr 0.8fr 0.8fr auto;
-  gap: var(--spacing-sm);
+  grid-template-columns: 0.8fr 1.2fr 1.2fr 1fr 1fr 1fr 0.9fr 0.8fr auto;
+  gap: var(--spacing-md);
   align-items: center;
   padding: var(--spacing-md) var(--spacing-lg);
   font-size: 0.92rem;
+}
+
+.expeditions-table-head.no-agent,
+.expeditions-row.no-agent {
+  grid-template-columns: 0.8fr 1.3fr 1.3fr 1.1fr 1.1fr 1fr 0.9fr auto;
 }
 
 .expeditions-table-head {
@@ -674,17 +733,27 @@
   margin-top: 0.2rem;
 }
 
-.expeditions-main-cell {
-  display: grid;
-}
-
-.expeditions-main-cell strong {
-  color: var(--color-text-dark);
+.code-badge {
+  background: var(--color-home-surface);
+  color: var(--color-primary);
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
   font-family: var(--font-heading);
+  font-size: 0.85rem;
+  border: 1px solid var(--color-home-line);
 }
 
-.expeditions-main-cell small {
+.cell-text {
+  color: var(--color-text-dark);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell-date {
   color: var(--color-text-muted);
+  font-size: 0.85rem;
 }
 
 .expeditions-status-chip {
@@ -1048,26 +1117,29 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .expeditions-list-header {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--spacing-lg);
   }
 
-  .expeditions-list-header-left {
-    flex-direction: column;
+  .expeditions-header-controls {
+    flex-direction: column-reverse;
     align-items: stretch;
   }
 
   .expeditions-header-search {
-    flex: auto;
+    width: 100%;
   }
 
   .expeditions-add-btn {
-    margin-right: 0;
-    margin-top: 0;
+    width: 100%;
+    justify-content: center;
   }
+}
 
+@media (max-width: 640px) {
   .expedition-detail-header {
     flex-direction: row;
     align-items: center;

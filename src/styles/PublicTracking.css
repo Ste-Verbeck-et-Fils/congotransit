@@ -1,6 +1,7 @@
 .public-tracking-page {
   min-height: 100vh;
   overflow-x: hidden;
+  width: 100%;
   background:
     radial-gradient(1300px 400px at 10% -10%, rgba(44, 121, 70, 0.12), transparent 55%),
     radial-gradient(800px 320px at 100% 0%, rgba(245, 158, 11, 0.12), transparent 45%),

@@ -2,15 +2,32 @@
   animation: fadeIn 0.4s ease-out;
 }
 
-
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
 main {
   /* Fix subpixel rounding gap between sticky header and main content */
   margin-top: -1px;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Container & Grid Utilities */

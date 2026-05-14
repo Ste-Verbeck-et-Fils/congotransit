@@ -12,9 +12,10 @@
 
 .agencies-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 .agencies-header h1 {
@@ -25,22 +26,20 @@
 }
 
 .agencies-header p {
-  margin-top: 0.35rem;
+  margin-top: 0.25rem;
   color: var(--color-text-muted);
   max-width: 60ch;
 }
 
 .agencies-add-btn {
-  min-width: 180px;
-  margin-right: 5%;
-  margin-top: 3%;
+  min-width: 160px;
+  flex-shrink: 0;
 }
 
 .agencies-toolbar {
-  width: 40%;
-  max-width: none;
-  margin: 0;
-  margin-left: 10%;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: var(--spacing-lg);
 }
 
 .agencies-toolbar .input-container {
@@ -91,13 +90,12 @@
   font-weight: 700;
   border: 1px solid #edf2ee;
   border-radius: var(--radius-md);
-  width: 80%;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .agencies-table-body {
   display: grid;
-  gap: 2%;
+  gap: var(--spacing-md);
   margin-top: var(--spacing-sm);
 }
 
@@ -106,8 +104,7 @@
   border: 1px solid #edf2ee;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
-  width: 80%;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .agencies-main-cell {
@@ -222,6 +219,31 @@
   background: #fff5f5;
 }
 
+/* Actions developpees (Mobile) */
+.agencies-actions-expanded {
+  display: none;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.agencies-actions-expanded button {
+  flex: 1;
+  padding: 0.6rem;
+  border: 1px solid #e5ede7;
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.agencies-actions-expanded button.danger {
+  color: #b42318;
+  border-color: #f8c2bb;
+}
+
 .agencies-empty-state,
 .agencies-loading-state {
   min-height: 180px;
@@ -333,9 +355,12 @@
     margin: 0;
   }
 
-  .agencies-inline-actions,
   .agencies-actions-menu-shell {
-    justify-content: flex-start;
+    display: none; /* Cache le dropdown sur mobile */
+  }
+
+  .agencies-actions-expanded {
+    display: flex; /* Affiche les boutons directement */
   }
 
   .agencies-empty-state {
@@ -377,10 +402,8 @@
 /* ── Module personnes ────────────────────────────────────────── */
 
 .persons-toolbar {
-  width: 80%;
-  max-width: none;
-  margin: 0;
-  margin-left: 10%;
+  width: 100%;
+  margin-bottom: var(--spacing-lg);
   display: flex;
   align-items: flex-end;
   gap: var(--spacing-md);
@@ -388,7 +411,7 @@
 
 .persons-toolbar .input-container {
   flex: 1 1 auto;
-  min-width: 160px;
+  max-width: 320px;
 }
 
 .persons-table-head,
@@ -416,15 +439,12 @@
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    margin-left: 0;
   }
 }
 
 .users-toolbar {
-  width: 80%;
-  max-width: none;
-  margin: 0;
-  margin-left: 10%;
+  width: 100%;
+  margin-bottom: var(--spacing-lg);
   display: flex;
   align-items: flex-end;
   gap: var(--spacing-md);

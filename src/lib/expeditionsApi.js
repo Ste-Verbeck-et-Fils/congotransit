@@ -6,7 +6,7 @@ export async function listExpeditions() {
 }
 
 export async function listClientExpeditions() {
-  const data = await apiRequest('/clients/mes-expeditions')
+  const data = await apiRequest('/expeditions/me')
   return data.expeditions ?? []
 }
 
@@ -30,7 +30,7 @@ export async function getExpeditionByCodeSuivi(codeSuivi) {
 }
 
 export async function getPublicTrackingByCodeSuivi(codeSuivi) {
-  const data = await apiRequest(`/public/tracking/${encodeURIComponent(codeSuivi)}`)
+  const data = await apiRequest(`/tracking/public/${encodeURIComponent(codeSuivi)}`)
   return data
 }
 

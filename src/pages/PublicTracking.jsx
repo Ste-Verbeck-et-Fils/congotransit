@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import PublicFooter from '../components/layout/PublicFooter'
 import PublicHeader from '../components/layout/PublicHeader'
-import { IconArrowRight, IconBox, IconPin, IconTimeline, IconTruck } from '../components/ui/Icons'
+import { IconArrowRight, IconBell, IconBox, IconPin, IconTimeline, IconTruck, IconUser } from '../components/ui/Icons'
 import { getPublicTrackingByCodeSuivi } from '../lib/expeditionsApi'
 import '../styles/PublicTracking.css'
 
@@ -177,6 +177,26 @@ const PublicTracking = () => {
                   <span className="public-label">Mise a jour</span>
                   <strong>{formatDate(expedition.updated_at)}</strong>
                 </div>
+                {expedition.agent_nom && (
+                  <div className="agent-highlight-cell">
+                    <div className="agent-icon-wrapper">
+                      <IconUser size={18} />
+                    </div>
+                    <div className="agent-info-wrapper">
+                      <span className="agent-label">Agent en charge</span>
+                      <strong className="agent-name">
+                        {expedition.agent_nom} {expedition.agent_agence_nom && <span className="agent-agency">({expedition.agent_agence_nom})</span>}
+                      </strong>
+                      {expedition.agent_telephone && (
+                        <div className="agent-phone-row">
+                          <a href={`tel:${expedition.agent_telephone}`} className="agent-phone-link">
+                            {expedition.agent_telephone}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </article>
 

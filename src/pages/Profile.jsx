@@ -16,12 +16,6 @@ const ROLE_LABELS = {
   CLIENT: 'Client',
 }
 
-const TYPE_PERSONNE_LABELS = {
-  EXPEDITEUR: 'Expéditeur',
-  DESTINATAIRE: 'Destinataire',
-  LES_DEUX: 'Expéditeur & Destinataire',
-}
-
 const Profile = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -34,6 +28,7 @@ const Profile = () => {
   const [nomAffichage, setNomAffichage] = useState('')
   const [telephone, setTelephone] = useState('')
   const [roleSysteme, setRoleSysteme] = useState('')
+  const [nomAgence, setNomAgence] = useState('') // Ajouté
   const [createdAt, setCreatedAt] = useState('')
 
   const [ancienMotDePasse, setAncienMotDePasse] = useState('')
@@ -51,6 +46,7 @@ const Profile = () => {
         setNomAffichage(user.nom_affichage ?? '')
         setTelephone(user.telephone ?? '')
         setRoleSysteme(user.role_systeme ?? '')
+        setNomAgence(user.nomAgence ?? '') // Ajouté
         setCreatedAt(user.created_at ?? '')
         setLinkedPerson(person)
       } catch (error) {
@@ -108,20 +104,25 @@ const Profile = () => {
     setSuccessMessage('')
 
     try {
-      await updateMyProfile({ nom_affichage: cleanNom, telephone: cleanTel })
+      const response = await updateMyProfile({ nom_affichage: cleanNom, telephone: cleanTel })
+      const updatedUser = response.user
 
-      // Mise a jour de la session locale avec le nouveau nom/telephone
-      const session = readAuthSession()
-      if (session) {
-        saveAuthSession({
-          token: session.jwtToken,
-          user: {
-            ...session,
-            nom_affichage: cleanNom,
-            telephone: cleanTel,
-          },
-        })
-      }
+      // Mise a jour de l'etat local
+      setNomAffichage(updatedUser.nom_affichage)
+      setTelephone(updatedUser.telephone)
+      setNomAgence(updatedUser.nomAgence ?? '')
+
+      // Mise a jour de la session locale
+      saveAuthSession({
+        token: readAuthSession()?.jwtToken,
+        user: {
+          id_utilisateur: updatedUser.id,
+          role_systeme: updatedUser.role_systeme,
+          ref_agence: updatedUser.refAgence,
+          telephone: updatedUser.telephone,
+          nom_affichage: updatedUser.nom_affichage,
+        },
+      })
 
       if (wantsPasswordChange) {
         await changeMyPassword({
@@ -144,14 +145,6 @@ const Profile = () => {
     }
   }
 
-  if (isLoading) {
-    return (
-      <section className="profile-page fade-in" aria-label="Profil">
-        <p className="profile-loading">Chargement du profil...</p>
-      </section>
-    )
-  }
-
   return (
     <section className="profile-page fade-in" aria-label="Mon profil">
       <header className="profile-header">
@@ -159,7 +152,29 @@ const Profile = () => {
           <h1>Mon profil</h1>
           <p>Consultez et mettez a jour les informations de votre compte.</p>
         </div>
+        {!isLoading && (
+          <div className="profile-meta-info">
+            <span className="badge-role">{ROLE_LABELS[roleSysteme] || roleSysteme}</span>
+            {nomAgence && <span className="badge-agence">{nomAgence}</span>}
+            {createdAt && (
+              <span className="profile-created-at">
+                Membre depuis le {new Date(createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </span>
+            )}
+          </div>
+        )}
+        {isLoading && (
+          <div className="profile-meta-info">
+             <span className="badge-role" style={{ width: '80px', height: '20px', opacity: 0.5 }}>...</span>
+          </div>
+        )}
       </header>
+
+      {isLoading && (
+        <div className="profile-loading-overlay" style={{ fontSize: '0.8rem', color: 'var(--color-primary)', marginBottom: '1rem' }}>
+          Récupération de vos informations...
+        </div>
+      )}
 
       {errorMessage && (
         <p className="profile-feedback profile-feedback-error" role="alert">{errorMessage}</p>
@@ -184,6 +199,7 @@ const Profile = () => {
               value={nomAffichage}
               onChange={(e) => { setNomAffichage(e.target.value); clearMessages() }}
               icon={<IconUser size={16} />}
+              disabled={isLoading || isSubmitting}
             />
             <Input
               label="Telephone"
@@ -192,6 +208,7 @@ const Profile = () => {
               value={telephone}
               onChange={(e) => { setTelephone(e.target.value); clearMessages() }}
               icon={<IconPhone size={16} />}
+              disabled={isLoading || isSubmitting}
             />
           </div>
         </article>
@@ -210,6 +227,7 @@ const Profile = () => {
             value={ancienMotDePasse}
             onChange={(e) => { setAncienMotDePasse(e.target.value); clearMessages() }}
             icon={<IconLock size={16} />}
+            disabled={isLoading || isSubmitting}
           />
           <div className="profile-grid-two">
             <Input
@@ -220,6 +238,7 @@ const Profile = () => {
               value={nouveauMotDePasse}
               onChange={(e) => { setNouveauMotDePasse(e.target.value); clearMessages() }}
               icon={<IconLock size={16} />}
+              disabled={isLoading || isSubmitting}
             />
             <Input
               label="Confirmer le mot de passe"
@@ -229,12 +248,13 @@ const Profile = () => {
               value={confirmMotDePasse}
               onChange={(e) => { setConfirmMotDePasse(e.target.value); clearMessages() }}
               icon={<IconLock size={16} />}
+              disabled={isLoading || isSubmitting}
             />
           </div>
         </article>
 
         <div className="profile-form-actions">
-          <Button type="submit" icon={null} isLoading={isSubmitting} disabled={isSubmitting}>
+          <Button type="submit" icon={null} isLoading={isSubmitting} disabled={isLoading || isSubmitting}>
             Enregistrer les modifications
           </Button>
         </div>
@@ -255,28 +275,16 @@ const Profile = () => {
           ) : (
             <dl className="profile-person-grid">
               <div className="profile-person-field">
-                <dt>Nom</dt>
-                <dd>{linkedPerson.nom || '—'}</dd>
-              </div>
-              <div className="profile-person-field">
-                <dt>Postnom</dt>
-                <dd>{linkedPerson.postnom || '—'}</dd>
-              </div>
-              <div className="profile-person-field">
-                <dt>Prenom</dt>
-                <dd>{linkedPerson.prenom || '—'}</dd>
+                <dt>Nom complet</dt>
+                <dd>{linkedPerson.nom_complet || '—'}</dd>
               </div>
               <div className="profile-person-field">
                 <dt>Telephone</dt>
                 <dd>{linkedPerson.telephone || '—'}</dd>
               </div>
               <div className="profile-person-field">
-                <dt>Email</dt>
-                <dd>{linkedPerson.email || '—'}</dd>
-              </div>
-              <div className="profile-person-field">
-                <dt>Type</dt>
-                <dd>{TYPE_PERSONNE_LABELS[linkedPerson.type_personne] ?? linkedPerson.type_personne}</dd>
+                <dt>Statut</dt>
+                <dd>{linkedPerson.status || '—'}</dd>
               </div>
               {linkedPerson.adresse && (
                 <div className="profile-person-field profile-person-field--full">
@@ -289,6 +297,7 @@ const Profile = () => {
                       linkedPerson.adresse.commune,
                       linkedPerson.adresse.ville,
                       linkedPerson.adresse.province,
+                      linkedPerson.adresse.repere && `(${linkedPerson.adresse.repere})`,
                     ].filter(Boolean).join(', ') || '—'}
                   </dd>
                 </div>

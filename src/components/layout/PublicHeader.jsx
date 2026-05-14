@@ -5,9 +5,7 @@ import "./PublicHeader.css";
 
 const PUBLIC_NAV_ITEMS = [
   { href: "/", label: "Accueil" },
-  { href: "/#suivi", label: "Suivi" },
-  { href: "/#solutions", label: "Solutions" },
-  { href: "/#livraison", label: "Livraison" },
+  { href: "/suivi", label: "Suivi" },
   { href: "/contact", label: "Contact" },
 ];
 

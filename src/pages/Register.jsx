@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   IconArrowRight,
@@ -10,18 +10,11 @@ import {
 } from '../components/ui/Icons'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
-import Select from '../components/ui/Select'
 import { apiRequest } from '../lib/api'
 import deliveryImage from '../assets/images/livraison.avif'
 import '../styles/Login.css'
 
-const ROLE_OPTIONS = [
-  { value: 'CLIENT', label: 'Client' },
-  { value: 'AGENT', label: 'Agent' },
-  { value: 'ADMIN', label: 'Administrateur' },
-]
-
-const DEFAULT_AGENCY_OPTION = { value: '', label: 'Choisir une agence...' }
+/* Les roles sont geres par l'admin */
 
 /* Ce composant cree un utilisateur selon la structure finale et son role systeme. */
 const Register = () => {
@@ -32,46 +25,8 @@ const Register = () => {
   const [telephone, setTelephone] = useState('')
   const [motDePasse, setMotDePasse] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [roleSysteme, setRoleSysteme] = useState('CLIENT')
-  const [refAgence, setRefAgence] = useState('')
-  const [agencyOptions, setAgencyOptions] = useState([DEFAULT_AGENCY_OPTION])
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-
-    const loadAgencies = async () => {
-      try {
-        const data = await apiRequest('/auth/agences')
-        if (cancelled) return
-
-        setAgencyOptions([
-          DEFAULT_AGENCY_OPTION,
-          ...(data.agencies ?? []).map((agency) => ({
-            value: agency.id_agence,
-            label: `${agency.nom_agence} (${agency.code_agence})`,
-          })),
-        ])
-      } catch {
-        if (!cancelled) {
-          setAgencyOptions([DEFAULT_AGENCY_OPTION])
-        }
-      }
-    }
-
-    loadAgencies()
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  const agentAgencyOptions = useMemo(() => {
-    if (agencyOptions.length > 1) return agencyOptions
-
-    return [{ value: '', label: 'Aucune agence active disponible' }]
-  }, [agencyOptions])
 
   const clearMessage = () => {
     if (message) setMessage('')
@@ -82,9 +37,8 @@ const Register = () => {
 
     const cleanNomAffichage = nomAffichage.trim()
     const cleanTelephone = telephone.replace(/\s+/g, '')
-    const cleanRefAgence = refAgence.trim()
 
-    if (!cleanNomAffichage || !cleanTelephone || !motDePasse || !confirmPassword || !roleSysteme) {
+    if (!cleanNomAffichage || !cleanTelephone || !motDePasse || !confirmPassword) {
       setMessage('Veuillez renseigner toutes les informations du compte.')
       return
     }
@@ -104,11 +58,6 @@ const Register = () => {
       return
     }
 
-    if (roleSysteme === 'AGENT' && !cleanRefAgence) {
-      setMessage('Veuillez selectionner une agence pour ce compte agent.')
-      return
-    }
-
     setIsSubmitting(true)
     setMessage('')
 
@@ -121,9 +70,9 @@ const Register = () => {
           telephone: cleanTelephone,
           mot_de_passe: motDePasse,
           password: motDePasse,
-          role_systeme: roleSysteme,
-          role: roleSysteme,
-          ref_agence: roleSysteme === 'AGENT' ? cleanRefAgence : null,
+          role_systeme: 'CLIENT',
+          role: 'CLIENT',
+          ref_agence: null,
         }),
       })
 
@@ -162,39 +111,8 @@ const Register = () => {
           <form className="login-form register-form" onSubmit={handleSubmit}>
             <div className="auth-title-row">
               <h1>Inscription</h1>
-              <p>Nouveau compte employe</p>
+              <p>Nouveau compte</p>
             </div>
-            <Select
-              id="register-role-systeme"
-              label="Role systeme"
-              options={ROLE_OPTIONS}
-              value={roleSysteme}
-              onChange={(event) => {
-                setRoleSysteme(event.target.value)
-                if (event.target.value !== 'AGENT') {
-                  setRefAgence('')
-                }
-                clearMessage()
-              }}
-              icon={<IconUser size={16} />}
-            />
-
-            {roleSysteme === 'AGENT' && (
-              <Select
-                id="register-ref-agence"
-                name="ref_agence"
-                label="Agence rattachee"
-                options={agentAgencyOptions}
-                value={refAgence}
-                onChange={(event) => {
-                  setRefAgence(event.target.value)
-                  clearMessage()
-                }}
-                icon={<IconUser size={16} />}
-                aria-invalid={Boolean(message)}
-                aria-describedby={message ? 'register-message' : undefined}
-              />
-            )}
             <Input
               id="register-nom-affichage"
               name="nom_affichage"

@@ -10,6 +10,7 @@
   flex: 1;
   min-width: 0;
   padding: 0.85rem;
+  padding-top: calc(56px + 0.85rem);
   max-width: var(--breakpoint-xl);
   margin: 0 auto;
   width: 100%;
@@ -24,6 +25,7 @@
   
   .layout-content {
     padding: 1.35rem;
+    padding-top: calc(60px + 1.35rem);
   }
 }
 

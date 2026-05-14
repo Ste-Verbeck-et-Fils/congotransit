@@ -131,7 +131,7 @@ const MyExpeditions = () => {
                         role="menuitem"
                         onClick={() => {
                           setOpenActionCode('')
-                          navigate(`/dashboard/expedients/${item.code_suivi}/suivi`)
+                          navigate(`/dashboard/suivi?code=${item.code_suivi}`)
                         }}
                       >
                         Suivi

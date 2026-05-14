@@ -261,51 +261,7 @@ const Profile = () => {
       </form>
 
       {/* Section fiche personne liee */}
-      {linkedPerson !== undefined && (
-        <article className="card profile-card">
-          <div className="profile-person-header">
-            <h2>Fiche personne liee</h2>
-          </div>
-          <div className="profile-divider" aria-hidden="true" />
-
-          {linkedPerson === null ? (
-            <p className="profile-person-empty">
-              Aucune fiche personne n est associee a votre numero de telephone.
-            </p>
-          ) : (
-            <dl className="profile-person-grid">
-              <div className="profile-person-field">
-                <dt>Nom complet</dt>
-                <dd>{linkedPerson.nom_complet || '—'}</dd>
-              </div>
-              <div className="profile-person-field">
-                <dt>Telephone</dt>
-                <dd>{linkedPerson.telephone || '—'}</dd>
-              </div>
-              <div className="profile-person-field">
-                <dt>Statut</dt>
-                <dd>{linkedPerson.status || '—'}</dd>
-              </div>
-              {linkedPerson.adresse && (
-                <div className="profile-person-field profile-person-field--full">
-                  <dt>Adresse</dt>
-                  <dd>
-                    {[
-                      linkedPerson.adresse.avenue && `Av. ${linkedPerson.adresse.avenue}`,
-                      linkedPerson.adresse.numero && `N° ${linkedPerson.adresse.numero}`,
-                      linkedPerson.adresse.quartier,
-                      linkedPerson.adresse.commune,
-                      linkedPerson.adresse.ville,
-                      linkedPerson.adresse.province,
-                      linkedPerson.adresse.repere && `(${linkedPerson.adresse.repere})`,
-                    ].filter(Boolean).join(', ') || '—'}
-                  </dd>
-                </div>
-              )}
-            </dl>
-          )}
-        </article>
-      )}
+      
     </section>
   )
 }

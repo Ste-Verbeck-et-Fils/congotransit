@@ -33,6 +33,7 @@ const getNavItems = (roleSysteme) => [
       ]
       : [
         { to: '/dashboard/mes-expeditions', label: 'Mes expeditions', icon: <IconTruck size={20} /> },
+        { to: '/dashboard/suivi', label: 'Suivi', icon: <IconTimeline size={20} /> },
         { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
       ]
   )

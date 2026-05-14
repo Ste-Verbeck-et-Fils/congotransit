@@ -31,9 +31,7 @@ const PublicFooter = () => {
 
           <div className="footer-links-col">
             <h3>Nos Services</h3>
-            <a href="#suivi">Suivi colis</a>
-            <a href="#livraison">Preuves de livraison</a>
-            <a href="#solutions">Offres mutualisées</a>
+            <Link to="/suivi">Suivi colis</Link>
             <a href="#api">Intégration API</a>
           </div>
 

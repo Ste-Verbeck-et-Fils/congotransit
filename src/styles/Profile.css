@@ -33,6 +33,55 @@
   color: var(--color-text-muted);
 }
 
+.profile-meta-info {
+  display: flex;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+
+.badge-role,
+.badge-agence {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.badge-role {
+  background: #e6f1e8;
+  color: var(--color-primary);
+  border: 1px solid #c8deca;
+}
+
+.badge-agence {
+  background: #f0f4f8;
+  color: #334e68;
+  border: 1px solid #d1d9e4;
+}
+
+.profile-created-at {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  align-self: center;
+  margin-left: auto;
+}
+
+@media (max-width: 540px) {
+  .profile-meta-info {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .profile-created-at {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+    margin-top: 0.25rem;
+  }
+}
+
 /* ── Carte identite ───────────────────────────────────── */
 .profile-identity-card {
   display: flex;
@@ -164,6 +213,13 @@
 
   .profile-role-badge {
     margin: 0 auto;
+  }
+
+  .profile-meta-info {
+    justify-content: left;
+  }
+  .profile-created-at {
+    text-align: left;
   }
 }
 

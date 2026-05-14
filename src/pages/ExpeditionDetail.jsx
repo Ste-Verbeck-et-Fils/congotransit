@@ -480,10 +480,17 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
             <span className="field-label">Destinataire</span>
             <strong className="field-value">{expedition.destinataire_nom_complet || '-'}</strong>
           </div>
-          {expedition.agent_nom_affichage && (
+          {expedition.agent_nom && (
             <div className="detail-field">
               <span className="field-label">Agent affecté</span>
-              <strong className="field-value">{expedition.agent_nom_affichage}</strong>
+              <strong className="field-value">
+                {expedition.agent_nom} {expedition.agent_agence_nom && <span style={{ fontWeight: 'normal', color: 'var(--color-text-muted)', fontSize: '0.9em' }}>- {expedition.agent_agence_nom}</span>}
+              </strong>
+              {expedition.agent_telephone && (
+                <a href={`tel:${expedition.agent_telephone}`} className="expedition-link-inline" style={{ fontSize: '0.85rem' }}>
+                  {expedition.agent_telephone}
+                </a>
+              )}
             </div>
           )}
         </div>

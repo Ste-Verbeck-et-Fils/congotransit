@@ -20,6 +20,7 @@ import MyExpeditions from '../pages/MyExpeditions.jsx'
 import CreateColis from '../pages/CreateColis.jsx'
 import Profile from '../pages/Profile.jsx'
 import SuiviTrajet from '../pages/SuiviTrajet.jsx'
+import ClientTracking from '../pages/ClientTracking.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 
 const PlaceholderPage = ({ title, description }) => (
@@ -95,6 +96,10 @@ const AppRoutes = () => {
             <Route
               path="mes-expeditions"
               element={<MyExpeditions />}
+            />
+            <Route
+              path="suivi"
+              element={<ClientTracking />}
             />
           </Route>
           <Route

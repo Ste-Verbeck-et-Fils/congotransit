@@ -6,6 +6,7 @@
 
 .public-footer-inner {
   width: min(1120px, calc(100% - 2rem));
+  max-width: calc(100% - 2rem);
   margin: 0 auto;
   padding: 5rem 0 2rem 0;
 }

@@ -592,9 +592,15 @@
   margin-bottom: 0;
 }
 
-.expeditions-header-search input {
+.expeditions-header-search .input-wrapper {
   height: 42px;
   min-height: 42px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.expeditions-header-search .input-field {
+  height: 100%;
 }
 
 .expeditions-add-btn {
@@ -641,7 +647,11 @@
   }
 
   .expeditions-actions-menu-shell {
-    display: none;
+    display: none !important;
+  }
+
+  .expeditions-actions-menu {
+    display: none !important;
   }
 
   .expeditions-inline-actions {
@@ -894,6 +904,12 @@
 
 .expeditions-inline-btn:hover {
   background: #f0f7f1;
+}
+
+.expeditions-inline-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #f7f9f8;
 }
 
 .expeditions-inline-btn.danger {

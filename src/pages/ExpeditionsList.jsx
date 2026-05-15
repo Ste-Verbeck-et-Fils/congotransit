@@ -393,24 +393,14 @@ const ExpeditionsList = () => {
                 >
                   Suivi
                 </button>
-                {!isStatusTerminal(item.status) && (
-                  <button
-                    type="button"
-                    className="expeditions-inline-btn"
-                    onClick={() => navigate(`/dashboard/expedients/${item.code_suivi}/modifier`)}
-                  >
-                    Modifier
-                  </button>
-                )}
-                {isAdmin && !isStatusTerminal(item.status) && (
-                  <button
-                    type="button"
-                    className="expeditions-inline-btn danger"
-                    onClick={() => handleDelete(item.code_suivi)}
-                  >
-                    Supprimer
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className="expeditions-inline-btn"
+                  disabled={item.status !== 'LIVRE'}
+                  onClick={() => navigate(`/dashboard/expedients/${item.code_suivi}/confirmation`)}
+                >
+                  Confirmation
+                </button>
               </div>
             </article>
           ))}

@@ -32,7 +32,7 @@ const PersonForm = () => {
 
   const [addressOptions, setAddressOptions] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState('')
-  const [useNewAddress, setUseNewAddress] = useState(false)
+  const [useNewAddress, setUseNewAddress] = useState(!isEditMode)
   const [addressForm, setAddressForm] = useState(createEmptyAddress())
   const [addressErrors, setAddressErrors] = useState({})
 

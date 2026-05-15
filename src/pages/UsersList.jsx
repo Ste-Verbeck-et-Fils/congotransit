@@ -290,6 +290,12 @@ const UsersList = () => {
                   type="button"
                   onClick={() => navigate(`/dashboard/utilisateurs/${user.id_utilisateur}/modifier`)}
                 >
+                  Détails
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/dashboard/utilisateurs/${user.id_utilisateur}/modifier`)}
+                >
                   Modifier
                 </button>
                 <button

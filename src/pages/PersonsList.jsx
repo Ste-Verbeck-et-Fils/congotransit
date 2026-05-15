@@ -9,14 +9,13 @@ import '../styles/Agences.css'
 
 const typeLabelMap = Object.fromEntries(PERSON_TYPE_OPTIONS.map((o) => [o.value, o.label]))
 
-/* Ce composant affiche la liste des personnes avec recherche par nom et telephone. */
+/* Ce composant affiche la liste des personnes avec une recherche unique par nom ou telephone. */
 const PersonsList = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
   const [persons, setPersons] = useState([])
-  const [searchNom, setSearchNom] = useState('')
-  const [searchTel, setSearchTel] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const [openActionId, setOpenActionId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
@@ -65,18 +64,18 @@ const PersonsList = () => {
   }, [])
 
   const filteredPersons = useMemo(() => {
-    const normNom = searchNom.trim().toLowerCase()
-    const normTel = searchTel.trim().replace(/\s+/g, '')
+    const normalizedQuery = searchQuery.trim().toLowerCase()
+    const normalizedPhoneQuery = searchQuery.trim().replace(/\s+/g, '')
+
+    if (!normalizedQuery && !normalizedPhoneQuery) return persons
 
     return persons.filter((p) => {
       const fullName = (p.nom_complet || '').toLowerCase()
+      const phone = (p.telephone ?? '').replace(/\s+/g, '')
 
-      if (normNom && !fullName.includes(normNom)) return false
-      if (normTel && !(p.telephone ?? '').includes(normTel)) return false
-
-      return true
+      return fullName.includes(normalizedQuery) || phone.includes(normalizedPhoneQuery)
     })
-  }, [persons, searchNom, searchTel])
+  }, [persons, searchQuery])
 
   const getFullName = (p) => p.nom_complet || 'Sans nom'
 
@@ -114,18 +113,10 @@ const PersonsList = () => {
 
       <div className="agencies-toolbar persons-toolbar">
         <Input
-          label="Rechercher par nom"
-          placeholder="Ex: Mutombo..."
-          value={searchNom}
-          onChange={(e) => { setSearchNom(e.target.value); if (successMessage) setSuccessMessage('') }}
-          icon={<IconSearch size={18} />}
-          variant="search"
-        />
-        <Input
-          label="Rechercher par telephone"
-          placeholder="Ex: +243..."
-          value={searchTel}
-          onChange={(e) => { setSearchTel(e.target.value); if (successMessage) setSuccessMessage('') }}
+          label="Rechercher (nom ou telephone)"
+          placeholder="Ex: Mutombo ou +243..."
+          value={searchQuery}
+          onChange={(e) => { setSearchQuery(e.target.value); if (successMessage) setSuccessMessage('') }}
           icon={<IconSearch size={18} />}
           variant="search"
         />

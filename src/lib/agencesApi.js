@@ -13,7 +13,7 @@ export const EMPTY_ADDRESS = createEmptyAddress()
 
 export async function listAgencies() {
   const data = await apiRequest('/agences')
-  return data.agencies ?? []
+  return data.agences || data.agencies || []
 }
 
 export async function getAgencyById(idAgence) {

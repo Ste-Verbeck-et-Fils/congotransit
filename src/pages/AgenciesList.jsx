@@ -215,6 +215,22 @@ const AgenciesList = () => {
                   )}
                 </div>
               </span>
+
+              <div className="agencies-actions-expanded">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/dashboard/agences/${agency.id_agence}/modifier`)}
+                >
+                  Modifier
+                </button>
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => handleDelete(agency.id_agence)}
+                >
+                  Supprimer
+                </button>
+              </div>
             </article>
           ))}
 

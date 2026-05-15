@@ -69,7 +69,7 @@ const PersonsList = () => {
     const normTel = searchTel.trim().replace(/\s+/g, '')
 
     return persons.filter((p) => {
-      const fullName = [p.nom, p.postnom, p.prenom].filter(Boolean).join(' ').toLowerCase()
+      const fullName = (p.nom_complet || '').toLowerCase()
 
       if (normNom && !fullName.includes(normNom)) return false
       if (normTel && !(p.telephone ?? '').includes(normTel)) return false
@@ -78,7 +78,7 @@ const PersonsList = () => {
     })
   }, [persons, searchNom, searchTel])
 
-  const getFullName = (p) => [p.nom, p.postnom, p.prenom].filter(Boolean).join(' ') || 'Sans nom'
+  const getFullName = (p) => p.nom_complet || 'Sans nom'
 
   const handleDelete = async (idPersonne) => {
     const isConfirmed = window.confirm('Confirmer la suppression de cette personne ?')
@@ -216,6 +216,22 @@ const PersonsList = () => {
                   )}
                 </div>
               </span>
+
+              <div className="agencies-actions-expanded">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/dashboard/personnes/${person.id_personne}/modifier`)}
+                >
+                  Modifier
+                </button>
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => handleDelete(person.id_personne)}
+                >
+                  Supprimer
+                </button>
+              </div>
             </article>
           ))}
 

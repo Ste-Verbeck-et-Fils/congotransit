@@ -11,7 +11,7 @@ export async function listClientExpeditions() {
 }
 
 export async function getDashboardOverview() {
-  const data = await apiRequest('/dashboard/overview')
+  const data = await apiRequest('/dashboard/stats')
   return data
 }
 

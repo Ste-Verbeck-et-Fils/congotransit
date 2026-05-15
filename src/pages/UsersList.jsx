@@ -284,6 +284,22 @@ const UsersList = () => {
                   )}
                 </div>
               </span>
+
+              <div className="agencies-actions-expanded">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/dashboard/utilisateurs/${user.id_utilisateur}/modifier`)}
+                >
+                  Modifier
+                </button>
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => handleDelete(user.id_utilisateur)}
+                >
+                  Supprimer
+                </button>
+              </div>
             </article>
           ))}
 

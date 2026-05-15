@@ -46,8 +46,8 @@ const ExpeditionsList = () => {
     () => [
       { value: '', label: 'Toutes les agences de départ' },
       ...agencies.map((agency) => ({
-        value: agency.id_agence,
-        label: `${agency.nom_agence} (${agency.code_agence})`,
+        value: agency.id,
+        label: `${agency.nom} (${agency.code})`,
       })),
     ],
     [agencies],
@@ -57,8 +57,8 @@ const ExpeditionsList = () => {
     () => [
       { value: '', label: 'Toutes les agences de destination' },
       ...agencies.map((agency) => ({
-        value: agency.id_agence,
-        label: `${agency.nom_agence} (${agency.code_agence})`,
+        value: agency.id,
+        label: `${agency.nom} (${agency.code})`,
       })),
     ],
     [agencies],
@@ -203,77 +203,79 @@ const ExpeditionsList = () => {
   return (
     <section className="expeditions-list-page fade-in" aria-label="Liste des expeditions">
       <header className="expeditions-list-header">
-        <div className="expeditions-list-header-left">
-          <div>
-            <h1>Liste des expeditions</h1>
-            <p>Retrouvez chaque envoi et accedez rapidement a son detail.</p>
-          </div>
+        <div className="expeditions-header-title">
+          <h1>Liste des expeditions</h1>
+          <p>Retrouvez chaque envoi et accedez rapidement a son detail.</p>
+        </div>
+
+        <div className="expeditions-header-controls">
           <div className="expeditions-header-search">
             <Input
-              label="Rechercher"
-              placeholder="Code, expediteur, destinataire..."
+              placeholder="Rechercher un code, un nom..."
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               icon={<IconSearch size={18} />}
               variant="search"
             />
           </div>
-        </div>
 
-        <Button
-          className="expeditions-add-btn"
-          type="button"
-          variant="primary"
-          icon={<IconPlus size={18} />}
-          onClick={() => navigate('/dashboard/expedients/nouveau')}
-        >
-          Ajouter expedition
-        </Button>
+          <Button
+            className="expeditions-add-btn"
+            type="button"
+            variant="primary"
+            icon={<IconPlus size={18} />}
+            onClick={() => navigate('/dashboard/expedients/nouveau')}
+          >
+            Ajouter expedition
+          </Button>
+        </div>
       </header>
 
       <div className="expeditions-toolbar">
         <Select
-          label="Filtrer par status"
+          label="Statut"
           value={filterStatus}
           onChange={(event) => setFilterStatus(event.target.value)}
           options={statusOptions}
         />
 
         <Select
-          label="Filtrer par agence de départ"
+          label="Agence départ"
           value={filterAgenceDepart}
           onChange={(event) => setFilterAgenceDepart(event.target.value)}
           options={agencesDepartOptions}
         />
 
         <Select
-          label="Filtrer par agence de destination"
+          label="Agence destination"
           value={filterAgenceDestination}
           onChange={(event) => setFilterAgenceDestination(event.target.value)}
           options={agencesDestinationOptions}
         />
 
-        <Select
-          label="Filtrer par agent"
-          value={filterAgent}
-          onChange={(event) => setFilterAgent(event.target.value)}
-          options={agentOptions}
-        />
+        {isAdmin && (
+          <Select
+            label="Agent"
+            value={filterAgent}
+            onChange={(event) => setFilterAgent(event.target.value)}
+            options={agentOptions}
+          />
+        )}
       </div>
 
-      {errorMessage && <p className="expedients-error" role="alert">{errorMessage}</p>}
+      {errorMessage && !errorMessage.includes("permissions") && <p className="expedients-error" role="alert">{errorMessage}</p>}
 
       <article className="expeditions-table-card">
-        <div className="expeditions-table-head" aria-hidden="true">
-          <span>Code suivi</span>
+        <div className={`expeditions-table-head ${!isAdmin ? 'no-agent' : ''}`} aria-hidden="true">
+          <span>Code</span>
           <span>Expediteur</span>
           <span>Destinataire</span>
-          <span>Agence départ</span>
-          <span>Agence destination</span>
-          <span>Agent</span>
-          <span>Status</span>
+          <span>Départ</span>
+          <span>Arrivée</span>
+          {isAdmin && <span>Agent</span>}
+          <span>Statut</span>
           <span>Date</span>
-          <span>Action</span>
+          <span>Actions</span>
         </div>
 
         <div className="expeditions-table-body">
@@ -285,21 +287,21 @@ const ExpeditionsList = () => {
           )}
 
           {!isLoading && filteredExpeditions.map((item) => (
-            <article className="expeditions-row" key={item.code_suivi}>
+            <article className={`expeditions-row ${!isAdmin ? 'no-agent' : ''}`} key={item.code_suivi}>
               <span className="expeditions-main-cell">
-                <strong>{item.code_suivi}</strong>
+                <strong className="code-badge">{item.code_suivi}</strong>
               </span>
-              <span>{item.expediteur_nom_complet || '-'}</span>
-              <span>{item.destinataire_nom_complet || '-'}</span>
-              <span>{item.agence_depart_nom || '-'}</span>
-              <span>{item.agence_destination_nom || '-'}</span>
-              <span>{item.agent_nom_affichage || '-'}</span>
+              <span className="cell-text">{item.expediteur_nom_complet || '-'}</span>
+              <span className="cell-text">{item.destinataire_nom_complet || '-'}</span>
+              <span className="cell-text">{item.agence_depart_nom || '-'}</span>
+              <span className="cell-text">{item.agence_destination_nom || '-'}</span>
+              {isAdmin && <span className="cell-text">{item.agent_nom_affichage || '-'}</span>}
               <span>
                 <em className={`expeditions-status-chip status-${item.status.toLowerCase()}`}>
                   {getStatusLabel(item.status)}
                 </em>
               </span>
-              <span>{new Date(item.date_expedition).toLocaleDateString('fr-FR')}</span>
+              <span className="cell-date">{new Date(item.date_expedition).toLocaleDateString('fr-FR')}</span>
               <span className="expeditions-actions-menu-shell">
                 <div className="expeditions-actions-menu">
                   <button
@@ -375,6 +377,41 @@ const ExpeditionsList = () => {
                   )}
                 </div>
               </span>
+
+              <div className="expeditions-inline-actions">
+                <button
+                  type="button"
+                  className="expeditions-inline-btn"
+                  onClick={() => navigate(`/dashboard/expedients/${item.code_suivi}`)}
+                >
+                  Détails
+                </button>
+                <button
+                  type="button"
+                  className="expeditions-inline-btn"
+                  onClick={() => navigate(`/dashboard/expedients/${item.code_suivi}/suivi`)}
+                >
+                  Suivi
+                </button>
+                {!isStatusTerminal(item.status) && (
+                  <button
+                    type="button"
+                    className="expeditions-inline-btn"
+                    onClick={() => navigate(`/dashboard/expedients/${item.code_suivi}/modifier`)}
+                  >
+                    Modifier
+                  </button>
+                )}
+                {isAdmin && !isStatusTerminal(item.status) && (
+                  <button
+                    type="button"
+                    className="expeditions-inline-btn danger"
+                    onClick={() => handleDelete(item.code_suivi)}
+                  >
+                    Supprimer
+                  </button>
+                )}
+              </div>
             </article>
           ))}
 

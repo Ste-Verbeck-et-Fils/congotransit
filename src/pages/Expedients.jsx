@@ -1,4 +1,4 @@
-﻿/* Ce composant affiche et traite le formulaire final de creation d'expedition. */
+/* Ce composant affiche et traite le formulaire final de creation d'expedition. */
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
@@ -10,6 +10,7 @@ import { createExpedition, getExpeditionByCodeSuivi, updateExpeditionByCodeSuivi
 import { buildColisApiPayload } from '../lib/colisUtils'
 import { createPerson, listPersons } from '../lib/personnesApi'
 import { listUsers } from '../lib/usersApi'
+import { readAuthSession } from '../lib/authSession'
 import '../styles/Expedients.css'
 
 const formatPersonName = (person) =>
@@ -22,8 +23,8 @@ const toPersonOption = (person) => {
 }
 
 const toAgencyOption = (agency) => ({
-  value: agency.id_agence,
-  label: agency.code_agence ? `${agency.nom_agence} (${agency.code_agence})` : agency.nom_agence,
+  value: agency.id,
+  label: agency.code ? `${agency.nom} (${agency.code})` : agency.nom,
 })
 
 const toAgentOption = (user) => ({
@@ -109,7 +110,7 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
         if (!active) return
 
         setPersonsById(Object.fromEntries(persons.map((person) => [person.id_personne, person])))
-        setAgenciesById(Object.fromEntries(agencies.map((agency) => [agency.id_agence, agency])))
+        setAgenciesById(Object.fromEntries(agencies.map((agency) => [agency.id, agency])))
         setAgentsById(Object.fromEntries(users.map((user) => [user.id_utilisateur, user])))
 
         setExpediteurOptions(buildPersonOptions(persons, 'EXPEDITEUR'))
@@ -135,6 +136,12 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
               poids: item.poids ?? '',
               observations: item.observations || '',
             })))
+          }
+        } else {
+          // Pre-remplir l'agent si l'utilisateur est un AGENT
+          const session = readAuthSession()
+          if (session?.role_systeme === 'AGENT' && session?.id_utilisateur) {
+            setRefAgent(session.id_utilisateur)
           }
         }
 
@@ -553,11 +560,11 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
             </div>
             <div>
               <span>Agence depart</span>
-              <strong>{selectedAgenceDepart?.nom_agence || '-'}</strong>
+              <strong>{selectedAgenceDepart?.nom || '-'}</strong>
             </div>
             <div>
               <span>Agence destination</span>
-              <strong>{selectedAgenceDestination?.nom_agence || '-'}</strong>
+              <strong>{selectedAgenceDestination?.nom || '-'}</strong>
             </div>
             <div>
               <span>Agent</span>

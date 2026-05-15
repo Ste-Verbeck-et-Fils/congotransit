@@ -592,9 +592,15 @@
   margin-bottom: 0;
 }
 
-.expeditions-header-search input {
+.expeditions-header-search .input-wrapper {
   height: 42px;
   min-height: 42px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.expeditions-header-search .input-field {
+  height: 100%;
 }
 
 .expeditions-add-btn {

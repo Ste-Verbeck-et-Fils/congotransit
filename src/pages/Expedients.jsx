@@ -52,6 +52,35 @@ const PERSON_TYPE_LABELS = {
   LES_DEUX: 'Expediteur et destinataire',
 }
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000
+
+const getLocalDateInputValue = (date = new Date()) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const getDateBoundary = (offsetDays) => {
+  const boundaryDate = new Date()
+  boundaryDate.setHours(0, 0, 0, 0)
+  boundaryDate.setDate(boundaryDate.getDate() + offsetDays)
+  return getLocalDateInputValue(boundaryDate)
+}
+
+const isDateWithinAllowedRange = (value) => {
+  if (!value) return false
+
+  const selectedDate = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(selectedDate.getTime())) return false
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const minAllowedDate = new Date(today.getTime() - (3 * DAY_IN_MS))
+
+  return selectedDate >= minAllowedDate && selectedDate <= today
+}
+
 /* Formulaire principal de creation et de modification d'expedition. */
 const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
   const navigate = useNavigate()
@@ -85,6 +114,9 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
   const [quickPersonTelephone, setQuickPersonTelephone] = useState('')
   const [quickPersonErrors, setQuickPersonErrors] = useState({})
   const [quickPersonSubmitting, setQuickPersonSubmitting] = useState(false)
+
+  const maxAllowedDate = useMemo(() => getDateBoundary(0), [])
+  const minAllowedDate = useMemo(() => getDateBoundary(-3), [])
 
   const totalPoids = useMemo(
     () => colis.reduce((sum, item) => sum + Number(item.poids || 0), 0).toFixed(2),
@@ -182,6 +214,9 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
     if (!refAgenceDestinationValue) nextErrors.refAgenceDestination = 'Selectionnez une agence de destination.'
     if (!refAgentValue) nextErrors.refAgent = 'Selectionnez un agent affecte.'
     if (!dateExpeditionValue) nextErrors.dateExpedition = "La date d'expedition est obligatoire."
+    if (dateExpeditionValue && !isDateWithinAllowedRange(dateExpeditionValue)) {
+      nextErrors.dateExpedition = 'La date doit etre comprise entre aujourd hui et 3 jours avant.'
+    }
     if (
       refAgenceDepartValue
       && refAgenceDestinationValue
@@ -244,7 +279,14 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
 
   const handleChangeDate = (value) => {
     setDateExpedition(value)
-    setFieldErrors((prev) => ({ ...prev, dateExpedition: value ? '' : "La date d'expedition est obligatoire." }))
+    setFieldErrors((prev) => ({
+      ...prev,
+      dateExpedition: !value
+        ? "La date d'expedition est obligatoire."
+        : !isDateWithinAllowedRange(value)
+          ? 'La date doit etre comprise entre aujourd hui et 3 jours avant.'
+          : '',
+    }))
   }
 
   const refreshPersons = async () => {
@@ -517,6 +559,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
                 type="date"
                 value={dateExpedition}
                 onChange={(e) => handleChangeDate(e.target.value)}
+                min={minAllowedDate}
+                max={maxAllowedDate}
               />
               {fieldErrors.dateExpedition && <p className="expedients-field-error">{fieldErrors.dateExpedition}</p>}
             </div>

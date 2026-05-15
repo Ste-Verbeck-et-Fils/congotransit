@@ -221,6 +221,12 @@ const AgenciesList = () => {
                   type="button"
                   onClick={() => navigate(`/dashboard/agences/${agency.id_agence}/modifier`)}
                 >
+                  Détails
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/dashboard/agences/${agency.id_agence}/modifier`)}
+                >
                   Modifier
                 </button>
                 <button

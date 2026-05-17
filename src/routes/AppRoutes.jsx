@@ -55,9 +55,11 @@ const AppRoutes = () => {
             <Route path="agences/:agencyId/modifier" element={<AgencyForm />} />
             <Route path="personnes" element={<PersonsList />} />
             <Route path="personnes/nouvelle" element={<PersonForm />} />
+            <Route path="personnes/:personId" element={<PersonForm />} />
             <Route path="personnes/:personId/modifier" element={<PersonForm />} />
             <Route path="utilisateurs" element={<UsersList />} />
             <Route path="utilisateurs/nouveau" element={<UserForm />} />
+            <Route path="utilisateurs/:userId" element={<UserForm />} />
             <Route path="utilisateurs/:userId/modifier" element={<UserForm />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'AGENT']} />}>

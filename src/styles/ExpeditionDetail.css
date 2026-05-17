@@ -189,6 +189,15 @@
   box-sizing: border-box;
 }
 
+.header-actions .action-btn.unified-header-action-btn {
+  width: 140px;
+  min-width: 140px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
 .expedition-detail-actions .btn .btn-text {
   line-height: 1;
 }
@@ -757,6 +766,14 @@
     width: calc(50% - 0.25rem);
     min-width: 140px;
     flex: 1 1 calc(50% - 0.25rem);
+  }
+
+  .header-actions .action-btn.unified-header-action-btn {
+    width: 140px;
+    min-width: 140px;
+    height: 40px;
+    min-height: 40px;
+    flex: 0 0 140px;
   }
 
   .expedition-detail-actions .btn {

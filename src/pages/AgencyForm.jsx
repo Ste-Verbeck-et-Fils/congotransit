@@ -61,6 +61,8 @@ const AgencyForm = () => {
           setSelectedAddressId(agency.ref_adresse ?? '')
           setAddressForm(agency.adresse ? trimAddress(agency.adresse) : createEmptyAddress())
           setUseNewAddress(false)
+        } else if (isEditMode) {
+          setErrorMessage('Agence introuvable.')
         }
       } catch (error) {
         if (!cancelled) setErrorMessage(`Chargement impossible : ${error.message}`)

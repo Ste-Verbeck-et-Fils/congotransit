@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from '../layout/MainLayout.jsx'
 import AgenciesList from '../pages/AgenciesList.jsx'
 import AgencyForm from '../pages/AgencyForm.jsx'
+import AgencyDetail from '../pages/AgencyDetail.jsx'
 import PersonForm from '../pages/PersonForm.jsx'
 import PersonsList from '../pages/PersonsList.jsx'
 import UsersList from '../pages/UsersList.jsx'
@@ -50,6 +51,7 @@ const AppRoutes = () => {
             <Route index element={<Dashboard />} />
             <Route path="agences" element={<AgenciesList />} />
             <Route path="agences/nouvelle" element={<AgencyForm />} />
+            <Route path="agences/:agencyId" element={<AgencyDetail />} />
             <Route path="agences/:agencyId/modifier" element={<AgencyForm />} />
             <Route path="personnes" element={<PersonsList />} />
             <Route path="personnes/nouvelle" element={<PersonForm />} />

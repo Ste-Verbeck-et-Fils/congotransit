@@ -41,13 +41,18 @@
 
 .btn-secondary {
   background-color: var(--color-secondary);
-  color: var(--color-primary);
+  color: var(--color-white);
 }
 
 .btn-outline {
   background-color: transparent;
-  border: 1.5px solid var(--color-primary-optimized);
-  color: var(--color-primary-optimized);
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
 }
 
 .btn-icon-only {

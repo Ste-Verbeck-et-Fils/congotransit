@@ -1,11 +1,17 @@
 import React from 'react'
 import './Button.css'
-import { IconBox, IconPencil, IconExport } from './Icons'
+import { IconBox, IconPencil, IconExport, IconArrowLeft, IconCheck, IconTrash } from './Icons'
 
 const DEFAULT_ICONS = {
   primary: <IconBox size={18} />,
   secondary: <IconPencil size={18} />,
   outline: <IconExport size={18} />,
+}
+
+const CUSTOM_ICONS = {
+  retour: <IconArrowLeft size={18} />,
+  confirmer: <IconCheck size={18} />,
+  supprimer: <IconTrash size={18} />,
 }
 
 const Button = ({
@@ -16,9 +22,10 @@ const Button = ({
   type = 'button',
   icon,
   iconPosition = 'left',
+  customIcon,
   ...props
 }) => {
-  const buttonIcon = icon === undefined ? DEFAULT_ICONS[variant] : icon
+  const buttonIcon = customIcon ? CUSTOM_ICONS[customIcon] : icon === undefined ? DEFAULT_ICONS[variant] : icon
 
   return (
     <button 

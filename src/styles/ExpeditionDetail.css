@@ -24,10 +24,23 @@
 
 .expedition-detail-header-left {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-xl);
+  flex-direction: column;
+  justify-content: center;
   flex: 1;
   min-width: 0;
+}
+
+.header-detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: nowrap;
+}
+
+.header-title {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .expedition-detail-header h1 {
@@ -42,7 +55,7 @@
   color: var(--color-text-muted);
   font-family: var(--font-body);
   font-size: 0.95rem;
-  margin: 0.35rem 0 0 0;
+  margin: 0.25rem 0 0 0;
 }
 
 /* Status badge */
@@ -111,16 +124,73 @@
 .expedition-detail-actions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0.75rem;
   flex-shrink: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.expedition-detail-actions .expedition-detail-status {
+  height: 48px;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1;
+  box-sizing: border-box;
+  align-self: center;
+}
+
+.header-actions .status-badge {
+  height: 44px;
+  padding: 0 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  margin: 0;
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 .expedition-detail-actions .btn {
+  min-width: 0;
+  min-height: 48px;
+  height: 48px;
+  white-space: nowrap;
+  padding: 0 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.header-actions .action-btn {
+  width: 110px;
   min-width: 110px;
-  padding: 0.5rem 1rem;
-  font-size: 0.88rem;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  margin: 0;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.expedition-detail-actions .btn .btn-text {
+  line-height: 1;
 }
 
 .expedition-module-nav {
@@ -642,14 +712,18 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .expedition-detail-header {
+  .expedition-detail-header,
+  .header-detail {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 0.75rem;
   }
 
-  .expedition-detail-header-left {
-    flex-direction: column;
-    gap: var(--spacing-md);
+  .expedition-detail-header-left,
+  .header-title {
+    width: 100%;
+    min-width: 0;
+    order: 1;
   }
 
   .expedition-detail-status {
@@ -657,14 +731,45 @@
     margin-top: 0;
   }
 
-  .expedition-detail-actions {
+  .expedition-detail-actions,
+  .header-actions {
     width: 100%;
-    justify-content: stretch;
+    order: 2;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .header-actions .action-btn,
+  .header-actions .status-badge {
+    height: 48px;
+    min-height: 48px;
+    padding: 0 18px;
+  }
+
+  .header-actions .status-badge {
+    max-width: 100%;
+    width: auto;
+    min-width: 0;
+  }
+
+  .header-actions .action-btn {
+    width: calc(50% - 0.25rem);
+    min-width: 140px;
+    flex: 1 1 calc(50% - 0.25rem);
   }
 
   .expedition-detail-actions .btn {
-    flex: 1 1 calc(50% - var(--spacing-sm));
+    flex: 0 1 auto;
     min-width: 0;
+  }
+
+  .expedition-detail-header h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .expedition-detail-subtitle {
+    overflow-wrap: anywhere;
   }
 
   .expedition-module-nav {
@@ -678,10 +783,21 @@
   .expedition-route {
     flex-direction: column;
     gap: var(--spacing-sm);
+    align-items: stretch;
+    padding: var(--spacing-md);
+  }
+
+  .route-stop {
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
   }
 
   .route-arrow {
     transform: rotate(90deg);
+    width: 100%;
+    justify-content: center;
+    padding: 0.15rem 0;
   }
 
   .expedition-colis-summary {
@@ -690,6 +806,7 @@
 
   .expedition-colis-row {
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .colis-meta {
@@ -716,7 +833,33 @@
     font-size: 0.95rem;
   }
 
+  .expedition-route {
+    gap: 0.55rem;
+    padding: 0.85rem;
+  }
+
+  .route-label {
+    font-size: 0.74rem;
+  }
+
   .summary-value {
     font-size: 1.3rem;
   }
+
+  .header-actions .status-badge {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .header-actions .action-btn {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .header-actions .status-badge {
+    width: auto;
+  }
 }
+
+

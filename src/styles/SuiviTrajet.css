@@ -360,4 +360,31 @@
   .suivi-trajet-form-actions .btn {
     width: 100%;
   }
+
+  .suivi-trajet-page {
+    gap: var(--spacing-md);
+  }
+
+  .suivi-trajet-card {
+    padding: var(--spacing-md);
+  }
+
+  .suivi-trajet-card-header {
+    align-items: flex-start;
+  }
+
+  .suivi-step {
+    gap: var(--spacing-sm);
+    min-height: 48px;
+  }
+
+  .suivi-step-top {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .suivi-step-date {
+    white-space: normal;
+  }
 }

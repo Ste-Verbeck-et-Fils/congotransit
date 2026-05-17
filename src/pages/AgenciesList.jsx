@@ -188,10 +188,10 @@ const AgenciesList = () => {
                         role="menuitem"
                         onClick={() => {
                           setOpenActionId('')
-                          navigate(`/dashboard/agences/${agency.id_agence}/modifier`)
+                          navigate(`/dashboard/agences/${agency.id_agence}`)
                         }}
                       >
-                        Détails
+                        Voir
                       </button>
                       <button
                         type="button"
@@ -219,7 +219,7 @@ const AgenciesList = () => {
               <div className="agencies-actions-expanded">
                 <button
                   type="button"
-                  onClick={() => navigate(`/dashboard/agences/${agency.id_agence}/modifier`)}
+                  onClick={() => navigate(`/dashboard/agences/${agency.id_agence}`)}
                 >
                   Détails
                 </button>

@@ -18,7 +18,7 @@ export async function listAgencies() {
 
 export async function getAgencyById(idAgence) {
   const data = await apiRequest(`/agences/${idAgence}`)
-  return data.agency
+  return data.agence || data.agency || data.data?.agence || data.data?.agency || null
 }
 
 export async function createAgency(payload) {

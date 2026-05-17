@@ -92,6 +92,15 @@ const PersonsList = () => {
     }
   }
 
+  const handleNavigateToPerson = (person, mode = 'detail') => {
+    const personId = person.id_personne || person.id
+    const path = mode === 'edit'
+      ? `/dashboard/personnes/${personId}/modifier`
+      : `/dashboard/personnes/${personId}`
+    console.log('[PersonsList] Navigation vers personne:', { personId, mode, path, person })
+    navigate(path, { state: { person } })
+  }
+
   return (
     <section className="agencies-page fade-in" aria-label="Liste des personnes">
       <header className="agencies-header">
@@ -180,7 +189,7 @@ const PersonsList = () => {
                         role="menuitem"
                         onClick={() => {
                           setOpenActionId('')
-                          navigate(`/dashboard/personnes/${person.id_personne}/modifier`)
+                          handleNavigateToPerson(person, 'detail')
                         }}
                       >
                         Détails
@@ -190,7 +199,7 @@ const PersonsList = () => {
                         role="menuitem"
                         onClick={() => {
                           setOpenActionId('')
-                          navigate(`/dashboard/personnes/${person.id_personne}/modifier`)
+                          handleNavigateToPerson(person, 'edit')
                         }}
                       >
                         Modifier
@@ -211,13 +220,13 @@ const PersonsList = () => {
               <div className="agencies-actions-expanded">
                 <button
                   type="button"
-                  onClick={() => navigate(`/dashboard/personnes/${person.id_personne}/modifier`)}
+                  onClick={() => handleNavigateToPerson(person, 'detail')}
                 >
                   Détails
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate(`/dashboard/personnes/${person.id_personne}/modifier`)}
+                  onClick={() => handleNavigateToPerson(person, 'edit')}
                 >
                   Modifier
                 </button>

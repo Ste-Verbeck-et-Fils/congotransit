@@ -1,6 +1,6 @@
 // Page de détail d'une agence en lecture seule
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { getAgencyById, AGENCY_STATUS_OPTIONS } from '../lib/agencesApi'
 import Button from '../components/ui/Button'
 import StaticInput from '../components/ui/StaticInput'
@@ -9,6 +9,7 @@ import '../styles/Agences.css'
 
 export default function AgencyDetail() {
   const { agencyId } = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
   const [agency, setAgency] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -25,7 +26,20 @@ export default function AgencyDetail() {
       try {
         setLoading(true)
         setError('')
-        const data = await getAgencyById(agencyId)
+        
+        // Chercher d'abord dans le state de navigation
+        let data = location.state?.agency
+        console.log('[AgencyDetail] État reçu via navigation:', data)
+        
+        // Si pas de données du state, essayer l'API
+        if (!data) {
+          console.log(`[AgencyDetail] Chargement agence ID: ${agencyId}`)
+          data = await getAgencyById(agencyId)
+          console.log('[AgencyDetail] Agence chargée via API:', data)
+        } else {
+          console.log('[AgencyDetail] Agence obtenue du state de navigation')
+        }
+        
         if (data) {
           setAgency(data)
         } else {
@@ -40,7 +54,7 @@ export default function AgencyDetail() {
     }
 
     fetchAgency()
-  }, [agencyId])
+  }, [agencyId, location.state])
 
   if (loading) {
     return (
@@ -65,17 +79,17 @@ export default function AgencyDetail() {
   }
 
   return (
-    <section className="agencies-form-page fade-in" aria-label="Détail agence">
-      <header className="agencies-header">
-        <div>
+    <section className="agencies-form-page full-width-header-page fade-in" aria-label="Détail agence">
+      <header className="agencies-header user-form-header">
+        <div className="user-form-header-main">
           <h1>{agency.nom_agence}</h1>
           <p>Consultez les informations de cette agence.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', minWidth: 0 }}>
-          <Button className="agencies-header-btn" variant="outline" type="button" icon={null} onClick={() => navigate('/dashboard/agences')}>
+        <div className="header-actions">
+          <Button className="user-form-header-action-btn" variant="outline" type="button" icon={null} onClick={() => navigate('/dashboard/agences')}>
             Retour à la liste
           </Button>
-          <Button className="agencies-header-btn" variant="primary" type="button" icon={null} onClick={() => navigate(`/dashboard/agences/${agencyId}/modifier`)}>
+          <Button className="user-form-header-action-btn" variant="primary" type="button" icon={null} onClick={() => navigate(`/dashboard/agences/${agencyId}/modifier`)}>
             Modifier
           </Button>
         </div>

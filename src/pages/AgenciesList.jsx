@@ -188,7 +188,7 @@ const AgenciesList = () => {
                         role="menuitem"
                         onClick={() => {
                           setOpenActionId('')
-                          navigate(`/dashboard/agences/${agency.id_agence}`)
+                          navigate(`/dashboard/agences/${agency.id_agence}`, { state: { agency } })
                         }}
                       >
                         Voir
@@ -198,7 +198,7 @@ const AgenciesList = () => {
                         role="menuitem"
                         onClick={() => {
                           setOpenActionId('')
-                          navigate(`/dashboard/agences/${agency.id_agence}/modifier`)
+                          navigate(`/dashboard/agences/${agency.id_agence}/modifier`, { state: { agency } })
                         }}
                       >
                         Modifier
@@ -219,13 +219,13 @@ const AgenciesList = () => {
               <div className="agencies-actions-expanded">
                 <button
                   type="button"
-                  onClick={() => navigate(`/dashboard/agences/${agency.id_agence}`)}
+                  onClick={() => navigate(`/dashboard/agences/${agency.id_agence}`, { state: { agency } })}
                 >
                   Détails
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate(`/dashboard/agences/${agency.id_agence}/modifier`)}
+                  onClick={() => navigate(`/dashboard/agences/${agency.id_agence}/modifier`, { state: { agency } })}
                 >
                   Modifier
                 </button>

@@ -603,7 +603,7 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
             type="button"
             variant="secondary"
             icon={null}
-            className="action-btn"
+            className="action-btn unified-header-action-btn"
             onClick={() => navigate(listPath)}
           >
             Retour
@@ -612,7 +612,7 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
             type="button"
             variant={viewMode === 'suivi' ? 'primary' : 'outline'}
             icon={null}
-            className="action-btn"
+            className="action-btn unified-header-action-btn"
             onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/suivi`)}
           >
             {canEditSuivi ? 'Suivi' : 'Voir suivi'}
@@ -633,7 +633,7 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
               type="button"
               variant="outline"
               icon={null}
-              className="action-btn"
+              className="action-btn unified-header-action-btn"
               onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/modifier`)}
             >
               Modifier

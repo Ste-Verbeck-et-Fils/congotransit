@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import { IconOffice, IconPhone, IconUser } from '../components/ui/Icons'
 import { listAgencies } from '../lib/agencesApi'
+import { formatAddressLabel } from '../lib/addressUtils'
 import { USER_ROLE_OPTIONS, USER_STATUS_OPTIONS, createUser, getUserById, updateUser } from '../lib/usersApi'
 import '../styles/Agences.css'
 
@@ -12,11 +13,13 @@ const phoneRegex = /^\+?[0-9]{8,15}$/
 
 const DEFAULT_AGENCY_OPTION = { value: '', label: 'Aucune agence rattachee' }
 
-/* Ce composant gere la creation et la modification d un utilisateur avec selection conditionnelle d agence selon le role. */
+/* Ce composant gere la creation, le detail et la modification d un utilisateur, avec changement optionnel du mot de passe en mode modification. */
 const UserForm = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { userId } = useParams()
   const isEditMode = Boolean(userId)
+  const isDetailMode = Boolean(userId) && !location.pathname.endsWith('/modifier')
 
   const [isLoading, setIsLoading] = useState(isEditMode)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -31,6 +34,11 @@ const UserForm = () => {
   const [status, setStatus] = useState('ACTIVE')
 
   const [agencyOptions, setAgencyOptions] = useState([DEFAULT_AGENCY_OPTION])
+  const [agenciesData, setAgenciesData] = useState([])
+
+  const selectedAgency = refAgence
+    ? agenciesData.find((agency) => agency.id_agence === refAgence)
+    : null
 
   const clearMessages = () => {
     if (errorMessage) setErrorMessage('')
@@ -51,6 +59,8 @@ const UserForm = () => {
         ])
 
         if (cancelled) return
+
+        setAgenciesData(agencies)
 
         setAgencyOptions([
           DEFAULT_AGENCY_OPTION,
@@ -90,10 +100,12 @@ const UserForm = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    if (isDetailMode) return
 
     const cleanNom = nomAffichage.trim()
     const cleanTel = telephone.replace(/\s+/g, '')
     const cleanAgence = refAgence.trim()
+    const cleanPassword = motDePasse.trim()
 
     if (!cleanNom || !cleanTel) {
       setErrorMessage('Le nom d affichage et le telephone sont obligatoires.')
@@ -107,6 +119,11 @@ const UserForm = () => {
 
     if (!isEditMode && motDePasse.length < 6) {
       setErrorMessage('Le mot de passe doit contenir au moins 6 caracteres.')
+      return
+    }
+
+    if (isEditMode && cleanPassword && cleanPassword.length < 6) {
+      setErrorMessage('Le nouveau mot de passe doit contenir au moins 6 caracteres.')
       return
     }
 
@@ -128,6 +145,9 @@ const UserForm = () => {
     if (!isEditMode) {
       payload.mot_de_passe = motDePasse
       payload.password = motDePasse
+    } else if (cleanPassword) {
+      payload.mot_de_passe = cleanPassword
+      payload.password = cleanPassword
     }
 
     setIsSubmitting(true)
@@ -153,20 +173,41 @@ const UserForm = () => {
   }
 
   return (
-    <section className="agencies-form-page fade-in" aria-label={isEditMode ? 'Modification utilisateur' : 'Nouvel utilisateur'}>
-      <header className="agencies-header">
-        <div>
-          <h1>{isEditMode ? 'Modifier l utilisateur' : 'Nouvel utilisateur'}</h1>
+    <section className="agencies-form-page full-width-header-page fade-in" aria-label={isDetailMode ? 'Detail utilisateur' : isEditMode ? 'Modification utilisateur' : 'Nouvel utilisateur'}>
+      <header className="agencies-header user-form-header">
+        <div className="user-form-header-main">
+          <h1>{isDetailMode ? 'Details de l utilisateur' : isEditMode ? 'Modifier l utilisateur' : 'Nouvel utilisateur'}</h1>
           <p>
-            {isEditMode
+            {isDetailMode
+              ? 'Consultez les informations du compte utilisateur en lecture seule.'
+              : isEditMode
               ? 'Mettez a jour les informations et le role du compte utilisateur.'
               : 'Creez un nouveau compte avec son role et ses permissions.'}
           </p>
         </div>
 
-        <Button variant="outline" type="button" icon={null} onClick={() => navigate('/dashboard/utilisateurs')}>
-          Retour
-        </Button>
+        <div className="header-actions">
+          {isDetailMode && (
+            <Button
+              className="user-form-header-action-btn"
+              variant="primary"
+              type="button"
+              icon={null}
+              onClick={() => navigate(`/dashboard/utilisateurs/${userId}/modifier`)}
+            >
+              Modifier
+            </Button>
+          )}
+          <Button
+            className="user-form-header-action-btn"
+            variant="outline"
+            type="button"
+            icon={null}
+            onClick={() => navigate('/dashboard/utilisateurs')}
+          >
+            Retour
+          </Button>
+        </div>
       </header>
 
       <form className="agencies-form-stack" onSubmit={handleSubmit}>
@@ -181,6 +222,7 @@ const UserForm = () => {
               value={nomAffichage}
               onChange={(event) => { setNomAffichage(event.target.value); clearMessages() }}
               icon={<IconUser size={16} />}
+              disabled={isDetailMode}
             />
             <Input
               label="Telephone"
@@ -189,6 +231,7 @@ const UserForm = () => {
               value={telephone}
               onChange={(event) => { setTelephone(event.target.value); clearMessages() }}
               icon={<IconPhone size={16} />}
+              disabled={isDetailMode}
             />
           </div>
 
@@ -197,6 +240,18 @@ const UserForm = () => {
               label="Mot de passe"
               type="password"
               placeholder="••••••••"
+              autoComplete="new-password"
+              value={motDePasse}
+              onChange={(event) => { setMotDePasse(event.target.value); clearMessages() }}
+              disabled={isDetailMode}
+            />
+          )}
+
+          {isEditMode && !isDetailMode && (
+            <Input
+              label="Nouveau mot de passe"
+              type="password"
+              placeholder="Laisser vide pour conserver l actuel"
               autoComplete="new-password"
               value={motDePasse}
               onChange={(event) => { setMotDePasse(event.target.value); clearMessages() }}
@@ -210,12 +265,14 @@ const UserForm = () => {
               onChange={handleRoleChange}
               options={USER_ROLE_OPTIONS}
               icon={<IconUser size={16} />}
+              disabled={isDetailMode}
             />
             <Select
               label="Statut"
               value={status}
               onChange={(event) => { setStatus(event.target.value); clearMessages() }}
               options={USER_STATUS_OPTIONS}
+              disabled={isDetailMode}
             />
           </div>
         </article>
@@ -232,7 +289,16 @@ const UserForm = () => {
               onChange={(event) => { setRefAgence(event.target.value); clearMessages() }}
               options={agencyOptions}
               icon={<IconOffice size={16} />}
+              disabled={isDetailMode}
             />
+
+            {isDetailMode && (
+              <Input
+                label="Adresse agence"
+                value={formatAddressLabel(selectedAgency?.adresse)}
+                disabled
+              />
+            )}
           </article>
         )}
 
@@ -249,18 +315,20 @@ const UserForm = () => {
           <p className="agencies-alert agencies-alert-success" role="status">{successMessage}</p>
         )}
 
-        <Button
-          className="btn-full agencies-submit-btn"
-          type="submit"
-          icon={null}
-          disabled={isSubmitting || isLoading}
-        >
-          {isSubmitting
-            ? 'Enregistrement...'
-            : isEditMode
-              ? 'Enregistrer les modifications'
-              : 'Creer l utilisateur'}
-        </Button>
+        {!isDetailMode && (
+          <Button
+            className="btn-full agencies-submit-btn"
+            type="submit"
+            icon={null}
+            disabled={isSubmitting || isLoading}
+          >
+            {isSubmitting
+              ? 'Enregistrement...'
+              : isEditMode
+                ? 'Enregistrer les modifications'
+                : 'Creer l utilisateur'}
+          </Button>
+        )}
       </form>
     </section>
   )

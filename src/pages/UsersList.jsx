@@ -163,33 +163,37 @@ const UsersList = () => {
       </header>
 
       <div className="agencies-toolbar users-toolbar">
-        <Input
-          label="Rechercher un utilisateur"
-          placeholder="Nom, telephone, role, agence..."
-          value={searchTerm}
-          onChange={(event) => {
-            setSearchTerm(event.target.value)
-            if (successMessage) setSuccessMessage('')
-          }}
-          icon={<IconSearch size={18} />}
-          variant="search"
-        />
+        <div className="users-toolbar-search">
+          <Input
+            label="Rechercher un utilisateur"
+            placeholder="Nom, telephone, role, agence..."
+            value={searchTerm}
+            onChange={(event) => {
+              setSearchTerm(event.target.value)
+              if (successMessage) setSuccessMessage('')
+            }}
+            icon={<IconSearch size={18} />}
+            variant="search"
+          />
+        </div>
 
-        <Select
-          label="Filtrer par role"
-          value={filterRole}
-          onChange={(event) => setFilterRole(event.target.value)}
-          options={roleSelectOptions}
-          icon={<IconUser size={16} />}
-        />
+        <div className="users-toolbar-filters">
+          <Select
+            label="Filtrer par role"
+            value={filterRole}
+            onChange={(event) => setFilterRole(event.target.value)}
+            options={roleSelectOptions}
+            icon={<IconUser size={16} />}
+          />
 
-        <Select
-          label="Filtrer par agence"
-          value={filterAgence}
-          onChange={(event) => setFilterAgence(event.target.value)}
-          options={agencySelectOptions}
-          icon={<IconUser size={16} />}
-        />
+          <Select
+            label="Filtrer par agence"
+            value={filterAgence}
+            onChange={(event) => setFilterAgence(event.target.value)}
+            options={agencySelectOptions}
+            icon={<IconUser size={16} />}
+          />
+        </div>
       </div>
 
       {errorMessage && (
@@ -257,7 +261,7 @@ const UsersList = () => {
                         role="menuitem"
                         onClick={() => {
                           setOpenActionId('')
-                          navigate(`/dashboard/utilisateurs/${user.id_utilisateur}/modifier`)
+                          navigate(`/dashboard/utilisateurs/${user.id_utilisateur}`)
                         }}
                       >
                         Détails
@@ -288,7 +292,7 @@ const UsersList = () => {
               <div className="agencies-actions-expanded">
                 <button
                   type="button"
-                  onClick={() => navigate(`/dashboard/utilisateurs/${user.id_utilisateur}/modifier`)}
+                  onClick={() => navigate(`/dashboard/utilisateurs/${user.id_utilisateur}`)}
                 >
                   Détails
                 </button>

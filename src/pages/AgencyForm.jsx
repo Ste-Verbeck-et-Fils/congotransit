@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
@@ -18,6 +18,7 @@ import '../styles/Agences.css'
 /* Ce composant gere la creation et la modification d une agence avec adresse existante ou nouvelle. */
 const AgencyForm = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { agencyId } = useParams()
   const isEditMode = Boolean(agencyId)
 
@@ -44,14 +45,26 @@ const AgencyForm = () => {
       setErrorMessage('')
 
       try {
-        const [addresses, agency] = await Promise.all([
+        // Chercher d'abord dans le state de navigation
+        let agency = location.state?.agency
+        console.log('[AgencyForm] État reçu via navigation:', agency)
+        
+        const [addresses] = await Promise.all([
           listAddresses(),
-          isEditMode ? getAgencyById(agencyId) : Promise.resolve(null),
         ])
 
         if (cancelled) return
 
         setAddressOptions(addresses)
+
+        // Si pas de données du state et en mode édition, essayer l'API
+        if (!agency && isEditMode) {
+          console.log(`[AgencyForm] Chargement agence ID: ${agencyId}`)
+          agency = await getAgencyById(agencyId)
+          console.log('[AgencyForm] Agence chargée via API:', agency)
+        } else if (agency) {
+          console.log('[AgencyForm] Agence obtenue du state de navigation')
+        }
 
         if (agency) {
           setNomAgence(agency.nom_agence ?? '')
@@ -76,7 +89,7 @@ const AgencyForm = () => {
     return () => {
       cancelled = true
     }
-  }, [agencyId, isEditMode])
+  }, [agencyId, isEditMode, location.state])
 
   const clearMessages = () => {
     if (errorMessage) setErrorMessage('')
@@ -145,9 +158,9 @@ const AgencyForm = () => {
   }
 
   return (
-    <section className="agencies-form-page fade-in" aria-label={isEditMode ? 'Modification agence' : 'Creation agence'}>
-      <header className="agencies-header">
-        <div>
+    <section className="agencies-form-page full-width-header-page fade-in" aria-label={isEditMode ? 'Modification agence' : 'Creation agence'}>
+      <header className="agencies-header user-form-header">
+        <div className="user-form-header-main">
           <h1>{isEditMode ? 'Modification agence' : 'Nouvelle agence'}</h1>
           <p>
             {isEditMode
@@ -156,9 +169,11 @@ const AgencyForm = () => {
           </p>
         </div>
 
-        <Button variant="outline" type="button" icon={null} onClick={() => navigate('/dashboard/agences')}>
-          Retour a la liste
-        </Button>
+        <div className="user-form-header-actions">
+          <Button className="user-form-header-action-btn" variant="outline" type="button" icon={null} onClick={() => navigate('/dashboard/agences')}>
+            Retour a la liste
+          </Button>
+        </div>
       </header>
 
       <form className="agencies-form-stack" onSubmit={handleSubmit}>

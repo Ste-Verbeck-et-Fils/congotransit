@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
@@ -7,11 +7,14 @@ import { IconBox, IconArrowRight, IconTimeline, IconUser, IconPin, IconBell, Ico
 import {
   createExpeditionSuiviByCodeSuivi,
   createExpeditionConfirmationByCodeSuivi,
-  deleteExpeditionByCodeSuivi,
   getExpeditionByCodeSuivi,
   getExpeditionSuiviByCodeSuivi,
   getExpeditionConfirmationByCodeSuivi,
+  listExpeditions,
+  listClientExpeditions,
 } from '../lib/expeditionsApi'
+import { getPersonById } from '../lib/personnesApi'
+import { getAgencyById } from '../lib/agencesApi'
 import { readAuthSession } from '../lib/authSession'
 import '../styles/ExpeditionDetail.css'
 
@@ -52,10 +55,84 @@ const SUIVI_STATUS_OPTIONS = [
   { value: 'PERDU', label: 'Perdu' },
 ]
 
+const joinName = (...parts) => parts.map((part) => String(part || '').trim()).filter(Boolean).join(' ').trim()
+
+const formatDisplayDate = (value) => {
+  if (!value) return '-'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '-'
+  return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+const isMissingDisplayValue = (value) => !value || String(value).trim() === '-'
+
+const normalizeExpeditionData = (raw = {}) => {
+  const expediteurNom = raw.expediteur_nom_complet
+    || raw.expediteurNomComplet
+    || raw.expediteur_nom
+    || raw.expediteurNom
+    || joinName(raw.expediteur_nom, raw.expediteur_postnom, raw.expediteur_prenom)
+    || joinName(raw.expediteur?.nom, raw.expediteur?.postnom, raw.expediteur?.prenom)
+
+  const destinataireNom = raw.destinataire_nom_complet
+    || raw.destinataireNomComplet
+    || raw.destinataire_nom
+    || raw.destinataireNom
+    || joinName(raw.destinataire_nom, raw.destinataire_postnom, raw.destinataire_prenom)
+    || joinName(raw.destinataire?.nom, raw.destinataire?.postnom, raw.destinataire?.prenom)
+
+  const agenceDepartNom = raw.agence_depart_nom
+    || raw.agenceDepartNom
+    || raw.agenceDepart?.nom
+    || raw.agenceDepart?.nom_agence
+    || raw.agence_depart?.nom
+    || raw.agence_depart?.nom_agence
+
+  const agenceDestinationNom = raw.agence_destination_nom
+    || raw.agenceDestinationNom
+    || raw.agenceArriveeNom
+    || raw.agenceArrivee?.nom
+    || raw.agenceArrivee?.nom_agence
+    || raw.agenceDestination?.nom
+    || raw.agenceDestination?.nom_agence
+    || raw.agence_destination?.nom
+    || raw.agence_destination?.nom_agence
+
+  const agentNomAffichage = raw.agent_nom_affichage
+    || raw.agentNomAffichage
+    || raw.utilisateur_nom
+    || raw.cree_par_nom
+    || raw.created_by?.nom_affichage
+    || raw.utilisateur?.nom_affichage
+
+  const expedition = {
+    ...raw,
+    code_suivi: raw.code_suivi || raw.codeSuivi || raw.numero || '',
+    status: raw.status || raw.statut || '',
+    date_expedition: raw.date_expedition || raw.dateExpedition || raw.date || raw.created_at || null,
+    created_at: raw.created_at || raw.createdAt || raw.date_creation || raw.dateCreation || raw.date_expedition || null,
+    updated_at: raw.updated_at || raw.updatedAt || raw.date_mise_a_jour || raw.dateMiseAJour || raw.created_at || null,
+    expediteur_nom_complet: expediteurNom || '-',
+    destinataire_nom_complet: destinataireNom || '-',
+    agence_depart_nom: agenceDepartNom || '-',
+    agence_destination_nom: agenceDestinationNom || '-',
+    agent_nom_affichage: agentNomAffichage || raw.agent_nom || null,
+    agent_nom: raw.agent_nom || agentNomAffichage || null,
+    agent_agence_nom: raw.agent_agence_nom || raw.agentAgenceNom || raw.utilisateur?.agence?.nom_agence || raw.utilisateur?.agence?.nom || null,
+    agent_telephone: raw.agent_telephone || raw.agentTelephone || raw.utilisateur?.telephone || null,
+    colis: Array.isArray(raw.colis) ? raw.colis : Array.isArray(raw.parcels) ? raw.parcels : [],
+    observations: raw.observations || raw.observation || '',
+  }
+
+  return expedition
+}
+
 /* Ce composant affiche les informations lisibles et completes d'une expedition avec detail complet. */
 const ExpeditionDetail = ({ viewMode = 'detail' }) => {
   const navigate = useNavigate()
-  const { expeditionNumero } = useParams()
+  const location = useLocation()
+  const params = useParams()
+  const expeditionParam = params.expeditionNumero || params.id || params.expeditionId || params.detailId || ''
   const [expedition, setExpedition] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
@@ -87,10 +164,36 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
   const canEditSuivi = DEMO_MODE || isAdmin || isAssignedAgent
   const canManageExpedition = isAdmin || isAssignedAgent
   const canModifyExpedition = canManageExpedition && !['LIVRE', 'ANNULE', 'PERDU'].includes(String(expedition?.status || '').toUpperCase())
-  const canDeleteExpedition = isAdmin && !['LIVRE', 'ANNULE', 'PERDU'].includes(String(expedition?.status || '').toUpperCase())
 
   const confirmationSectionRef = useRef(null)
   const suiviSectionRef = useRef(null)
+
+  const expeditionCodeFromState = location.state?.code_suivi
+    || location.state?.codeSuivi
+    || location.state?.expedition?.code_suivi
+    || location.state?.expedition?.codeSuivi
+    || ''
+
+  const routeExpeditionId = String(expeditionParam || '').trim()
+
+  const resolveExpeditionCode = async (inputId) => {
+    const candidate = String(inputId || '').trim()
+    if (!candidate) return ''
+
+    // Si la route contient deja un code de suivi, on l'utilise directement.
+    if (candidate.toUpperCase().startsWith('EXP-')) {
+      return candidate
+    }
+
+    const list = await listExpeditions()
+    const found = list.find((item) => {
+      const idExpedition = String(item.id_expedition || item.id || '').trim()
+      const code = String(item.code_suivi || item.codeSuivi || '').trim()
+      return idExpedition === candidate || code === candidate
+    })
+
+    return found?.code_suivi || found?.codeSuivi || ''
+  }
 
   const listPath = isClient ? '/dashboard/mes-expeditions' : '/dashboard/expedients'
 
@@ -100,16 +203,129 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
       setErrorMessage('')
     }
 
+    console.log('[ExpeditionDetail] ID/code utilise pour chargement:', {
+      routeExpeditionId,
+      codeSuivi,
+    })
     const data = await getExpeditionByCodeSuivi(codeSuivi)
-    setExpedition(data.expedition)
+    console.log('[ExpeditionDetail] Reponse API detail complete:', data)
+    const expeditionPayload = data?.expedition
+      ?? data?.data?.expedition
+      ?? data?.data
+      ?? (data?.code_suivi ? data : null)
 
-    const [suiviData, confirmationData] = await Promise.all([
+    console.log('[ExpeditionDetail] Dates brutes API expedition:', {
+      date_expedition: expeditionPayload?.date_expedition,
+      created_at: expeditionPayload?.created_at,
+      updated_at: expeditionPayload?.updated_at,
+    })
+
+    if (!expeditionPayload || typeof expeditionPayload !== 'object') {
+      throw new Error('Données expedition invalides ou indisponibles.')
+    }
+
+    let mappedExpedition = normalizeExpeditionData(expeditionPayload)
+
+    // Fallback 1: réutiliser les champs complets de la liste si l'API détail renvoie des valeurs partielles.
+    if (
+      isMissingDisplayValue(mappedExpedition.expediteur_nom_complet)
+      || isMissingDisplayValue(mappedExpedition.destinataire_nom_complet)
+      || isMissingDisplayValue(mappedExpedition.agence_depart_nom)
+      || isMissingDisplayValue(mappedExpedition.agence_destination_nom)
+    ) {
+      const expeditionsCollection = isClient ? await listClientExpeditions() : await listExpeditions()
+      const matchedFromList = expeditionsCollection.find((item) => (
+        String(item.code_suivi || item.codeSuivi || '').trim() === String(mappedExpedition.code_suivi || '').trim()
+        || String(item.id_expedition || item.id || '').trim() === String(mappedExpedition.id_expedition || '').trim()
+      ))
+
+      if (matchedFromList) {
+        mappedExpedition = {
+          ...mappedExpedition,
+          expediteur_nom_complet: isMissingDisplayValue(mappedExpedition.expediteur_nom_complet)
+            ? (matchedFromList.expediteur_nom_complet || matchedFromList.expediteurNomComplet || mappedExpedition.expediteur_nom_complet)
+            : mappedExpedition.expediteur_nom_complet,
+          destinataire_nom_complet: isMissingDisplayValue(mappedExpedition.destinataire_nom_complet)
+            ? (matchedFromList.destinataire_nom_complet || matchedFromList.destinataireNomComplet || mappedExpedition.destinataire_nom_complet)
+            : mappedExpedition.destinataire_nom_complet,
+          agence_depart_nom: isMissingDisplayValue(mappedExpedition.agence_depart_nom)
+            ? (matchedFromList.agence_depart_nom || matchedFromList.agenceDepartNom || mappedExpedition.agence_depart_nom)
+            : mappedExpedition.agence_depart_nom,
+          agence_destination_nom: isMissingDisplayValue(mappedExpedition.agence_destination_nom)
+            ? (matchedFromList.agence_destination_nom || matchedFromList.agenceDestinationNom || matchedFromList.agenceArriveeNom || mappedExpedition.agence_destination_nom)
+            : mappedExpedition.agence_destination_nom,
+        }
+      }
+    }
+
+    // Fallback 2: si des champs restent manquants, récupérer les entités liées par ID.
+    if (
+      isMissingDisplayValue(mappedExpedition.expediteur_nom_complet)
+      || isMissingDisplayValue(mappedExpedition.destinataire_nom_complet)
+      || isMissingDisplayValue(mappedExpedition.agence_depart_nom)
+      || isMissingDisplayValue(mappedExpedition.agence_destination_nom)
+    ) {
+      const [expediteurResult, destinataireResult, agenceDepartResult, agenceDestinationResult] = await Promise.allSettled([
+        mappedExpedition.ref_expediteur ? getPersonById(mappedExpedition.ref_expediteur) : Promise.resolve(null),
+        mappedExpedition.ref_destinataire ? getPersonById(mappedExpedition.ref_destinataire) : Promise.resolve(null),
+        mappedExpedition.ref_agence_depart ? getAgencyById(mappedExpedition.ref_agence_depart) : Promise.resolve(null),
+        mappedExpedition.ref_agence_destination ? getAgencyById(mappedExpedition.ref_agence_destination) : Promise.resolve(null),
+      ])
+
+      const expediteurData = expediteurResult.status === 'fulfilled' ? expediteurResult.value : null
+      const destinataireData = destinataireResult.status === 'fulfilled' ? destinataireResult.value : null
+      const agenceDepartData = agenceDepartResult.status === 'fulfilled' ? agenceDepartResult.value : null
+      const agenceDestinationData = agenceDestinationResult.status === 'fulfilled' ? agenceDestinationResult.value : null
+
+      mappedExpedition = {
+        ...mappedExpedition,
+        expediteur_nom_complet: isMissingDisplayValue(mappedExpedition.expediteur_nom_complet)
+          ? (joinName(expediteurData?.nom, expediteurData?.postnom, expediteurData?.prenom) || mappedExpedition.expediteur_nom_complet)
+          : mappedExpedition.expediteur_nom_complet,
+        destinataire_nom_complet: isMissingDisplayValue(mappedExpedition.destinataire_nom_complet)
+          ? (joinName(destinataireData?.nom, destinataireData?.postnom, destinataireData?.prenom) || mappedExpedition.destinataire_nom_complet)
+          : mappedExpedition.destinataire_nom_complet,
+        agence_depart_nom: isMissingDisplayValue(mappedExpedition.agence_depart_nom)
+          ? (agenceDepartData?.nom_agence || agenceDepartData?.nom || mappedExpedition.agence_depart_nom)
+          : mappedExpedition.agence_depart_nom,
+        agence_destination_nom: isMissingDisplayValue(mappedExpedition.agence_destination_nom)
+          ? (agenceDestinationData?.nom_agence || agenceDestinationData?.nom || mappedExpedition.agence_destination_nom)
+          : mappedExpedition.agence_destination_nom,
+      }
+    }
+    console.log('[ExpeditionDetail] Champs utilises pour affichage:', {
+      code_suivi: mappedExpedition.code_suivi,
+      expediteur_nom_complet: mappedExpedition.expediteur_nom_complet,
+      destinataire_nom_complet: mappedExpedition.destinataire_nom_complet,
+      agence_depart_nom: mappedExpedition.agence_depart_nom,
+      agence_destination_nom: mappedExpedition.agence_destination_nom,
+      agent_nom_affichage: mappedExpedition.agent_nom_affichage,
+      status: mappedExpedition.status,
+      date_expedition: mappedExpedition.date_expedition,
+      created_at: mappedExpedition.created_at,
+      updated_at: mappedExpedition.updated_at,
+      colis_count: mappedExpedition.colis?.length || 0,
+    })
+
+    setExpedition(mappedExpedition)
+
+    const [suiviResponse, confirmationResponse] = await Promise.allSettled([
       getExpeditionSuiviByCodeSuivi(codeSuivi),
       getExpeditionConfirmationByCodeSuivi(codeSuivi),
     ])
 
-    setSuivi(suiviData)
-    setConfirmation(confirmationData)
+    console.log('[ExpeditionDetail] Dates brutes API suivi:',
+      suiviResponse.status === 'fulfilled'
+        ? (suiviResponse.value || []).map((item) => ({ id_suivi: item.id_suivi, date_maj: item.date_maj }))
+        : [],
+    )
+
+    console.log('[ExpeditionDetail] Date brute API confirmation:',
+      confirmationResponse.status === 'fulfilled' ? confirmationResponse.value?.date_reception : null,
+    )
+
+    setSuivi(suiviResponse.status === 'fulfilled' ? suiviResponse.value : [])
+    setConfirmation(confirmationResponse.status === 'fulfilled' ? confirmationResponse.value : null)
 
     if (showGlobalLoading) {
       setIsLoading(false)
@@ -130,7 +346,17 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
 
     const loadDetail = async () => {
       try {
-        await refreshExpeditionDetail(expeditionNumero, { showGlobalLoading: true })
+        console.log('[ExpeditionDetail] ID recupere depuis URL/state:', {
+          routeExpeditionId,
+          expeditionCodeFromState,
+        })
+        const resolvedCode = await resolveExpeditionCode(routeExpeditionId || expeditionCodeFromState)
+
+        if (!resolvedCode) {
+          throw new Error('Expedition introuvable pour cet identifiant.')
+        }
+
+        await refreshExpeditionDetail(resolvedCode, { showGlobalLoading: true })
       } catch (error) {
         if (!cancelled) setErrorMessage(error.message || 'Chargement impossible.')
       } finally {
@@ -138,7 +364,7 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
       }
     }
 
-    if (expeditionNumero) {
+    if (routeExpeditionId || expeditionCodeFromState) {
       loadDetail()
     } else {
       setErrorMessage('Code expedition invalide.')
@@ -148,7 +374,7 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
     return () => {
       cancelled = true
     }
-  }, [expeditionNumero])
+  }, [routeExpeditionId, expeditionCodeFromState])
 
   const totalPoids = useMemo(() => {
     if (!expedition?.colis) return '0.00'
@@ -338,20 +564,6 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
     }
   }
 
-  const handleDeleteExpedition = async () => {
-    if (!canDeleteExpedition || !expedition?.code_suivi) return
-
-    const isConfirmed = window.confirm('Confirmer la suppression de cette expedition ?')
-    if (!isConfirmed) return
-
-    try {
-      await deleteExpeditionByCodeSuivi(expedition.code_suivi)
-      navigate('/dashboard/expedients', { replace: true })
-    } catch (error) {
-      setErrorMessage(error.message || 'Suppression impossible.')
-    }
-  }
-
   if (isLoading) {
     return (
       <section className="expedition-detail-page fade-in" aria-label="Chargement detail expedition">
@@ -377,35 +589,30 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
 
   return (
     <section className="expedition-detail-page fade-in" aria-label="Detail expedition">
-      <header className="expedition-detail-header">
-        <div className="expedition-detail-header-left">
-          <div>
-            <h1>Détail de l'expédition</h1>
-            <p className="expedition-detail-subtitle">{expedition.code_suivi}</p>
-          </div>
-          <div className={`expedition-detail-status ${getStatusColor(expedition.status)}`}>
+      <header className="expedition-detail-header header-detail">
+        <div className="expedition-detail-header-left header-title">
+          <h1>Détail de l'expédition</h1>
+          <p className="expedition-detail-subtitle">{expedition.code_suivi}</p>
+        </div>
+        <div className="expedition-detail-actions header-actions">
+          <div className={`expedition-detail-status status-badge ${getStatusColor(expedition.status)}`}>
             <span className="status-icon">●</span>
             <span className="status-text">{getStatusLabel(expedition.status)}</span>
           </div>
-        </div>
-        <div className="expedition-detail-actions">
           <Button
             type="button"
             variant="secondary"
+            icon={null}
+            className="action-btn"
             onClick={() => navigate(listPath)}
           >
             Retour
           </Button>
           <Button
             type="button"
-            variant={viewMode === 'detail' ? 'primary' : 'outline'}
-            onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}`)}
-          >
-            Detail
-          </Button>
-          <Button
-            type="button"
             variant={viewMode === 'suivi' ? 'primary' : 'outline'}
+            icon={null}
+            className="action-btn"
             onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/suivi`)}
           >
             {canEditSuivi ? 'Suivi' : 'Voir suivi'}
@@ -414,6 +621,8 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
             <Button
               type="button"
               variant={viewMode === 'confirmation' ? 'primary' : 'outline'}
+              icon={null}
+              className="action-btn"
               onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/confirmation`)}
             >
               {confirmation ? 'Confirmation' : 'Confirmer reception'}
@@ -423,47 +632,17 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
             <Button
               type="button"
               variant="outline"
+              icon={null}
+              className="action-btn"
               onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/modifier`)}
             >
               Modifier
             </Button>
           )}
-          {canDeleteExpedition && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleDeleteExpedition}
-            >
-              Supprimer
-            </Button>
-          )}
         </div>
       </header>
 
-      <article className="expedition-detail-card expedition-module-nav">
-        <button
-          type="button"
-          className={`expedition-module-link ${viewMode === 'detail' ? 'active' : ''}`}
-          onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}`)}
-        >
-          Informations generales
-        </button>
-        <button
-          type="button"
-          className={`expedition-module-link ${viewMode === 'suivi' ? 'active' : ''}`}
-          onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/suivi`)}
-        >
-          Suivi
-        </button>
-        <button
-          type="button"
-          className={`expedition-module-link ${viewMode === 'confirmation' ? 'active' : ''}`}
-          onClick={() => navigate(`/dashboard/expedients/${expedition.code_suivi}/confirmation`)}
-          disabled={!canOpenConfirmation}
-        >
-          Confirmation
-        </button>
-      </article>
+     
 
       {/* Parties prenantes */}
       <article className="expedition-detail-card">
@@ -530,15 +709,15 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
         <div className="expedition-detail-grid">
           <div className="detail-field">
             <span className="field-label">Date d'expédition</span>
-            <strong className="field-value">{new Date(expedition.date_expedition).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>
+            <strong className="field-value">{formatDisplayDate(expedition.date_expedition)}</strong>
           </div>
           <div className="detail-field">
             <span className="field-label">Créée le</span>
-            <strong className="field-value">{new Date(expedition.created_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>
+            <strong className="field-value">{formatDisplayDate(expedition.created_at)}</strong>
           </div>
           <div className="detail-field">
             <span className="field-label">Dernière mise à jour</span>
-            <strong className="field-value">{new Date(expedition.updated_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>
+            <strong className="field-value">{formatDisplayDate(expedition.updated_at)}</strong>
           </div>
         </div>
       </article>
@@ -611,7 +790,7 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
             </div>
             <div className="detail-field">
               <span className="field-label">Date de réception</span>
-              <strong className="field-value">{new Date(confirmation.date_reception).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>
+              <strong className="field-value">{formatDisplayDate(confirmation.date_reception)}</strong>
             </div>
             <div className="detail-field">
               <span className="field-label">Mode de confirmation</span>
@@ -706,7 +885,7 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
             <h2>Confirmation de reception</h2>
           </div>
           <p className="expedition-empty expedition-confirmation-pending-note">
-            La confirmation de reception sera disponible une fois l'expedition marquee comme livree.
+            La confirmation de reception sera disponible une fois l'expédition marquée comme livrée.
           </p>
         </article>
       )}
@@ -777,7 +956,7 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
                   <span className={`suivi-status ${getStatusColor(item.status)}`}>
                     {getStatusLabel(item.status)}
                   </span>
-                  <span className="suivi-date">{new Date(item.date_maj).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  <span className="suivi-date">{formatDisplayDate(item.date_maj)}</span>
                 </div>
                 {item.localisation_texte && (
                   <p className="suivi-localisation">

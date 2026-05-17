@@ -45,7 +45,6 @@
 .menu-btn,
 .close-btn,
 .top-icon-btn,
-.logout-btn,
 .desktop-logout-link,
 .mobile-logout-link {
   border: none;
@@ -74,13 +73,13 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.4rem;
+  gap: 0.2rem;
   margin-left: auto;
 }
 
 .top-icon-btn,
 .profile-action,
-.logout-btn {
+.profile-action {
   width: 34px;
   min-height: 34px;
   height: 34px;
@@ -91,17 +90,6 @@
   position: relative;
   border-radius: 50%;
   background: #f2f7f3;
-}
-
-.notification-dot {
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #ef4444;
-  border: 2px solid var(--color-white);
 }
 
 .profile-action {
@@ -117,28 +105,11 @@
   padding: 0;
 }
 
-.logout-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  background: #fff5f5;
-  color: #b42318;
-  padding: 0;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
 .menu-btn:hover,
 .close-btn:hover,
 .top-icon-btn:hover,
-.profile-action:hover,
-.logout-btn:hover {
+.profile-action:hover {
   background-color: #edf6ef;
-}
-
-.logout-btn:hover {
-  background-color: #fee4e2;
 }
 
 body.menu-open {

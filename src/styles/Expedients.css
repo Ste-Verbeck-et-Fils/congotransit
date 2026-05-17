@@ -111,6 +111,39 @@
   }
 }
 
+@media (max-width: 768px) {
+  .expedients-page {
+    gap: var(--spacing-md);
+  }
+
+  .expedients-card {
+    padding: var(--spacing-md);
+  }
+
+  .expedients-grid-two,
+  .expedients-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .expedients-total-value {
+    min-height: 52px;
+    padding: 0 var(--spacing-md);
+  }
+
+  .expedients-total-value span {
+    font-size: 1.55rem;
+  }
+
+  .expedients-total-value strong {
+    font-size: 1.05rem;
+  }
+
+  .expedients-summary-colis li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 .expedients-colis-card {
   border: 1px solid #eef1ef;
   border-radius: var(--radius-lg);
@@ -643,7 +676,19 @@
   .expeditions-row {
     grid-template-columns: 1fr !important;
     gap: var(--spacing-xs);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
+  }
+
+  .expeditions-row > span,
+  .expeditions-row > .expeditions-actions-menu-shell,
+  .expeditions-row > .expeditions-inline-actions {
+    min-width: 0;
+  }
+
+  .expeditions-row .cell-text {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
   }
 
   .expeditions-actions-menu-shell {
@@ -657,6 +702,13 @@
   .expeditions-inline-actions {
     display: flex !important;
     margin-top: var(--spacing-sm);
+    width: 100%;
+    gap: 0.45rem;
+  }
+
+  .expeditions-inline-btn {
+    min-height: 34px;
+    flex: 1 1 auto;
   }
 }
 

@@ -7,11 +7,10 @@ import StaticInput from '../components/ui/StaticInput'
 import AddressFormSection from '../components/forms/AddressFormSection'
 import { createEmptyAddress, formatAddressLabel, trimAddress, validateAddress } from '../lib/addressUtils'
 import { listAddresses } from '../lib/agencesApi'
-import { PERSON_TYPE_OPTIONS, createPerson, getPersonById, updatePerson } from '../lib/personnesApi'
+import { createPerson, getPersonById, updatePerson } from '../lib/personnesApi'
 import '../styles/Agences.css'
 
 const phoneRegex = /^\+?[0-9]{8,15}$/
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const splitFullName = (fullName = '') => {
   const parts = String(fullName).trim().split(/\s+/).filter(Boolean)
@@ -107,7 +106,6 @@ const PersonForm = () => {
   const [postnom, setPostnom] = useState('')
   const [prenom, setPrenom] = useState('')
   const [telephone, setTelephone] = useState('')
-  const [email, setEmail] = useState('')
   const [typePersonne, setTypePersonne] = useState('EXPEDITEUR')
 
   const [addressOptions, setAddressOptions] = useState([])
@@ -176,7 +174,6 @@ const PersonForm = () => {
           setPostnom(person.postnom ?? parsedFullName.postnom)
           setPrenom(person.prenom ?? parsedFullName.prenom)
           setTelephone(person.telephone ?? '')
-          setEmail(person.email ?? '')
           setTypePersonne(person.type_personne ?? 'EXPEDITEUR')
           setSelectedAddressId(addressRef)
 
@@ -216,7 +213,6 @@ const PersonForm = () => {
     const cleanPostnom = postnom.trim()
     const cleanPrenom = prenom.trim()
     const cleanTelephone = telephone.replace(/\s+/g, '')
-    const cleanEmail = email.trim()
 
     if (cleanNom.length < 2) {
       setErrorMessage('Le nom est obligatoire et doit contenir au moins 2 caracteres.')
@@ -235,11 +231,6 @@ const PersonForm = () => {
 
     if (!phoneRegex.test(cleanTelephone)) {
       setErrorMessage('Veuillez saisir un numero de telephone valide.')
-      return
-    }
-
-    if (cleanEmail && !emailRegex.test(cleanEmail)) {
-      setErrorMessage('Veuillez saisir une adresse email valide.')
       return
     }
 
@@ -262,8 +253,6 @@ const PersonForm = () => {
       postnom: cleanPostnom || null,
       prenom: cleanPrenom,
       telephone: cleanTelephone,
-      email: cleanEmail || null,
-      type_personne: typePersonne,
       ref_adresse: useNewAddress ? null : selectedAddressId || null,
       adresse: useNewAddress ? cleanedAddress : null,
     }
@@ -340,11 +329,6 @@ const PersonForm = () => {
                 <StaticInput label="Postnom" value={postnom} />
                 <StaticInput label="Prenom" value={prenom} />
                 <StaticInput label="Telephone" value={telephone} />
-                <StaticInput label="Email" value={email} />
-                <StaticInput
-                  label="Type de personne"
-                  value={PERSON_TYPE_OPTIONS.find((option) => option.value === typePersonne)?.label ?? typePersonne}
-                />
               </>
             ) : (
               <>
@@ -372,19 +356,6 @@ const PersonForm = () => {
                   placeholder="+243 990 000 000"
                   value={telephone}
                   onChange={(e) => { setTelephone(e.target.value); clearMessages() }}
-                />
-                <Input
-                  label="Email"
-                  type="email"
-                  placeholder="jean@example.com"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); clearMessages() }}
-                />
-                <Select
-                  label="Type de personne"
-                  value={typePersonne}
-                  onChange={(e) => { setTypePersonne(e.target.value); clearMessages() }}
-                  options={PERSON_TYPE_OPTIONS}
                 />
               </>
             )}

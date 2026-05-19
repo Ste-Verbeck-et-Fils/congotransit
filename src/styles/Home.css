@@ -625,3 +625,16 @@
     font-size: 0.9rem;
   }
 }
+
+/* Ajustements pour les ecrans pliables */
+@media (max-width: 768px) {
+  .home-hero {
+    padding: 1rem;
+    margin-top: 0;
+    clip-path: none;
+  }
+
+  .home-hero-intro h1 {
+    font-size: 2rem;
+  }
+}

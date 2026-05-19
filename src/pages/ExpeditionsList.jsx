@@ -202,34 +202,34 @@ const ExpeditionsList = () => {
 
   return (
     <section className="expeditions-list-page fade-in" aria-label="Liste des expeditions">
-      <header className="expeditions-list-header">
+      <header className="expeditions-page-header shipments-page-header list-header">
         <div className="expeditions-header-title">
-          <h1>Liste des expeditions</h1>
-          <p>Retrouvez chaque envoi et accedez rapidement a son detail.</p>
-        </div>
-
-        <div className="expeditions-header-controls">
-          <div className="expeditions-header-search">
-            <Input
-              placeholder="Rechercher un code, un nom..."
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              icon={<IconSearch size={18} />}
-              variant="search"
-            />
-          </div>
-
-          <Button
-            className="expeditions-add-btn"
-            type="button"
-            variant="primary"
-            icon={<IconPlus size={18} />}
-            onClick={() => navigate('/dashboard/expedients/nouveau')}
-          >
-            Ajouter expedition
-          </Button>
+          <h1 className="expeditions-page-title shipments-title page-title">Liste des expeditions</h1>
+          <p className="expeditions-page-subtitle shipments-subtitle page-subtitle">Retrouvez chaque envoi et accedez rapidement a son detail.</p>
         </div>
       </header>
+
+      <section className="expeditions-search-actions" aria-label="Recherche et actions expeditions">
+        <Button
+          className="expeditions-add-btn"
+          type="button"
+          variant="primary"
+          icon={<IconPlus size={18} />}
+          onClick={() => navigate('/dashboard/expedients/nouveau')}
+        >
+          Ajouter expedition
+        </Button>
+
+        <div className="expeditions-header-search">
+          <Input
+            placeholder="Rechercher un code, un nom..."
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            icon={<IconSearch size={18} />}
+            variant="search"
+          />
+        </div>
+      </section>
 
       <div className="expeditions-toolbar">
         <Select

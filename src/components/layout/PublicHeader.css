@@ -1,6 +1,6 @@
 .public-header {
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   z-index: 200;
   width: min(1120px, calc(100% - 2rem));
   max-width: calc(100% - 2rem);

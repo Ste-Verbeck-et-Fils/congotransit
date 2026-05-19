@@ -4,10 +4,8 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import { IconMoreVertical, IconPlus, IconSearch, IconUser } from '../components/ui/Icons'
 import { formatAddressLabel } from '../lib/addressUtils'
-import { PERSON_TYPE_OPTIONS, deletePerson, listPersons } from '../lib/personnesApi'
+import { deletePerson, listPersons } from '../lib/personnesApi'
 import '../styles/Agences.css'
-
-const typeLabelMap = Object.fromEntries(PERSON_TYPE_OPTIONS.map((o) => [o.value, o.label]))
 
 /* Ce composant affiche la liste des personnes avec une recherche unique par nom ou telephone. */
 const PersonsList = () => {
@@ -142,7 +140,6 @@ const PersonsList = () => {
         <div className="agencies-table-head persons-table-head" aria-hidden="true">
           <span>Personne</span>
           <span>Telephone</span>
-          <span>Type</span>
           <span>Adresse</span>
           <span>Action</span>
         </div>
@@ -161,11 +158,6 @@ const PersonsList = () => {
                 <strong>{getFullName(person)}</strong>
               </span>
               <span>{person.telephone || 'Non renseigne'}</span>
-              <span>
-                <em className={`agencies-status-chip type-chip-${(person.type_personne ?? '').toLowerCase()}`}>
-                  {typeLabelMap[person.type_personne] ?? person.type_personne ?? '—'}
-                </em>
-              </span>
               <span>{formatAddressLabel(person.adresse)}</span>
               <span className="agencies-actions-menu-shell">
                 <div className="agencies-actions-menu">

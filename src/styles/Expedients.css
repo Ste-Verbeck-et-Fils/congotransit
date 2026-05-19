@@ -584,37 +584,47 @@
   width: 100%;
   display: grid;
   gap: var(--spacing-lg);
+  min-height: 0;
+  overflow: visible;
 }
 
-.expeditions-list-header {
+.expeditions-page-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-xl);
-  margin-bottom: var(--spacing-lg);
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--spacing-sm);
   padding: 0.5rem 0;
+  margin: 0;
+  min-height: fit-content;
 }
 
 .expeditions-header-title {
-  flex: 1;
+  width: 100%;
   min-width: 0;
+  overflow: visible;
 }
 
 .expeditions-header-title h1 {
   font-size: clamp(1.4rem, 2.5vw, 1.8rem);
   margin: 0;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .expeditions-header-title p {
   margin: 0.2rem 0 0;
   font-size: 0.9rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 
-.expeditions-header-controls {
+.expeditions-search-actions {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-md);
-  flex-shrink: 0;
+  width: 100%;
+  margin: 0;
 }
 
 .expeditions-header-search {
@@ -647,13 +657,12 @@
 }
 
 @media (max-width: 900px) {
-  .expeditions-list-header {
-    flex-direction: column;
+  .expeditions-page-header {
     align-items: stretch;
     gap: var(--spacing-md);
   }
 
-  .expeditions-header-controls {
+  .expeditions-search-actions {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
@@ -1186,14 +1195,8 @@
 }
 
 @media (max-width: 900px) {
-  .expeditions-list-header {
+  .expeditions-search-actions {
     flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-lg);
-  }
-
-  .expeditions-header-controls {
-    flex-direction: column-reverse;
     align-items: stretch;
   }
 
@@ -1204,6 +1207,25 @@
   .expeditions-add-btn {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (max-width: 390px) {
+  .expeditions-page-header {
+    padding-top: 0.2rem;
+  }
+
+  .expeditions-header-title h1 {
+    font-size: 1.2rem;
+  }
+
+  .expeditions-header-title p {
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
+
+  .expeditions-search-actions {
+    gap: var(--spacing-sm);
   }
 }
 

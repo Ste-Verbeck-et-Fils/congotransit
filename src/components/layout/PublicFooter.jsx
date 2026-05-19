@@ -52,9 +52,6 @@ const PublicFooter = () => {
               <br />
               République Démocratique du Congo
             </address>
-            <a href="mailto:contact@congotransit.com" className="footer-email">
-              contact@congotransit.com
-            </a>
             <p className="footer-phone">+243 990 000 000</p>
           </div>
         </div>

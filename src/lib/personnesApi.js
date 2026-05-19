@@ -1,11 +1,5 @@
 import { apiRequest } from './api'
 
-export const PERSON_TYPE_OPTIONS = [
-  { value: 'EXPEDITEUR', label: 'Expéditeur' },
-  { value: 'DESTINATAIRE', label: 'Destinataire' },
-  { value: 'LES_DEUX', label: 'Expéditeur & Destinataire' },
-]
-
 export async function listPersons() {
   const data = await apiRequest('/personnes')
   return data.persons ?? []

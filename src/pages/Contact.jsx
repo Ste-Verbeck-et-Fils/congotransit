@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import PublicHeader from '../components/layout/PublicHeader'
 import PublicFooter from '../components/layout/PublicFooter'
 import { IconArrowRight } from '../components/ui/Icons'
@@ -39,10 +38,6 @@ const Contact = () => {
               <p>Quartier Les Volcans<br />Goma, Nord-Kivu<br />République Démocratique du Congo</p>
             </div>
             <div className="info-block">
-              <h3>Email</h3>
-              <a href="mailto:contact@congotransit.com">contact@congotransit.com</a>
-            </div>
-            <div className="info-block">
               <h3>Téléphone</h3>
               <p>+243 990 000 000</p>
             </div>
@@ -62,10 +57,6 @@ const Contact = () => {
               <div className="form-group">
                 <label htmlFor="name">Nom complet</label>
                 <input type="text" id="name" placeholder="Votre nom" required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input type="email" id="email" placeholder="Votre adresse email" required />
               </div>
               <div className="form-group">
                 <label htmlFor="subject">Sujet</label>

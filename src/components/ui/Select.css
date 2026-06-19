@@ -3,22 +3,23 @@
   flex-direction: column;
   gap: var(--spacing-xs);
   width: 100%;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 8px; /* Réduit pour éviter trop d'espace */
+  position: relative; /* Pour positionner le dropdown menu absolument par rapport au container */
 }
 
 .select-label {
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--color-primary-optimized);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .select-row {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs); /* Réduit de sm à xs pour resserrer */
   align-items: center;
 }
 
@@ -28,10 +29,11 @@
   align-items: center;
   background-color: var(--color-gray-soft);
   border-radius: var(--radius-md);
-  padding: 0 var(--spacing-md);
-  min-height: clamp(48px, 4.5vw, 56px);
+  padding: 0 12px;
+  min-height: 40px; /* Réduit de 48px-56px à 40px */
   border: 1px solid #f2f4f3;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .select-wrapper:focus-within {
@@ -49,13 +51,8 @@
   font-family: var(--font-body);
   font-weight: 500;
   color: var(--color-text-dark);
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0px center;
-  background-size: 20px;
-  padding-right: 24px;
+  cursor: text;
+  padding-right: var(--spacing-lg);
 }
 
 .select-icon {
@@ -66,18 +63,35 @@
   justify-content: center;
 }
 
+.select-arrow-indicator {
+  position: absolute;
+  right: var(--spacing-sm);
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.select-arrow-indicator.open {
+  transform: rotate(180deg);
+}
+
 .select-add-btn {
   background-color: var(--color-primary);
   color: var(--color-white);
   border: none;
   border-radius: var(--radius-md);
-  width: clamp(40px, 4vw, 48px);
-  height: clamp(40px, 4vw, 48px);
+  width: 40px; /* Aligné sur la hauteur de 40px */
+  height: 40px; /* Aligné sur la hauteur de 40px */
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   flex-shrink: 0;
   transition: all 0.2s ease;
 }
@@ -85,4 +99,113 @@
 .select-add-btn:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
+}
+
+/* ── Dropdown Menu ────────────────────────────────────────── */
+
+.select-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-neutral-high);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  max-height: 260px;
+  overflow-y: auto;
+  animation: selectMenuFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes selectMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.select-dropdown-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+}
+
+.select-dropdown-item {
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-dark);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Clavier / Focus sur l'item */
+.select-dropdown-item.highlighted {
+  background-color: var(--color-gray-soft);
+  color: var(--color-primary-optimized);
+}
+
+/* Item sélectionné */
+.select-dropdown-item.selected {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.select-dropdown-item:hover {
+  background-color: #e6f1e8;
+  color: var(--color-primary);
+}
+
+/* Pour que l'item sélectionné conserve sa couleur de sélection même au survol */
+.select-dropdown-item.selected:hover {
+  background-color: var(--color-primary-optimized);
+  color: var(--color-white);
+}
+
+/* ── Status display (Loading / No results) ──────────────── */
+
+.select-dropdown-status {
+  padding: 16px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.select-info-msg {
+  font-style: italic;
+}
+
+.select-no-results {
+  color: var(--color-home-danger);
+  font-weight: 500;
+}
+
+/* Mini spinner */
+.spinner-dot {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #e0e0e0;
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spinnerRotate 0.8s linear infinite;
+}
+
+@keyframes spinnerRotate {
+  to {
+    transform: rotate(360deg);
+  }
 }

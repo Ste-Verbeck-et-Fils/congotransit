@@ -1,15 +1,15 @@
 /* Ce composant affiche et traite le formulaire final de creation d'expedition. */
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import ColisManagerSection from '../components/forms/ColisManagerSection'
-import { listAgencies } from '../lib/agencesApi'
+import { listAgencies, searchAgencies } from '../lib/agencesApi'
 import { createExpedition, getExpeditionByCodeSuivi, updateExpeditionByCodeSuivi } from '../lib/expeditionsApi'
 import { buildColisApiPayload } from '../lib/colisUtils'
-import { createPerson, listPersons } from '../lib/personnesApi'
-import { listUsers } from '../lib/usersApi'
+import { createPerson, searchPersons, getPersonById } from '../lib/personnesApi'
+import { searchUsers } from '../lib/usersApi'
 import { readAuthSession } from '../lib/authSession'
 import '../styles/Expedients.css'
 
@@ -17,7 +17,7 @@ const formatPersonName = (person) =>
   [person.nom, person.postnom, person.prenom].filter(Boolean).join(' ').trim()
 
 const toPersonOption = (person) => {
-  const fullName = formatPersonName(person) || person.telephone || 'Personne sans nom'
+  const fullName = person.nom_complet || formatPersonName(person) || person.telephone || 'Personne sans nom'
   const label = person.telephone ? `${fullName} (${person.telephone})` : fullName
   return { value: person.id_personne, label, type: person.type_personne }
 }
@@ -31,18 +31,6 @@ const toAgentOption = (user) => ({
   value: user.id_utilisateur,
   label: user.nom_affichage,
 })
-
-const buildPersonOptions = (persons, type) => {
-  const allowed =
-    type === 'EXPEDITEUR'
-      ? new Set(['EXPEDITEUR', 'LES_DEUX'])
-      : new Set(['DESTINATAIRE', 'LES_DEUX'])
-
-  return [
-    { value: '', label: type === 'EXPEDITEUR' ? 'Choisir un expediteur...' : 'Choisir un destinataire...' },
-    ...persons.filter((p) => allowed.has(p.type_personne)).map(toPersonOption),
-  ]
-}
 
 const phoneRegex = /^\+?[0-9]{8,15}$/
 
@@ -129,24 +117,20 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
     const loadDependencies = async () => {
       try {
         const requests = [
-          listPersons(),
           listAgencies(),
-          listUsers({ role_systeme: 'AGENT' }),
+          searchUsers('', 'AGENT'),
         ]
 
         if (isEditMode && expeditionNumero) {
           requests.push(getExpeditionByCodeSuivi(expeditionNumero))
         }
 
-        const [persons, agencies, users, expeditionResponse] = await Promise.all(requests)
+        const [agencies, users, expeditionResponse] = await Promise.all(requests)
         if (!active) return
 
-        setPersonsById(Object.fromEntries(persons.map((person) => [person.id_personne, person])))
         setAgenciesById(Object.fromEntries(agencies.map((agency) => [agency.id, agency])))
         setAgentsById(Object.fromEntries(users.map((user) => [user.id_utilisateur, user])))
 
-        setExpediteurOptions(buildPersonOptions(persons, 'EXPEDITEUR'))
-        setDestinataireOptions(buildPersonOptions(persons, 'DESTINATAIRE'))
         setAgenceOptions([{ value: '', label: 'Choisir une agence...' }, ...agencies.map(toAgencyOption)])
         setAgentOptions([{ value: '', label: 'Choisir un agent...' }, ...users.map(toAgentOption)])
 
@@ -168,6 +152,26 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
               poids: item.poids ?? '',
               observations: item.observations || '',
             })))
+
+            // Charger les détails de l'expéditeur et du destinataire
+            try {
+              const [sender, receiver] = await Promise.all([
+                expedition.ref_expediteur ? getPersonById(expedition.ref_expediteur) : Promise.resolve(null),
+                expedition.ref_destinataire ? getPersonById(expedition.ref_destinataire) : Promise.resolve(null)
+              ])
+              
+              const activePersons = [sender, receiver].filter(Boolean)
+              setPersonsById(Object.fromEntries(activePersons.map((p) => [p.id_personne, p])))
+              
+              if (sender) {
+                setExpediteurOptions([toPersonOption(sender)])
+              }
+              if (receiver) {
+                setDestinataireOptions([toPersonOption(receiver)])
+              }
+            } catch (err) {
+              console.error('Erreur chargement personnes :', err)
+            }
           }
         } else {
           // Pre-remplir l'agent si l'utilisateur est un AGENT
@@ -272,6 +276,92 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
     }))
   }
 
+  const loadExpediteurs = useCallback(async (search) => {
+    try {
+      const persons = await searchPersons(search)
+      const allowed = new Set(['EXPEDITEUR', 'LES_DEUX'])
+      const filtered = persons.filter((p) => {
+        const type = p.type_personne || p.type
+        return !type || allowed.has(type)
+      })
+      setPersonsById((prev) => {
+        const next = { ...prev }
+        filtered.forEach((p) => {
+          next[p.id_personne] = p
+        })
+        return next
+      })
+      const opts = filtered.map(toPersonOption)
+      setExpediteurOptions(opts)
+      return opts
+    } catch (e) {
+      console.error(e)
+      return []
+    }
+  }, [])
+
+  const loadDestinataires = useCallback(async (search) => {
+    try {
+      const persons = await searchPersons(search)
+      const allowed = new Set(['DESTINATAIRE', 'LES_DEUX'])
+      const filtered = persons.filter((p) => {
+        const type = p.type_personne || p.type
+        return !type || allowed.has(type)
+      })
+      setPersonsById((prev) => {
+        const next = { ...prev }
+        filtered.forEach((p) => {
+          next[p.id_personne] = p
+        })
+        return next
+      })
+      const opts = filtered.map(toPersonOption)
+      setDestinataireOptions(opts)
+      return opts
+    } catch (e) {
+      console.error(e)
+      return []
+    }
+  }, [])
+
+  const loadAgenciesSearch = useCallback(async (search) => {
+    try {
+      const agencies = await searchAgencies(search)
+      setAgenciesById((prev) => {
+        const next = { ...prev }
+        agencies.forEach((a) => {
+          next[a.id] = a
+        })
+        return next
+      })
+      const opts = agencies.map(toAgencyOption)
+      setAgenceOptions([{ value: '', label: 'Choisir une agence...' }, ...opts])
+      return opts
+    } catch (e) {
+      console.error(e)
+      return []
+    }
+  }, [])
+
+  const loadAgentsSearch = useCallback(async (search) => {
+    try {
+      const users = await searchUsers(search, 'AGENT')
+      setAgentsById((prev) => {
+        const next = { ...prev }
+        users.forEach((u) => {
+          next[u.id_utilisateur] = u
+        })
+        return next
+      })
+      const opts = users.map(toAgentOption)
+      setAgentOptions([{ value: '', label: 'Choisir un agent...' }, ...opts])
+      return opts
+    } catch (e) {
+      console.error(e)
+      return []
+    }
+  }, [])
+
   const handleChangeAgent = (value) => {
     setRefAgent(value)
     setFieldErrors((prev) => ({ ...prev, refAgent: value ? '' : 'Selectionnez un agent affecte.' }))
@@ -287,13 +377,6 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
           ? 'La date doit etre comprise entre aujourd hui et 3 jours avant.'
           : '',
     }))
-  }
-
-  const refreshPersons = async () => {
-    const persons = await listPersons()
-    setExpediteurOptions(buildPersonOptions(persons, 'EXPEDITEUR'))
-    setDestinataireOptions(buildPersonOptions(persons, 'DESTINATAIRE'))
-    return persons
   }
 
   const openQuickPersonForm = (type) => {
@@ -329,12 +412,24 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
     try {
       setQuickPersonSubmitting(true)
       setApiError('')
-      const response = await createPerson({ nom, telephone, type_personne: type })
-      const allPersons = await refreshPersons()
-      const created = response.person || allPersons.find((p) => p.telephone === telephone)
+      const response = await createPerson({ nom_complet: nom, nom: nom, telephone, type_personne: type })
+      const created = response.personne || response.person
       if (created?.id_personne) {
-        if (type === 'EXPEDITEUR') setRefExpediteur(created.id_personne)
-        if (type === 'DESTINATAIRE') setRefDestinataire(created.id_personne)
+        setPersonsById((prev) => ({ ...prev, [created.id_personne]: created }))
+        const option = toPersonOption(created)
+        if (type === 'EXPEDITEUR') {
+          setExpediteurOptions((prev) => {
+            if (prev.some((o) => o.value === option.value)) return prev
+            return [...prev, option]
+          })
+          setRefExpediteur(created.id_personne)
+        } else {
+          setDestinataireOptions((prev) => {
+            if (prev.some((o) => o.value === option.value)) return prev
+            return [...prev, option]
+          })
+          setRefDestinataire(created.id_personne)
+        }
       }
       closeQuickPersonForm()
     } catch (error) {
@@ -444,6 +539,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
                 value={refExpediteur}
                 onChange={(e) => handleChangeExpediteur(e.target.value)}
                 options={expediteurOptions}
+                loadOptions={loadExpediteurs}
+                placeholder="Rechercher par nom ou telephone..."
                 withAdd
                 onAdd={() => openQuickPersonForm('EXPEDITEUR')}
               />
@@ -462,6 +559,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
                 value={refDestinataire}
                 onChange={(e) => handleChangeDestinataire(e.target.value)}
                 options={destinataireOptions}
+                loadOptions={loadDestinataires}
+                placeholder="Rechercher par nom ou telephone..."
                 withAdd
                 onAdd={() => openQuickPersonForm('DESTINATAIRE')}
               />
@@ -530,6 +629,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
                 value={refAgenceDepart}
                 onChange={(e) => handleChangeAgenceDepart(e.target.value)}
                 options={agenceOptions}
+                loadOptions={loadAgenciesSearch}
+                placeholder="Rechercher une agence..."
               />
               {fieldErrors.refAgenceDepart && <p className="expedients-field-error">{fieldErrors.refAgenceDepart}</p>}
             </div>
@@ -539,6 +640,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
                 value={refAgenceDestination}
                 onChange={(e) => handleChangeAgenceDestination(e.target.value)}
                 options={agenceOptions}
+                loadOptions={loadAgenciesSearch}
+                placeholder="Rechercher une agence..."
               />
               {fieldErrors.refAgenceDestination && (
                 <p className="expedients-field-error">{fieldErrors.refAgenceDestination}</p>
@@ -550,6 +653,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
                 value={refAgent}
                 onChange={(e) => handleChangeAgent(e.target.value)}
                 options={agentOptions}
+                loadOptions={loadAgentsSearch}
+                placeholder="Rechercher un agent..."
               />
               {fieldErrors.refAgent && <p className="expedients-field-error">{fieldErrors.refAgent}</p>}
             </div>

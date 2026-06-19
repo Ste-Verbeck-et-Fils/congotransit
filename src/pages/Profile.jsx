@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import { IconLock, IconPhone, IconUser } from '../components/ui/Icons'
-import { changeMyPassword, getMyPerson, getMyProfile, updateMyProfile } from '../lib/profileApi'
+import { changeMyPassword, getMyProfile, updateMyProfile } from '../lib/profileApi'
 import { readAuthSession, saveAuthSession } from '../lib/authSession'
 import '../styles/Profile.css'
 
@@ -19,8 +19,6 @@ const ROLE_LABELS = {
 const Profile = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const [linkedPerson, setLinkedPerson] = useState(undefined) // undefined = pas encore chargé, null = aucune fiche
 
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
@@ -41,14 +39,13 @@ const Profile = () => {
     const loadProfile = async () => {
       setIsLoading(true)
       try {
-        const [user, person] = await Promise.all([getMyProfile(), getMyPerson()])
+        const user = await getMyProfile()
         if (cancelled) return
         setNomAffichage(user.nom_affichage ?? '')
         setTelephone(user.telephone ?? '')
         setRoleSysteme(user.role_systeme ?? '')
         setNomAgence(user.nomAgence ?? '') // Ajouté
         setCreatedAt(user.created_at ?? '')
-        setLinkedPerson(person)
       } catch (error) {
         if (!cancelled) setErrorMessage(`Chargement impossible : ${error.message}`)
       } finally {

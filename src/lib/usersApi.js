@@ -49,3 +49,10 @@ export async function updateUser(idUser, payload) {
 export async function deleteUser(idUser) {
   return apiRequest(`/utilisateurs/${idUser}`, { method: 'DELETE' })
 }
+
+export async function searchUsers(q, role) {
+  const roleQuery = role ? `&role=${encodeURIComponent(role)}` : ''
+  const data = await apiRequest(`/utilisateurs/search?q=${encodeURIComponent(q)}${roleQuery}`)
+  return data.users ?? []
+}
+

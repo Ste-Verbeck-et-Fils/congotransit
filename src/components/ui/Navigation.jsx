@@ -26,6 +26,7 @@ const getNavItems = (roleSysteme) => [
     ]
     : roleSysteme === 'AGENT'
       ? [
+        { to: '/dashboard', label: 'Tableau de bord', icon: <IconDashboard size={20} /> },
         { to: '/dashboard/expedients', label: 'Expeditions', icon: <IconTruck size={20} /> },
         { to: '/dashboard/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },
         { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },

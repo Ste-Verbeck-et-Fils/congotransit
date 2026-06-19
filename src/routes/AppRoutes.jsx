@@ -43,12 +43,9 @@ const AppRoutes = () => {
       <Route path="/suivi" element={<PublicTracking />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      {/* Route de test pour preview ExpeditionDetail avec données démo - À supprimer après tests */}
-      <Route path="/test/expedition/:expeditionNumero" element={<ExpeditionDetail />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<MainLayout />}>
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-            <Route index element={<Dashboard />} />
             <Route path="agences" element={<AgenciesList />} />
             <Route path="agences/nouvelle" element={<AgencyForm />} />
             <Route path="agences/:agencyId" element={<AgencyDetail />} />
@@ -63,6 +60,7 @@ const AppRoutes = () => {
             <Route path="utilisateurs/:userId/modifier" element={<UserForm />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'AGENT']} />}>
+            <Route index element={<Dashboard />} />
             <Route
               path="expedients"
               element={<ExpeditionsList />}

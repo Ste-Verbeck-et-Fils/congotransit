@@ -33,3 +33,9 @@ export async function updatePerson(idPersonne, payload) {
 export async function deletePerson(idPersonne) {
   return apiRequest(`/personnes/${idPersonne}`, { method: 'DELETE' })
 }
+
+export async function searchPersons(q) {
+  const data = await apiRequest(`/personnes/search?q=${encodeURIComponent(q)}`)
+  return data.personnes ?? []
+}
+

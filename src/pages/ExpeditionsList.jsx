@@ -7,7 +7,7 @@ import { IconMoreVertical, IconPlus, IconSearch, IconBox } from '../components/u
 import { deleteExpeditionByCodeSuivi, listExpeditions } from '../lib/expeditionsApi'
 import { listAgencies } from '../lib/agencesApi'
 import { readAuthSession } from '../lib/authSession'
-import { listUsers } from '../lib/usersApi'
+import { searchUsers } from '../lib/usersApi'
 import '../styles/Expedients.css'
 
 /* Ce composant affiche la liste principale des expeditions avec acces au detail, recherche et filtres. */
@@ -86,7 +86,7 @@ const ExpeditionsList = () => {
         const [expeditionsData, agenciesData, agentsData] = await Promise.all([
           listExpeditions(),
           listAgencies(),
-          listUsers({ role_systeme: 'AGENT' }),
+          searchUsers('', 'AGENT'),
         ])
         if (!cancelled) {
           setExpeditions(expeditionsData)

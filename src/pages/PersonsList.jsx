@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
-import { IconMoreVertical, IconPlus, IconSearch, IconUser } from '../components/ui/Icons'
+import { IconMoreVertical, IconPlus, IconSearch, IconUser, IconDownload, IconPrinter } from '../components/ui/Icons'
 import { formatAddressLabel } from '../lib/addressUtils'
+import * as XLSX from 'xlsx'
 import { PERSON_TYPE_OPTIONS, deletePerson, listPersons } from '../lib/personnesApi'
 import '../styles/Agences.css'
 
@@ -79,6 +80,24 @@ const PersonsList = () => {
 
   const getFullName = (p) => p.nom_complet || 'Sans nom'
 
+  const exportToExcel = () => {
+    const rows = filteredPersons.map(item => ({
+      'Nom complet': getFullName(item),
+      'Téléphone': item.telephone || '-',
+      'Type': typeLabelMap[item.type_personne] ?? item.type_personne ?? '—',
+      'Adresse': formatAddressLabel(item.adresse)
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(rows)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Personnes')
+    XLSX.writeFile(workbook, 'etats_sortie_personnes.xlsx')
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
   const handleDelete = async (idPersonne) => {
     const isConfirmed = window.confirm('Confirmer la suppression de cette personne ?')
     if (!isConfirmed) return
@@ -120,15 +139,37 @@ const PersonsList = () => {
         </Button>
       </header>
 
-      <div className="agencies-toolbar persons-toolbar">
-        <Input
-          label="Rechercher (nom ou telephone)"
-          placeholder="Ex: Mutombo ou +243..."
-          value={searchQuery}
-          onChange={(e) => { setSearchQuery(e.target.value); if (successMessage) setSuccessMessage('') }}
-          icon={<IconSearch size={18} />}
-          variant="search"
-        />
+      <div className="agencies-toolbar persons-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ flex: 1, minWidth: '250px' }}>
+          <Input
+            label="Rechercher (nom ou telephone)"
+            placeholder="Ex: Mutombo ou +243..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); if (successMessage) setSuccessMessage('') }}
+            icon={<IconSearch size={18} />}
+            variant="search"
+          />
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }} className="no-print">
+          <Button
+            type="button"
+            variant="secondary"
+            icon={<IconDownload size={18} />}
+            onClick={exportToExcel}
+            title="Exporter Excel"
+          >
+            Excel
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            icon={<IconPrinter size={18} />}
+            onClick={handlePrint}
+            title="Imprimer PDF"
+          >
+            PDF
+          </Button>
+        </div>
       </div>
 
       {errorMessage && (

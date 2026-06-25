@@ -13,6 +13,7 @@ import {
   IconUser,
   IconMessageCircle,
   IconWallet,
+  IconSparkles,
 } from './Icons'
 
 const getNavItems = (roleSysteme) => [
@@ -26,7 +27,7 @@ const getNavItems = (roleSysteme) => [
       { to: '/dashboard/utilisateurs', label: 'Utilisateurs', icon: <IconUser size={20} /> },
       { to: '/dashboard/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },
       { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
-      { to: '/dashboard/chat', label: 'Assistant', icon: <IconMessageCircle size={20} /> },
+      { to: '/dashboard/chat', label: 'Assistant', icon: <IconSparkles size={20} /> },
     ]
     : roleSysteme === 'AGENT'
       ? [
@@ -35,13 +36,13 @@ const getNavItems = (roleSysteme) => [
         { to: '/dashboard/paiements', label: 'Paiements', icon: <IconWallet size={20} /> },
         { to: '/dashboard/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },
         { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
-        { to: '/dashboard/chat', label: 'Assistant', icon: <IconMessageCircle size={20} /> },
+        { to: '/dashboard/chat', label: 'Assistant', icon: <IconSparkles size={20} /> },
       ]
       : [
         { to: '/dashboard/mes-expeditions', label: 'Mes expeditions', icon: <IconTruck size={20} /> },
         { to: '/dashboard/suivi', label: 'Suivi', icon: <IconTimeline size={20} /> },
         { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
-        { to: '/dashboard/chat', label: 'Assistant', icon: <IconMessageCircle size={20} /> },
+        { to: '/dashboard/chat', label: 'Assistant', icon: <IconSparkles size={20} /> },
       ]
   )
 ]

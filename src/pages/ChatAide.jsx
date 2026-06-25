@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { IconBot, IconSmile, IconFrown, IconMic } from '../components/ui/Icons'
+import { IconSparkles, IconSmile, IconFrown, IconMic, IconSend, IconUser } from '../components/ui/Icons'
 import { readAuthSession, getAccessToken } from '../lib/authSession'
 import './ChatAide.css'
 
@@ -10,7 +10,7 @@ const getStoredUser = () => {
 const ChatAide = () => {
   const [user] = useState(() => getStoredUser())
   const [messages, setMessages] = useState([
-    { id: 1, text: "Bonjour ! Je suis l'assistant IA de CongoTransit. Comment puis-je vous aider aujourd'hui ?", sender: 'bot', time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
+    { id: 1, text: "Bonjour ! Je suis l'assistant intelligent de CongoTransit. Comment puis-je vous accompagner aujourd'hui ?", sender: 'bot', time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -127,10 +127,18 @@ const ChatAide = () => {
   }
 
   return (
-    <div className='dashboard-page fade-in' style={{ width: '100%' }}>
+    <div className='dashboard-page fade-in' style={{ width: '100%', padding: '0 20px 20px 20px' }}>
       <div className='chat-app-container'>
         <div className='chat-app-header'>
-          <h2>Assistant CongoTransit</h2>
+          <div className='chat-app-header-content'>
+            <div className='chat-app-header-icon'>
+              <IconSparkles size={24} />
+            </div>
+            <div>
+              <h2>Assistant CongoTransit</h2>
+              <p>IA à votre service</p>
+            </div>
+          </div>
         </div>
 
         <div className='chat-app-messages'>
@@ -138,15 +146,19 @@ const ChatAide = () => {
             const isUser = msg.sender === 'user'
             return (
               <div key={msg.id} className={`chat-app-row ${isUser ? 'chat-app-row-user' : 'chat-app-row-bot'}`}>
-                {!isUser && (
+                {!isUser ? (
                   <div className='chat-app-avatar chat-app-avatar-bot'>
-                    <IconBot size={20} />
+                    <IconSparkles size={20} />
+                  </div>
+                ) : (
+                  <div className='chat-app-avatar chat-app-avatar-user'>
+                    <IconUser size={20} />
                   </div>
                 )}
 
                 <div className='chat-app-content-wrapper'>
                   <div className={`chat-app-meta ${isUser ? 'chat-app-meta-user' : 'chat-app-meta-bot'}`}>
-
+                    <span className='chat-app-time'>{msg.time}</span>
                     <span className='chat-app-name'>{isUser ? (user?.nom_affichage || 'Vous') : 'Assistant'}</span>
                   </div>
                   <div className={`chat-app-bubble ${isUser ? 'chat-app-bubble-user' : 'chat-app-bubble-bot'}`}>
@@ -166,7 +178,7 @@ const ChatAide = () => {
           {isLoading && (
             <div className='chat-app-row chat-app-row-bot'>
               <div className='chat-app-avatar chat-app-avatar-bot'>
-                <IconBot size={20} />
+                <IconSparkles size={20} />
               </div>
               <div className='chat-app-content-wrapper'>
                 <div className='chat-app-meta chat-app-meta-bot'>
@@ -187,7 +199,7 @@ const ChatAide = () => {
               type='text'
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder='Posez votre question...'
+              placeholder='Écrivez votre message ici...'
               className='chat-app-input'
               disabled={isLoading}
             />
@@ -195,12 +207,12 @@ const ChatAide = () => {
               type='button' 
               className={`chat-app-mic-btn ${isRecording ? 'recording' : ''}`}
               onClick={toggleRecording}
-              title={isRecording ? "Arrêter l'enregistrement" : "Parler"}
+              title={isRecording ? "Arrêter l'enregistrement" : "Dictée vocale"}
             >
               <IconMic size={20} />
             </button>
-            <button type='submit' disabled={isLoading || !input.trim()} className='chat-app-send-btn'>
-              Envoyer
+            <button type='submit' disabled={isLoading || !input.trim()} className='chat-app-send-btn' title="Envoyer">
+              <IconSend size={18} />
             </button>
           </div>
         </form>

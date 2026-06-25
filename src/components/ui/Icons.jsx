@@ -210,3 +210,19 @@ export const IconMic = ({ size = 20, color = "currentColor", className="" }) => 
     <line x1="12" x2="12" y1="19" y2="22"/>
   </svg>
 )
+
+export const IconWallet = ({ size = 20, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9"/>
+    <circle cx="16" cy="12" r="1"/>
+  </svg>
+)
+
+export const LogoCongoTransit = ({ size = 60 }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="45" stroke="#0b7036" strokeWidth="6" fill="#f4faf6" />
+    <path d="M30 40 L50 20 L70 40 H55 V60 H45 V40 H30 Z" fill="#0b7036" />
+    <path d="M70 60 L50 80 L30 60 H45 V40 H55 V60 H70 Z" fill="#2d6a4f" opacity="0.8" />
+    <circle cx="50" cy="50" r="8" fill="#e67e22" />
+  </svg>
+)

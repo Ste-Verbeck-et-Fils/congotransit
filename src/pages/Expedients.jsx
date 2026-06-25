@@ -91,6 +91,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
   const [refAgent, setRefAgent] = useState('')
   const [dateExpedition, setDateExpedition] = useState(new Date().toISOString().slice(0, 10))
   const [observations, setObservations] = useState('')
+  const [montantTotal, setMontantTotal] = useState(0)
+  const [devise, setDevise] = useState('USD')
 
   const [colis, setColis] = useState([])
 
@@ -145,6 +147,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
             setRefAgent(expedition.ref_agent || '')
             setDateExpedition(String(expedition.date_expedition || '').slice(0, 10))
             setObservations(expedition.observations || '')
+            setMontantTotal(expedition.montant_total ?? 0)
+            setDevise(expedition.devise ?? 'USD')
             setColis((expedition.colis || []).map((item, index) => ({
               id: index + 1,
               description: item.description || '',
@@ -440,7 +444,11 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
   }
 
   const validateForm = () => {
-    return buildValidationErrors()
+    const errors = buildValidationErrors()
+    if (Number(montantTotal) < 0) {
+      errors.montantTotal = 'Le montant ne peut pas être négatif.'
+    }
+    return errors
   }
 
   const resetForm = () => {
@@ -451,6 +459,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
     setRefAgent('')
     setDateExpedition(new Date().toISOString().slice(0, 10))
     setObservations('')
+    setMontantTotal(0)
+    setDevise('USD')
     setColis([])
     setFieldErrors({})
   }
@@ -475,6 +485,8 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
         date_expedition: `${dateExpedition}T00:00:00.000Z`,
         observations: observations.trim(),
         colis: buildColisApiPayload(colis),
+        montant_total: Number(montantTotal),
+        devise: devise,
       }
       const response = isEditMode
         ? await updateExpeditionByCodeSuivi(expeditionNumero, payload)
@@ -484,8 +496,14 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
       if (isEditMode) {
         setSuccessMessage(codeSuivi ? `Expedition ${codeSuivi} modifiee avec succes.` : 'Expedition modifiee avec succes.')
       } else {
-        setSuccessMessage(codeSuivi ? `Expedition ${codeSuivi} creee avec succes.` : 'Expedition creee avec succes.')
-        resetForm()
+        setSuccessMessage(codeSuivi ? `Expedition ${codeSuivi} creee avec succes. Redirection...` : 'Expedition creee avec succes.')
+        if (codeSuivi) {
+          setTimeout(() => {
+            navigate(`/dashboard/expedients/${codeSuivi}`, { state: { autoPrintBon: true } })
+          }, 1500)
+        } else {
+          resetForm()
+        }
       }
     } catch (error) {
       setApiError(error.message || `Une erreur est survenue lors de la ${isEditMode ? 'modification' : 'creation'} de l'expedition.`)
@@ -684,12 +702,41 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
                 <strong>kg</strong>
               </div>
             </div>
-            <Input
-              label="Observations expedition"
-              placeholder="Instructions supplementaires de transport"
-              value={observations}
-              onChange={(e) => setObservations(e.target.value)}
-            />
+            <div className="expedients-grid-two" style={{ gap: '1rem' }}>
+              <div>
+                <Input
+                  label="Montant Total ($/FC) *"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={montantTotal}
+                  onChange={(e) => {
+                    setMontantTotal(e.target.value)
+                    setFieldErrors((prev) => ({ ...prev, montantTotal: Number(e.target.value) >= 0 ? '' : 'Le montant ne peut pas être négatif.' }))
+                  }}
+                />
+                {fieldErrors.montantTotal && <p className="expedients-field-error">{fieldErrors.montantTotal}</p>}
+              </div>
+              <div>
+                <Select
+                  label="Devise *"
+                  value={devise}
+                  onChange={(e) => setDevise(e.target.value)}
+                  options={[
+                    { value: 'USD', label: 'USD ($)' },
+                    { value: 'CDF', label: 'CDF (FC)' },
+                  ]}
+                />
+              </div>
+            </div>
+            <div style={{ gridColumn: 'span 2' }}>
+              <Input
+                label="Observations expedition"
+                placeholder="Instructions supplementaires de transport"
+                value={observations}
+                onChange={(e) => setObservations(e.target.value)}
+              />
+            </div>
           </div>
         </article>
 
@@ -730,6 +777,10 @@ const ExpedientsForm = ({ isEditMode = false, expeditionNumero = '' }) => {
             <div>
               <span>Poids total</span>
               <strong>{totalPoids} kg</strong>
+            </div>
+            <div>
+              <span>Montant à payer</span>
+              <strong>{montantTotal} {devise}</strong>
             </div>
           </div>
 

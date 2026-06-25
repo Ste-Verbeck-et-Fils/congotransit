@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
-import { IconBox, IconArrowRight, IconTimeline, IconUser, IconPin, IconBell, IconMessage } from '../components/ui/Icons'
+import { IconBox, IconArrowRight, IconTimeline, IconUser, IconPin, IconBell, IconMessage, LogoCongoTransit } from '../components/ui/Icons'
 import {
   createExpeditionSuiviByCodeSuivi,
   createExpeditionConfirmationByCodeSuivi,
@@ -12,11 +13,15 @@ import {
   getExpeditionConfirmationByCodeSuivi,
   listExpeditions,
   listClientExpeditions,
+  getExpeditionPayment,
+  createExpeditionPayment,
 } from '../lib/expeditionsApi'
 import { getPersonById } from '../lib/personnesApi'
 import { getAgencyById } from '../lib/agencesApi'
 import { readAuthSession } from '../lib/authSession'
 import '../styles/ExpeditionDetail.css'
+import '../styles/PrintVouchers.css'
+import QRCode from 'qrcode'
 
 // TODO: Mettre DEMO_MODE = false quand les données réelles sont disponibles
 const DEMO_MODE = false
@@ -127,6 +132,32 @@ const normalizeExpeditionData = (raw = {}) => {
   return expedition
 }
 
+const QRCodeCanvas = ({ text, size = 130 }) => {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    if (canvasRef.current && text) {
+      QRCode.toCanvas(
+        canvasRef.current,
+        text,
+        {
+          width: size,
+          margin: 1,
+          color: {
+            dark: '#000000',
+            light: '#ffffff'
+          }
+        },
+        (error) => {
+          if (error) console.error('[QRCode] Error generating QR code:', error)
+        }
+      )
+    }
+  }, [text, size])
+
+  return <canvas ref={canvasRef} style={{ width: size, height: size }} />
+}
+
 /* Ce composant affiche les informations lisibles et completes d'une expedition avec detail complet. */
 const ExpeditionDetail = ({ viewMode = 'detail' }) => {
   const navigate = useNavigate()
@@ -138,6 +169,10 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
   const [errorMessage, setErrorMessage] = useState('')
   const [suivi, setSuivi] = useState([])
   const [confirmation, setConfirmation] = useState(null)
+  const [paiement, setPaiement] = useState(null)
+  const [isSubmittingPaiement, setIsSubmittingPaiement] = useState(false)
+  const [paiementSubmitError, setPaiementSubmitError] = useState('')
+  const [paiementSubmitSuccess, setPaiementSubmitSuccess] = useState('')
   const [isSubmittingSuivi, setIsSubmittingSuivi] = useState(false)
   const [suiviSubmitError, setSuiviSubmitError] = useState('')
   const [suiviSubmitSuccess, setSuiviSubmitSuccess] = useState('')
@@ -167,6 +202,7 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
 
   const confirmationSectionRef = useRef(null)
   const suiviSectionRef = useRef(null)
+  const autoPrintTriggered = useRef(false)
 
   const expeditionCodeFromState = location.state?.code_suivi
     || location.state?.codeSuivi
@@ -176,7 +212,7 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
 
   const routeExpeditionId = String(expeditionParam || '').trim()
 
-  const resolveExpeditionCode = async (inputId) => {
+  const resolveExpeditionCode = useCallback(async (inputId) => {
     const candidate = String(inputId || '').trim()
     if (!candidate) return ''
 
@@ -193,11 +229,11 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
     })
 
     return found?.code_suivi || found?.codeSuivi || ''
-  }
+  }, [])
 
   const listPath = isClient ? '/dashboard/mes-expeditions' : '/dashboard/expedients'
 
-  const refreshExpeditionDetail = async (codeSuivi, { showGlobalLoading = false } = {}) => {
+  const refreshExpeditionDetail = useCallback(async (codeSuivi, { showGlobalLoading = false } = {}) => {
     if (showGlobalLoading) {
       setIsLoading(true)
       setErrorMessage('')
@@ -309,9 +345,10 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
 
     setExpedition(mappedExpedition)
 
-    const [suiviResponse, confirmationResponse] = await Promise.allSettled([
+    const [suiviResponse, confirmationResponse, paiementResponse] = await Promise.allSettled([
       getExpeditionSuiviByCodeSuivi(codeSuivi),
       getExpeditionConfirmationByCodeSuivi(codeSuivi),
+      getExpeditionPayment(mappedExpedition.id_expedition),
     ])
 
     console.log('[ExpeditionDetail] Dates brutes API suivi:',
@@ -326,11 +363,12 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
 
     setSuivi(suiviResponse.status === 'fulfilled' ? suiviResponse.value : [])
     setConfirmation(confirmationResponse.status === 'fulfilled' ? confirmationResponse.value : null)
+    setPaiement(paiementResponse.status === 'fulfilled' ? paiementResponse.value : null)
 
     if (showGlobalLoading) {
       setIsLoading(false)
     }
-  }
+  }, [routeExpeditionId, isClient])
 
   useEffect(() => {
     let cancelled = false
@@ -374,7 +412,17 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
     return () => {
       cancelled = true
     }
-  }, [routeExpeditionId, expeditionCodeFromState])
+  }, [routeExpeditionId, expeditionCodeFromState, refreshExpeditionDetail, resolveExpeditionCode])
+
+  useEffect(() => {
+    if (expedition && paiement && location.state?.autoPrintBon && !autoPrintTriggered.current) {
+      autoPrintTriggered.current = true
+      window.history.replaceState({}, document.title)
+      setTimeout(() => {
+        window.print()
+      }, 800)
+    }
+  }, [expedition, paiement, location.state])
 
   const totalPoids = useMemo(() => {
     if (!expedition?.colis) return '0.00'
@@ -492,6 +540,41 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
       setSuiviSubmitError(error.message || 'Impossible d\'ajouter ce suivi.')
     } finally {
       setIsSubmittingSuivi(false)
+    }
+  }
+
+  const handleSubmitPaiement = async (event) => {
+    event.preventDefault()
+
+    if (!canManageExpedition) {
+      setPaiementSubmitError('Vous n\'avez pas les droits pour enregistrer un paiement.')
+      return
+    }
+
+    if (paiement && paiement.status === 'PAYE') {
+      setPaiementSubmitError('Cette expédition a déjà été payée.')
+      return
+    }
+
+    setIsSubmittingPaiement(true)
+    setPaiementSubmitError('')
+    setPaiementSubmitSuccess('')
+
+    try {
+      await createExpeditionPayment({
+        ref_expedition: expedition.id_expedition,
+        montant: expedition.montant_total,
+        devise: expedition.devise
+      })
+      await refreshExpeditionDetail(expedition.code_suivi)
+      setPaiementSubmitSuccess('Paiement CASH enregistré avec succès. Impression automatique du reçu...')
+      setTimeout(() => {
+        window.print()
+      }, 1000)
+    } catch (error) {
+      setPaiementSubmitError(error.message || 'Impossible d\'enregistrer le paiement.')
+    } finally {
+      setIsSubmittingPaiement(false)
     }
   }
 
@@ -642,341 +725,566 @@ const ExpeditionDetail = ({ viewMode = 'detail' }) => {
         </div>
       </header>
 
-     
-
-      {/* Parties prenantes */}
-      <article className="expedition-detail-card">
-        <div className="card-header">
-          <IconUser size={20} />
-          <h2>Parties prenantes</h2>
-        </div>
-        <div className="expedition-detail-grid">
-          <div className="detail-field">
-            <span className="field-label">Expéditeur</span>
-            <strong className="field-value">{expedition.expediteur_nom_complet || '-'}</strong>
-          </div>
-          <div className="detail-field">
-            <span className="field-label">Destinataire</span>
-            <strong className="field-value">{expedition.destinataire_nom_complet || '-'}</strong>
-          </div>
-          {expedition.agent_nom && (
-            <div className="detail-field">
-              <span className="field-label">Agent affecté</span>
-              <strong className="field-value">
-                {expedition.agent_nom} {expedition.agent_agence_nom && <span style={{ fontWeight: 'normal', color: 'var(--color-text-muted)', fontSize: '0.9em' }}>- {expedition.agent_agence_nom}</span>}
-              </strong>
-              {expedition.agent_telephone && (
-                <a href={`tel:${expedition.agent_telephone}`} className="expedition-link-inline" style={{ fontSize: '0.85rem' }}>
-                  {expedition.agent_telephone}
-                </a>
+      <div className="expedition-detail-content-layout">
+        <div className="expedition-detail-main-col">
+          {/* Parties prenantes */}
+          <article className="expedition-detail-card">
+            <div className="card-header">
+              <IconUser size={20} />
+              <h2>Parties prenantes</h2>
+            </div>
+            <div className="expedition-detail-grid">
+              <div className="detail-field">
+                <span className="field-label">Expéditeur</span>
+                <strong className="field-value">{expedition.expediteur_nom_complet || '-'}</strong>
+              </div>
+              <div className="detail-field">
+                <span className="field-label">Destinataire</span>
+                <strong className="field-value">{expedition.destinataire_nom_complet || '-'}</strong>
+              </div>
+              {expedition.agent_nom && (
+                <div className="detail-field">
+                  <span className="field-label">Agent affecté</span>
+                  <strong className="field-value">
+                    {expedition.agent_nom} {expedition.agent_agence_nom && <span style={{ fontWeight: 'normal', color: 'var(--color-text-muted)', fontSize: '0.9em' }}>- {expedition.agent_agence_nom}</span>}
+                  </strong>
+                  {expedition.agent_telephone && (
+                    <a href={`tel:${expedition.agent_telephone}`} className="expedition-link-inline" style={{ fontSize: '0.85rem' }}>
+                      {expedition.agent_telephone}
+                    </a>
+                  )}
+                </div>
               )}
             </div>
+          </article>
+
+          {/* Agences et trajet */}
+          <article className="expedition-detail-card">
+            <div className="card-header">
+              <IconPin size={20} />
+              <h2>Trajet et agences</h2>
+            </div>
+            <div className="expedition-route">
+              <div className="route-stop">
+                <div className="route-label">De</div>
+                <div className="route-content">
+                  <strong>{expedition.agence_depart_nom || '-'}</strong>
+                </div>
+              </div>
+              <div className="route-arrow">
+                <IconArrowRight size={20} />
+              </div>
+              <div className="route-stop">
+                <div className="route-label">À</div>
+                <div className="route-content">
+                  <strong>{expedition.agence_destination_nom || '-'}</strong>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          {/* Colis */}
+          <article className="expedition-detail-card">
+            <div className="card-header">
+              <IconBox size={20} />
+              <h2>Colis ({expedition.colis?.length || 0})</h2>
+            </div>
+            <div className="expedition-colis-summary">
+              <div className="summary-stat">
+                <span className="summary-label">Nombre de colis</span>
+                <span className="summary-value">{expedition.colis?.length || 0}</span>
+              </div>
+              <div className="summary-stat">
+                <span className="summary-label">Poids total</span>
+                <span className="summary-value">{totalPoids} kg</span>
+              </div>
+            </div>
+            <div className="expedition-colis-list">
+              {expedition.colis && expedition.colis.length > 0 ? (
+                expedition.colis.map((item, index) => (
+                  <article key={item.id_colis || `${item.code_colis}-${index}`} className="expedition-colis-row">
+                    <div className="colis-icon">
+                      <IconBox size={18} color="var(--color-primary)" />
+                    </div>
+                    <div className="colis-info">
+                      <h3>Colis {index + 1}: {item.categorie}</h3>
+                      <p className="colis-description">{item.description}</p>
+                      {item.observations && <p className="colis-notes">{item.observations}</p>}
+                    </div>
+                    <div className="colis-meta">
+                      <span className="meta-badge">{Number(item.poids || 0).toFixed(2)} kg</span>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <p className="expedition-empty">Aucun colis enregistré pour cette expédition.</p>
+              )}
+            </div>
+          </article>
+
+          {/* Observations */}
+          {expedition.observations && (
+            <article className="expedition-detail-card">
+              <div className="card-header">
+                <IconMessage size={20} />
+                <h2>Observations</h2>
+              </div>
+              <p className="expedition-detail-note">{expedition.observations}</p>
+            </article>
           )}
-        </div>
-      </article>
 
-      {/* Agences et trajet */}
-      <article className="expedition-detail-card">
-        <div className="card-header">
-          <IconPin size={20} />
-          <h2>Trajet et agences</h2>
-        </div>
-        <div className="expedition-route">
-          <div className="route-stop">
-            <div className="route-label">De</div>
-            <div className="route-content">
-              <strong>{expedition.agence_depart_nom || '-'}</strong>
-            </div>
-          </div>
-          <div className="route-arrow">
-            <IconArrowRight size={20} />
-          </div>
-          <div className="route-stop">
-            <div className="route-label">À</div>
-            <div className="route-content">
-              <strong>{expedition.agence_destination_nom || '-'}</strong>
-            </div>
-          </div>
-        </div>
-      </article>
+          {/* Formulaire de confirmation de reception */}
+          {canShowConfirmationForm && (
+            <article className="expedition-detail-card" ref={confirmationSectionRef}>
+              <div className="card-header">
+                <IconBell size={20} />
+                <h2>Confirmer la reception</h2>
+              </div>
 
-      {/* Dates et informations */}
-      <article className="expedition-detail-card">
-        <div className="card-header">
-          <IconTimeline size={20} />
-          <h2>Informations temporelles</h2>
-        </div>
-        <div className="expedition-detail-grid">
-          <div className="detail-field">
-            <span className="field-label">Date d'expédition</span>
-            <strong className="field-value">{formatDisplayDate(expedition.date_expedition)}</strong>
-          </div>
-          <div className="detail-field">
-            <span className="field-label">Créée le</span>
-            <strong className="field-value">{formatDisplayDate(expedition.created_at)}</strong>
-          </div>
-          <div className="detail-field">
-            <span className="field-label">Dernière mise à jour</span>
-            <strong className="field-value">{formatDisplayDate(expedition.updated_at)}</strong>
-          </div>
-        </div>
-      </article>
+              <form className="expedition-suivi-form" onSubmit={handleSubmitConfirmation}>
+                <Input
+                  label="Nom du recepteur"
+                  placeholder="Ex: Marie Kalala"
+                  value={confirmationForm.nom_recepteur}
+                  onChange={(event) => handleConfirmationFormChange('nom_recepteur', event.target.value)}
+                  disabled={isSubmittingConfirmation}
+                />
 
-      {/* Colis */}
-      <article className="expedition-detail-card">
-        <div className="card-header">
-          <IconBox size={20} />
-          <h2>Colis ({expedition.colis?.length || 0})</h2>
-        </div>
-        <div className="expedition-colis-summary">
-          <div className="summary-stat">
-            <span className="summary-label">Nombre de colis</span>
-            <span className="summary-value">{expedition.colis?.length || 0}</span>
-          </div>
-          <div className="summary-stat">
-            <span className="summary-label">Poids total</span>
-            <span className="summary-value">{totalPoids} kg</span>
-          </div>
-        </div>
-        <div className="expedition-colis-list">
-          {expedition.colis && expedition.colis.length > 0 ? (
-            expedition.colis.map((item, index) => (
-              <article key={item.id_colis || `${item.code_colis}-${index}`} className="expedition-colis-row">
-                <div className="colis-icon">
-                  <IconBox size={18} color="var(--color-primary)" />
+                <Input
+                  label="Telephone du recepteur"
+                  placeholder="Ex: +243 900 000 000"
+                  value={confirmationForm.telephone_recepteur}
+                  onChange={(event) => handleConfirmationFormChange('telephone_recepteur', event.target.value)}
+                  disabled={isSubmittingConfirmation}
+                />
+
+                <label className="expedition-suivi-textarea-label" htmlFor="confirmation-commentaire">Commentaire</label>
+                <textarea
+                  id="confirmation-commentaire"
+                  className="expedition-suivi-textarea"
+                  placeholder="Informations complementaires sur la reception"
+                  value={confirmationForm.commentaire}
+                  onChange={(event) => handleConfirmationFormChange('commentaire', event.target.value)}
+                  disabled={isSubmittingConfirmation}
+                  rows={4}
+                />
+
+                <label className="expedition-confirmation-checkbox" htmlFor="colis-bon-etat">
+                  <input
+                    id="colis-bon-etat"
+                    type="checkbox"
+                    checked={Boolean(confirmationForm.colis_recu_en_bon_etat)}
+                    onChange={(event) => handleConfirmationFormChange('colis_recu_en_bon_etat', event.target.checked)}
+                    disabled={isSubmittingConfirmation}
+                  />
+                  <span>Colis recu en bon etat</span>
+                </label>
+
+                {confirmationSubmitError && <p className="expedition-suivi-feedback expedition-suivi-feedback-error">{confirmationSubmitError}</p>}
+                {confirmationSubmitSuccess && <p className="expedition-suivi-feedback expedition-suivi-feedback-success">{confirmationSubmitSuccess}</p>}
+
+                <div className="expedition-suivi-form-actions">
+                  <Button type="submit" variant="primary" disabled={isSubmittingConfirmation}>
+                    {isSubmittingConfirmation ? 'Enregistrement...' : 'Confirmer la reception'}
+                  </Button>
                 </div>
-                <div className="colis-info">
-                  <h3>Colis {index + 1}: {item.categorie}</h3>
-                  <p className="colis-description">{item.description}</p>
-                  {item.observations && <p className="colis-notes">{item.observations}</p>}
-                </div>
-                <div className="colis-meta">
-                  <span className="meta-badge">{Number(item.poids || 0).toFixed(2)} kg</span>
-                </div>
-              </article>
-            ))
-          ) : (
-            <p className="expedition-empty">Aucun colis enregistré pour cette expédition.</p>
+              </form>
+            </article>
           )}
+
+          {!isDelivered && !confirmation && (
+            <article className="expedition-detail-card" ref={confirmationSectionRef}>
+              <div className="card-header">
+                <IconBell size={20} />
+                <h2>Confirmation de reception</h2>
+              </div>
+              <p className="expedition-empty expedition-confirmation-pending-note">
+                La confirmation de reception sera disponible une fois l'expédition marquée comme livrée.
+              </p>
+            </article>
+          )}
+
+          {/* Formulaire de mise a jour du suivi */}
+          <article className="expedition-detail-card" ref={suiviSectionRef}>
+            <div className="card-header">
+              <IconTimeline size={20} />
+              <h2>Ajouter une mise a jour de suivi</h2>
+            </div>
+
+            {!canEditSuivi && (
+              <p className="expedition-empty expedition-suivi-permission-note">
+                Seul l'agent affecte a cette expedition ou un administrateur peut ajouter un suivi.
+              </p>
+            )}
+
+            <form className="expedition-suivi-form" onSubmit={handleSubmitSuivi}>
+              <Select
+                label="Statut"
+                value={suiviForm.status}
+                onChange={(event) => handleSuiviFormChange('status', event.target.value)}
+                options={SUIVI_STATUS_OPTIONS}
+                disabled={!canEditSuivi || isSubmittingSuivi}
+              />
+
+              <Input
+                label="Localisation"
+                placeholder="Ex: Depot de Goma"
+                value={suiviForm.localisation_texte}
+                onChange={(event) => handleSuiviFormChange('localisation_texte', event.target.value)}
+                disabled={!canEditSuivi || isSubmittingSuivi}
+              />
+
+              <label className="expedition-suivi-textarea-label" htmlFor="suivi-commentaire">Commentaire</label>
+              <textarea
+                id="suivi-commentaire"
+                className="expedition-suivi-textarea"
+                placeholder="Informations complementaires sur le suivi"
+                value={suiviForm.commentaire}
+                onChange={(event) => handleSuiviFormChange('commentaire', event.target.value)}
+                disabled={!canEditSuivi || isSubmittingSuivi}
+                rows={4}
+              />
+
+              {suiviSubmitError && <p className="expedition-suivi-feedback expedition-suivi-feedback-error">{suiviSubmitError}</p>}
+              {suiviSubmitSuccess && <p className="expedition-suivi-feedback expedition-suivi-feedback-success">{suiviSubmitSuccess}</p>}
+
+              <div className="expedition-suivi-form-actions">
+                <Button type="submit" variant="primary" disabled={!canEditSuivi || isSubmittingSuivi}>
+                  {isSubmittingSuivi ? 'Enregistrement...' : 'Ajouter le suivi'}
+                </Button>
+              </div>
+            </form>
+          </article>
         </div>
-      </article>
 
-      {/* Observations */}
-      {expedition.observations && (
-        <article className="expedition-detail-card">
-          <div className="card-header">
-            <IconMessage size={20} />
-            <h2>Observations</h2>
-          </div>
-          <p className="expedition-detail-note">{expedition.observations}</p>
-        </article>
-      )}
-
-      {/* Confirmation de réception */}
-      {confirmation && (
-        <article className="expedition-detail-card" ref={confirmationSectionRef}>
-          <div className="card-header">
-            <IconBell size={20} />
-            <h2>Confirmation de réception</h2>
-          </div>
-          <div className="expedition-detail-grid">
-            <div className="detail-field">
-              <span className="field-label">Récepteur</span>
-              <strong className="field-value">{confirmation.nom_recepteur || '-'}</strong>
+        <div className="expedition-detail-side-col">
+          {/* Détails financiers et Paiement */}
+          <article className="expedition-detail-card">
+            <div className="card-header">
+              <IconTimeline size={20} />
+              <h2>Détails financiers & Paiement</h2>
             </div>
-            <div className="detail-field">
-              <span className="field-label">Téléphone récepteur</span>
-              <strong className="field-value">{confirmation.telephone_recepteur || '-'}</strong>
-            </div>
-            <div className="detail-field">
-              <span className="field-label">Date de réception</span>
-              <strong className="field-value">{formatDisplayDate(confirmation.date_reception)}</strong>
-            </div>
-            <div className="detail-field">
-              <span className="field-label">Mode de confirmation</span>
-              <strong className="field-value">{confirmation.mode_confirmation || '-'}</strong>
-            </div>
-            <div className="detail-field">
-              <span className="field-label">Colis en bon état</span>
-              <strong className="field-value">{confirmation.colis_recu_en_bon_etat ? '✓ Oui' : '✗ Non'}</strong>
-            </div>
-            {confirmation.agent_nom && (
+            <div className="expedition-detail-grid" style={{ marginBottom: '1rem' }}>
               <div className="detail-field">
-                <span className="field-label">Confirmé par</span>
-                <strong className="field-value">{confirmation.agent_nom}</strong>
+                <span className="field-label">Montant de transport</span>
+                <strong className="field-value" style={{ fontSize: '1.2rem', color: 'var(--color-primary)' }}>
+                  {Number(expedition.montant_total || 0).toFixed(2)} {expedition.devise}
+                </strong>
+              </div>
+              <div className="detail-field">
+                <span className="field-label">Statut du paiement</span>
+                <strong className="field-value">
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    color: paiement?.status === 'PAYE' ? '#0c7c3e' : '#e67e22',
+                    fontWeight: 'bold'
+                  }}>
+                    ● {paiement?.status === 'PAYE' ? 'PAYÉ (CASH)' : 'EN ATTENTE'}
+                  </span>
+                </strong>
+              </div>
+              {paiement?.status === 'PAYE' && (
+                <>
+                  <div className="detail-field">
+                    <span className="field-label">Référence transaction</span>
+                    <strong className="field-value">{paiement.referenceTransaction || '-'}</strong>
+                  </div>
+                  <div className="detail-field">
+                    <span className="field-label">Date de paiement</span>
+                    <strong className="field-value">{formatDisplayDate(paiement.updatedAt || paiement.createdAt)}</strong>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Formulaire d'enregistrement pour les agents si le paiement est EN_ATTENTE */}
+            {canManageExpedition && paiement?.status !== 'PAYE' && expedition.status !== 'ANNULE' && (
+              <div style={{ marginTop: '1.5rem', padding: '1.5rem', border: '1px dashed #dbe6dd', borderRadius: '8px', backgroundColor: '#f9fbf9' }}>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>
+                  Enregistrer le paiement CASH
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+                  Veuillez confirmer la réception physique de la somme de <strong>{Number(expedition.montant_total || 0).toFixed(2)} {expedition.devise}</strong> en CASH.
+                </p>
+                {paiementSubmitError && <p className="expedients-error" role="alert" style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>{paiementSubmitError}</p>}
+                {paiementSubmitSuccess && <p className="expedients-success" role="status" style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>{paiementSubmitSuccess}</p>}
+
+                <form onSubmit={handleSubmitPaiement}>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    icon={null}
+                    disabled={isSubmittingPaiement}
+                    style={{ width: '100%', minHeight: '38px', height: '38px' }}
+                  >
+                    {isSubmittingPaiement ? 'Enregistrement...' : 'Confirmer le Paiement CASH'}
+                  </Button>
+                </form>
               </div>
             )}
-          </div>
-          {confirmation.commentaire && (
-            <p className="expedition-detail-note">{confirmation.commentaire}</p>
-          )}
-        </article>
-      )}
 
-      {confirmationSubmitSuccess && (
-        <p className="expedition-suivi-feedback expedition-suivi-feedback-success expedition-confirmation-feedback">
-          {confirmationSubmitSuccess}
-        </p>
-      )}
-
-      {/* Formulaire de confirmation de reception */}
-      {canShowConfirmationForm && (
-        <article className="expedition-detail-card" ref={confirmationSectionRef}>
-          <div className="card-header">
-            <IconBell size={20} />
-            <h2>Confirmer la reception</h2>
-          </div>
-
-          <form className="expedition-suivi-form" onSubmit={handleSubmitConfirmation}>
-            <Input
-              label="Nom du recepteur"
-              placeholder="Ex: Marie Kalala"
-              value={confirmationForm.nom_recepteur}
-              onChange={(event) => handleConfirmationFormChange('nom_recepteur', event.target.value)}
-              disabled={isSubmittingConfirmation}
-            />
-
-            <Input
-              label="Telephone du recepteur"
-              placeholder="Ex: +243 900 000 000"
-              value={confirmationForm.telephone_recepteur}
-              onChange={(event) => handleConfirmationFormChange('telephone_recepteur', event.target.value)}
-              disabled={isSubmittingConfirmation}
-            />
-
-            <label className="expedition-suivi-textarea-label" htmlFor="confirmation-commentaire">Commentaire</label>
-            <textarea
-              id="confirmation-commentaire"
-              className="expedition-suivi-textarea"
-              placeholder="Informations complementaires sur la reception"
-              value={confirmationForm.commentaire}
-              onChange={(event) => handleConfirmationFormChange('commentaire', event.target.value)}
-              disabled={isSubmittingConfirmation}
-              rows={4}
-            />
-
-            <label className="expedition-confirmation-checkbox" htmlFor="colis-bon-etat">
-              <input
-                id="colis-bon-etat"
-                type="checkbox"
-                checked={Boolean(confirmationForm.colis_recu_en_bon_etat)}
-                onChange={(event) => handleConfirmationFormChange('colis_recu_en_bon_etat', event.target.checked)}
-                disabled={isSubmittingConfirmation}
-              />
-              <span>Colis recu en bon etat</span>
-            </label>
-
-            {confirmationSubmitError && <p className="expedition-suivi-feedback expedition-suivi-feedback-error">{confirmationSubmitError}</p>}
-            {confirmationSubmitSuccess && <p className="expedition-suivi-feedback expedition-suivi-feedback-success">{confirmationSubmitSuccess}</p>}
-
-            <div className="expedition-suivi-form-actions">
-              <Button type="submit" variant="primary" disabled={isSubmittingConfirmation}>
-                {isSubmittingConfirmation ? 'Enregistrement...' : 'Confirmer la reception'}
-              </Button>
-            </div>
-          </form>
-        </article>
-      )}
-
-      {!isDelivered && !confirmation && (
-        <article className="expedition-detail-card" ref={confirmationSectionRef}>
-          <div className="card-header">
-            <IconBell size={20} />
-            <h2>Confirmation de reception</h2>
-          </div>
-          <p className="expedition-empty expedition-confirmation-pending-note">
-            La confirmation de reception sera disponible une fois l'expédition marquée comme livrée.
-          </p>
-        </article>
-      )}
-
-      {/* Formulaire de mise a jour du suivi */}
-      <article className="expedition-detail-card" ref={suiviSectionRef}>
-        <div className="card-header">
-          <IconTimeline size={20} />
-          <h2>Ajouter une mise a jour de suivi</h2>
-        </div>
-
-        {!canEditSuivi && (
-          <p className="expedition-empty expedition-suivi-permission-note">
-            Seul l'agent affecte a cette expedition ou un administrateur peut ajouter un suivi.
-          </p>
-        )}
-
-        <form className="expedition-suivi-form" onSubmit={handleSubmitSuivi}>
-          <Select
-            label="Statut"
-            value={suiviForm.status}
-            onChange={(event) => handleSuiviFormChange('status', event.target.value)}
-            options={SUIVI_STATUS_OPTIONS}
-            disabled={!canEditSuivi || isSubmittingSuivi}
-          />
-
-          <Input
-            label="Localisation"
-            placeholder="Ex: Depot de Goma"
-            value={suiviForm.localisation_texte}
-            onChange={(event) => handleSuiviFormChange('localisation_texte', event.target.value)}
-            disabled={!canEditSuivi || isSubmittingSuivi}
-          />
-
-          <label className="expedition-suivi-textarea-label" htmlFor="suivi-commentaire">Commentaire</label>
-          <textarea
-            id="suivi-commentaire"
-            className="expedition-suivi-textarea"
-            placeholder="Informations complementaires sur le suivi"
-            value={suiviForm.commentaire}
-            onChange={(event) => handleSuiviFormChange('commentaire', event.target.value)}
-            disabled={!canEditSuivi || isSubmittingSuivi}
-            rows={4}
-          />
-
-          {suiviSubmitError && <p className="expedition-suivi-feedback expedition-suivi-feedback-error">{suiviSubmitError}</p>}
-          {suiviSubmitSuccess && <p className="expedition-suivi-feedback expedition-suivi-feedback-success">{suiviSubmitSuccess}</p>}
-
-          <div className="expedition-suivi-form-actions">
-            <Button type="submit" variant="primary" disabled={!canEditSuivi || isSubmittingSuivi}>
-              {isSubmittingSuivi ? 'Enregistrement...' : 'Ajouter le suivi'}
-            </Button>
-          </div>
-        </form>
-      </article>
-
-      {/* Historique de suivi */}
-      <article className="expedition-detail-card">
-        <div className="card-header">
-          <IconTimeline size={20} />
-          <h2>Historique de suivi</h2>
-        </div>
-        {suivi && suivi.length > 0 ? (
-          <div className="expedition-suivi-list">
-            {suivi.map((item, index) => (
-              <div key={item.id_suivi || index} className="suivi-item">
-                <div className="suivi-header">
-                  <span className={`suivi-status ${getStatusColor(item.status)}`}>
-                    {getStatusLabel(item.status)}
-                  </span>
-                  <span className="suivi-date">{formatDisplayDate(item.date_maj)}</span>
-                </div>
-                {item.localisation_texte && (
-                  <p className="suivi-localisation">
-                    <img src="/map-location.svg" alt="" className="suivi-localisation-icon" />
-                    {item.localisation_texte}
-                  </p>
-                )}
-                {item.commentaire && (
-                  <p className="suivi-commentaire">{item.commentaire}</p>
-                )}
-                {item.agent_nom && (
-                  <p className="suivi-agent">Par : {item.agent_nom}</p>
+            {expedition.status !== 'ANNULE' && (
+              <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--color-border, #eeeeee)', paddingTop: '1.5rem', display: 'flex', gap: '1rem' }}>
+                {paiement?.status === 'PAYE' ? (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    icon={null}
+                    onClick={() => window.print()}
+                    style={{ width: '100%' }}
+                  >
+                    Imprimer le Reçu de Paiement
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    icon={null}
+                    onClick={() => window.print()}
+                    style={{ width: '100%' }}
+                  >
+                    Imprimer le Bon de Caisse
+                  </Button>
                 )}
               </div>
-            ))}
-          </div>
-        ) : (
-          <p className="expedition-empty">Aucun historique de suivi pour cette expedition.</p>
-        )}
-      </article>
+            )}
+          </article>
+
+          {/* Dates et informations */}
+          <article className="expedition-detail-card">
+            <div className="card-header">
+              <IconTimeline size={20} />
+              <h2>Informations temporelles</h2>
+            </div>
+            <div className="expedition-detail-grid">
+              <div className="detail-field">
+                <span className="field-label">Date d'expédition</span>
+                <strong className="field-value">{formatDisplayDate(expedition.date_expedition)}</strong>
+              </div>
+              <div className="detail-field">
+                <span className="field-label">Créée le</span>
+                <strong className="field-value">{formatDisplayDate(expedition.created_at)}</strong>
+              </div>
+              <div className="detail-field">
+                <span className="field-label">Dernière mise à jour</span>
+                <strong className="field-value">{formatDisplayDate(expedition.updated_at)}</strong>
+              </div>
+            </div>
+          </article>
+
+          {/* Confirmation de réception */}
+          {confirmation && (
+            <article className="expedition-detail-card" ref={confirmationSectionRef}>
+              <div className="card-header">
+                <IconBell size={20} />
+                <h2>Confirmation de réception</h2>
+              </div>
+              <div className="expedition-detail-grid">
+                <div className="detail-field">
+                  <span className="field-label">Récepteur</span>
+                  <strong className="field-value">{confirmation.nom_recepteur || '-'}</strong>
+                </div>
+                <div className="detail-field">
+                  <span className="field-label">Téléphone récepteur</span>
+                  <strong className="field-value">{confirmation.telephone_recepteur || '-'}</strong>
+                </div>
+                <div className="detail-field">
+                  <span className="field-label">Date de réception</span>
+                  <strong className="field-value">{formatDisplayDate(confirmation.date_reception)}</strong>
+                </div>
+                <div className="detail-field">
+                  <span className="field-label">Mode de confirmation</span>
+                  <strong className="field-value">{confirmation.mode_confirmation || '-'}</strong>
+                </div>
+                <div className="detail-field">
+                  <span className="field-label">Colis en bon état</span>
+                  <strong className="field-value">{confirmation.colis_recu_en_bon_etat ? '✓ Oui' : '✗ Non'}</strong>
+                </div>
+                {confirmation.agent_nom && (
+                  <div className="detail-field">
+                    <span className="field-label">Confirmé par</span>
+                    <strong className="field-value">{confirmation.agent_nom}</strong>
+                  </div>
+                )}
+              </div>
+              {confirmation.commentaire && (
+                <p className="expedition-detail-note">{confirmation.commentaire}</p>
+              )}
+            </article>
+          )}
+
+          {/* Historique de suivi */}
+          <article className="expedition-detail-card">
+            <div className="card-header">
+              <IconTimeline size={20} />
+              <h2>Historique de suivi</h2>
+            </div>
+            {suivi && suivi.length > 0 ? (
+              <div className="expedition-suivi-list">
+                {suivi.map((item, index) => (
+                  <div key={item.id_suivi || index} className="suivi-item">
+                    <div className="suivi-header">
+                      <span className={`suivi-status ${getStatusColor(item.status)}`}>
+                        {getStatusLabel(item.status)}
+                      </span>
+                      <span className="suivi-date">{formatDisplayDate(item.date_maj)}</span>
+                    </div>
+                    {item.localisation_texte && (
+                      <p className="suivi-localisation">
+                        <img src="/map-location.svg" alt="" className="suivi-localisation-icon" />
+                        {item.localisation_texte}
+                      </p>
+                    )}
+                    {item.commentaire && (
+                      <p className="suivi-commentaire">{item.commentaire}</p>
+                    )}
+                    {item.agent_nom && (
+                      <p className="suivi-agent">Par : {item.agent_nom}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="expedition-empty">Aucun historique de suivi pour cette expedition.</p>
+            )}
+          </article>
+        </div>
+      </div>
+
+      {/* Printable Vouchers (Rendered outside #root using a React Portal to fix browser print bugs) */}
+      {createPortal(
+        <div className="voucher-print-wrapper">
+          {paiement?.status === 'PAYE' ? (
+            <div className="printable-voucher payment-receipt">
+              <header className="voucher-header">
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
+                  <LogoCongoTransit size={50} />
+                </div>
+                <div className="voucher-logo">CongoTransit</div>
+                <div className="voucher-title">REÇU DE PAIEMENT CASH</div>
+              </header>
+
+              <div className="voucher-grid">
+                <div className="voucher-field">
+                  <span className="label">Code de suivi</span>
+                  <span className="value">{expedition.code_suivi}</span>
+                </div>
+                <div className="voucher-field">
+                  <span className="label">Référence Paiement</span>
+                  <span className="value">{paiement.referenceTransaction || '-'}</span>
+                </div>
+                <div className="voucher-field">
+                  <span className="label">Expéditeur</span>
+                  <span className="value">{expedition.expediteur_nom_complet}</span>
+                </div>
+                <div className="voucher-field">
+                  <span className="label">Destinataire</span>
+                  <span className="value">{expedition.destinataire_nom_complet}</span>
+                </div>
+                <div className="voucher-field">
+                  <span className="label">Agence Départ</span>
+                  <span className="value">{expedition.agence_depart_nom}</span>
+                </div>
+                <div className="voucher-field">
+                  <span className="label">Agence Destination</span>
+                  <span className="value">{expedition.agence_destination_nom}</span>
+                </div>
+                <div className="voucher-field">
+                  <span className="label">Date de paiement</span>
+                  <span className="value">{formatDisplayDate(paiement.updatedAt || paiement.createdAt)}</span>
+                </div>
+                <div className="voucher-field">
+                  <span className="label">Encaissé par</span>
+                  <span className="value">{expedition.agent_nom || '-'}</span>
+                </div>
+              </div>
+
+              <div className="voucher-double-col" style={{ borderTop: '1px solid #eeeeee', paddingTop: '1rem' }}>
+                <div className="voucher-field">
+                  <span className="label">Statut du paiement</span>
+                  <span className="value" style={{ color: '#0b7036', fontWeight: 'bold' }}>PAYÉ</span>
+                </div>
+                <div className="voucher-field" style={{ alignItems: 'flex-end' }}>
+                  <span className="label">Montant Payé</span>
+                  <span className="voucher-price-large">{Number(paiement.montant || expedition.montant_total || 0).toFixed(2)} {paiement.devise || expedition.devise}</span>
+                </div>
+              </div>
+
+              <div className="voucher-qr-section">
+                <span className="voucher-field label" style={{ fontSize: '0.75rem', color: '#777777', textTransform: 'uppercase', fontWeight: 600 }}>Code de Suivi</span>
+                <span className="voucher-code-text" style={{ marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '1rem', color: '#0b7036' }}>{expedition.code_suivi}</span>
+                <div className="voucher-qr-code">
+                  <QRCodeCanvas text={`${window.location.origin}/suivi?code=${expedition.code_suivi}`} size={120} />
+                </div>
+                <span className="voucher-code-text" style={{ fontSize: '0.8rem', color: '#555555', marginTop: '0.5rem' }}>Scanner pour suivre le colis</span>
+              </div>
+            </div>
+          ) : (
+            <div className="printable-voucher cash-slip">
+              {/* PART A: COMPTABILITE ONLY */}
+              <div className="slip-section comptabilite">
+                <header className="voucher-header">
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
+                    <LogoCongoTransit size={50} />
+                  </div>
+                  <div className="voucher-logo">CongoTransit</div>
+                  <div className="voucher-title">BON DE CAISSE (COMPTABILITÉ)</div>
+                </header>
+
+                <div className="voucher-grid">
+                  <div className="voucher-field">
+                    <span className="label">Expéditeur</span>
+                    <span className="value">{expedition.expediteur_nom_complet}</span>
+                  </div>
+                  <div className="voucher-field">
+                    <span className="label">Destinataire</span>
+                    <span className="value">{expedition.destinataire_nom_complet}</span>
+                  </div>
+                  <div className="voucher-field">
+                    <span className="label">De (Départ)</span>
+                    <span className="value">{expedition.agence_depart_nom}</span>
+                  </div>
+                  <div className="voucher-field">
+                    <span className="label">À (Destination)</span>
+                    <span className="value">{expedition.agence_destination_nom}</span>
+                  </div>
+                  <div className="voucher-field">
+                    <span className="label">Créé par</span>
+                    <span className="value">{expedition.agent_nom || '-'}</span>
+                  </div>
+                  <div className="voucher-field">
+                    <span className="label">Date de création</span>
+                    <span className="value">{formatDisplayDate(expedition.created_at)}</span>
+                  </div>
+                </div>
+
+                <div className="voucher-double-col" style={{ borderTop: '1px solid #eeeeee', paddingTop: '1rem' }}>
+                  <div className="voucher-field">
+                    <span className="label">Statut du paiement</span>
+                    <span className="value" style={{ color: '#e67e22', fontWeight: 'bold' }}>EN ATTENTE DE PAIEMENT</span>
+                  </div>
+                  <div className="voucher-field" style={{ alignItems: 'flex-end' }}>
+                    <span className="label">Montant à payer</span>
+                    <span className="voucher-price-large">{Number(expedition.montant_total || 0).toFixed(2)} {expedition.devise}</span>
+                  </div>
+                </div>
+
+                <div className="voucher-qr-section">
+                  <span className="voucher-field label" style={{ fontSize: '0.75rem', color: '#777777', textTransform: 'uppercase', fontWeight: 600 }}>UUID Expédition</span>
+                  <span className="voucher-code-text" style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>{expedition.id_expedition}</span>
+                  <div className="voucher-qr-code">
+                    <QRCodeCanvas text={expedition.id_expedition} size={120} />
+                  </div>
+                  <span className="voucher-code-text" style={{ fontSize: '0.8rem', color: '#555555' }}>Scanner pour valider le paiement</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>,
+        document.body
+      )}
     </section>
   )
 }

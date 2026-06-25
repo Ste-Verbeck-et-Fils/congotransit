@@ -127,6 +127,8 @@ const ExpeditionsList = () => {
 
       const dateLabel = new Date(item.date_expedition).toLocaleDateString('fr-FR')
       const haystack = [
+        item.id_expedition,
+        item.id,
         item.code_suivi,
         item.expediteur_nom_complet,
         item.destinataire_nom_complet,
@@ -266,13 +268,18 @@ const ExpeditionsList = () => {
       {errorMessage && !errorMessage.includes("permissions") && <p className="expedients-error" role="alert">{errorMessage}</p>}
 
       <article className="expeditions-table-card">
-        <div className={`expeditions-table-head ${!isAdmin ? 'no-agent' : ''}`} aria-hidden="true">
+        <div 
+          className={`expeditions-table-head ${!isAdmin ? 'no-agent' : ''}`} 
+          aria-hidden="true"
+          style={{ gridTemplateColumns: isAdmin ? '1.2fr 1.5fr 1.5fr 1.2fr 1.2fr 1fr 1fr 1fr 1fr 0.8fr' : '1.2fr 1.5fr 1.5fr 1.2fr 1.2fr 1fr 1fr 1fr 0.8fr' }}
+        >
           <span>Code</span>
           <span>Expediteur</span>
           <span>Destinataire</span>
           <span>Départ</span>
           <span>Arrivée</span>
           {isAdmin && <span>Agent</span>}
+          <span>Coût</span>
           <span>Statut</span>
           <span>Date</span>
           <span>Actions</span>
@@ -287,7 +294,11 @@ const ExpeditionsList = () => {
           )}
 
           {!isLoading && filteredExpeditions.map((item) => (
-            <article className={`expeditions-row ${!isAdmin ? 'no-agent' : ''}`} key={item.code_suivi}>
+            <article 
+              className={`expeditions-row ${!isAdmin ? 'no-agent' : ''}`} 
+              key={item.code_suivi}
+              style={{ gridTemplateColumns: isAdmin ? '1.2fr 1.5fr 1.5fr 1.2fr 1.2fr 1fr 1fr 1fr 1fr 0.8fr' : '1.2fr 1.5fr 1.5fr 1.2fr 1.2fr 1fr 1fr 1fr 0.8fr' }}
+            >
               <span className="expeditions-main-cell">
                 <strong className="code-badge">{item.code_suivi}</strong>
               </span>
@@ -296,6 +307,7 @@ const ExpeditionsList = () => {
               <span className="cell-text">{item.agence_depart_nom || '-'}</span>
               <span className="cell-text">{item.agence_destination_nom || '-'}</span>
               {isAdmin && <span className="cell-text">{item.agent_nom_affichage || '-'}</span>}
+              <span className="cell-text" style={{ fontWeight: '700', color: 'var(--color-primary)' }}>{Number(item.montant_total || 0).toFixed(2)} {item.devise}</span>
               <span>
                 <em className={`expeditions-status-chip status-${item.status.toLowerCase()}`}>
                   {getStatusLabel(item.status)}

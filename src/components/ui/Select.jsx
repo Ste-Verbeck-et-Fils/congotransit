@@ -1,4 +1,4 @@
-import React, { useId, useState, useEffect, useRef } from 'react'
+import React, { useId, useState, useEffect, useRef, useCallback } from 'react'
 import './Select.css'
 import { IconPlus } from './Icons'
 
@@ -30,17 +30,17 @@ const Select = ({
   const inputRef = useRef(null)
 
   // Récupère le libellé de l'option actuellement sélectionnée
-  const getSelectedLabel = () => {
+  const getSelectedLabel = useCallback(() => {
     const selected = options.find((opt) => String(opt.value) === String(value))
     return selected ? selected.label : ''
-  }
+  }, [value, options])
 
   // Synchronise le terme de recherche avec l'option sélectionnée à la fermeture
   useEffect(() => {
     if (!isOpen) {
       setSearchTerm(getSelectedLabel())
     }
-  }, [value, options, isOpen])
+  }, [value, options, isOpen, getSelectedLabel])
 
   // Recherche distante (quand loadOptions est fourni)
   useEffect(() => {

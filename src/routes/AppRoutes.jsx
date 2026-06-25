@@ -23,6 +23,7 @@ import Profile from '../pages/Profile.jsx'
 import SuiviTrajet from '../pages/SuiviTrajet.jsx'
 import ClientTracking from '../pages/ClientTracking.jsx'
 import ChatAide from '../pages/ChatAide.jsx'
+import PaymentsList from '../pages/PaymentsList.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 
 const PlaceholderPage = ({ title, description }) => (
@@ -81,6 +82,10 @@ const AppRoutes = () => {
             <Route
               path="trajet"
               element={<SuiviTrajet />}
+            />
+            <Route
+              path="paiements"
+              element={<PaymentsList />}
             />
           </Route>
           <Route

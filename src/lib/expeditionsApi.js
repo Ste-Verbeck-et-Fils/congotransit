@@ -78,3 +78,36 @@ export async function createExpeditionSuiviByCodeSuivi(codeSuivi, payload) {
 
   return data
 }
+
+export async function getExpeditionPayment(expeditionId) {
+  const data = await apiRequest(`/paiements/expedition/${encodeURIComponent(expeditionId)}`)
+  return data.paiement ?? null
+}
+
+export async function createExpeditionPayment(payload) {
+  const data = await apiRequest('/paiements', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+  return data
+}
+
+export async function listPayments() {
+  const data = await apiRequest('/paiements')
+  return data.payments ?? []
+}
+
+export async function deletePayment(paymentId) {
+  const data = await apiRequest(`/paiements/${paymentId}`, {
+    method: 'DELETE',
+  })
+  return data
+}
+
+export async function updatePayment(paymentId, payload) {
+  const data = await apiRequest(`/paiements/${paymentId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+  return data
+}

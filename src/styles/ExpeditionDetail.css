@@ -2,6 +2,8 @@
 
 .expedition-detail-page {
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   display: grid;
   gap: var(--spacing-lg);
   animation: fadeIn 0.3s ease-in-out;
@@ -878,5 +880,35 @@
     width: auto;
   }
 }
+
+/* Layout double colonne sur grand écran */
+.expedition-detail-content-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+
+.expedition-detail-main-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  min-width: 0;
+}
+
+.expedition-detail-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .expedition-detail-content-layout {
+    grid-template-columns: 1.4fr 1fr;
+    align-items: start;
+  }
+}
+
 
 

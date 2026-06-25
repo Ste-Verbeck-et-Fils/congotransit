@@ -96,3 +96,18 @@ export async function listPayments() {
   const data = await apiRequest('/paiements')
   return data.payments ?? []
 }
+
+export async function deletePayment(paymentId) {
+  const data = await apiRequest(`/paiements/${paymentId}`, {
+    method: 'DELETE',
+  })
+  return data
+}
+
+export async function updatePayment(paymentId, payload) {
+  const data = await apiRequest(`/paiements/${paymentId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+  return data
+}

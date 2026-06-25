@@ -22,6 +22,7 @@ import CreateColis from '../pages/CreateColis.jsx'
 import Profile from '../pages/Profile.jsx'
 import SuiviTrajet from '../pages/SuiviTrajet.jsx'
 import ClientTracking from '../pages/ClientTracking.jsx'
+import ChatAide from '../pages/ChatAide.jsx'
 import PaymentsList from '../pages/PaymentsList.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 
@@ -112,6 +113,10 @@ const AppRoutes = () => {
           <Route
             path="profil"
             element={<Profile />}
+          />
+          <Route
+            path="chat"
+            element={<ChatAide />}
           />
         </Route>
       </Route>

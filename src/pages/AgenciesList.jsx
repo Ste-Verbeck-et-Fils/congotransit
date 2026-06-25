@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
-import { IconMoreVertical, IconOffice, IconPlus, IconSearch } from '../components/ui/Icons'
+import { IconMoreVertical, IconOffice, IconPlus, IconSearch, IconDownload, IconPrinter } from '../components/ui/Icons'
 import { deleteAgency, formatAddressLabel, listAgencies } from '../lib/agencesApi'
+import * as XLSX from 'xlsx'
 import '../styles/Agences.css'
 
 /* Ce composant affiche la liste des agences avec recherche et acces aux actions admin. */
@@ -100,6 +101,25 @@ const AgenciesList = () => {
     })
   }, [agencies, normalizedSearch])
 
+  const exportToExcel = () => {
+    const rows = filteredAgencies.map(item => ({
+      'Nom Agence': item.nom_agence || '-',
+      'Code': item.code_agence || '-',
+      'Téléphone': item.telephone || '-',
+      'Statut': item.status || '-',
+      'Adresse': formatAddressLabel(item.adresse)
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(rows)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Agences')
+    XLSX.writeFile(workbook, 'etats_sortie_agences.xlsx')
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
   return (
     <section className="agencies-page fade-in" aria-label="Liste des agences">
       <header className="agencies-header">
@@ -119,18 +139,40 @@ const AgenciesList = () => {
         </Button>
       </header>
 
-      <div className="agencies-toolbar">
-        <Input
-          label="Rechercher une agence"
-          placeholder="Nom, code, telephone, statut, adresse..."
-          value={searchTerm}
-          onChange={(event) => {
-            setSearchTerm(event.target.value)
-            if (successMessage) setSuccessMessage('')
-          }}
-          icon={<IconSearch size={18} />}
-          variant="search"
-        />
+      <div className="agencies-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ flex: 1, minWidth: '250px' }}>
+          <Input
+            label="Rechercher une agence"
+            placeholder="Nom, code, telephone, statut, adresse..."
+            value={searchTerm}
+            onChange={(event) => {
+              setSearchTerm(event.target.value)
+              if (successMessage) setSuccessMessage('')
+            }}
+            icon={<IconSearch size={18} />}
+            variant="search"
+          />
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }} className="no-print">
+          <Button
+            type="button"
+            variant="secondary"
+            icon={<IconDownload size={18} />}
+            onClick={exportToExcel}
+            title="Exporter Excel"
+          >
+            Excel
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            icon={<IconPrinter size={18} />}
+            onClick={handlePrint}
+            title="Imprimer PDF"
+          >
+            PDF
+          </Button>
+        </div>
       </div>
 
       {errorMessage && (

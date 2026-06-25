@@ -3,8 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
-import { IconMoreVertical, IconPlus, IconSearch, IconUser } from '../components/ui/Icons'
+import { IconMoreVertical, IconPlus, IconSearch, IconUser, IconDownload, IconPrinter } from '../components/ui/Icons'
 import { listAgencies } from '../lib/agencesApi'
+import * as XLSX from 'xlsx'
 import { USER_ROLE_OPTIONS, deleteUser, listUsers } from '../lib/usersApi'
 import '../styles/Agences.css'
 
@@ -130,6 +131,25 @@ const UsersList = () => {
     return agency ? `${agency.nom_agence} (${agency.code_agence})` : 'Agence inconnue'
   }
 
+  const exportToExcel = () => {
+    const rows = filteredUsers.map(item => ({
+      'Utilisateur': item.nom_affichage || '-',
+      'Téléphone': item.telephone || '-',
+      'Rôle': item.role_systeme || '-',
+      'Agence': getAgencyName(item.ref_agence),
+      'Statut': item.status || '-'
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(rows)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Utilisateurs')
+    XLSX.writeFile(workbook, 'etats_sortie_utilisateurs.xlsx')
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
   const handleDelete = async (idUser) => {
     const isConfirmed = window.confirm('Confirmer la suppression de cet utilisateur ?')
     if (!isConfirmed) return
@@ -162,37 +182,60 @@ const UsersList = () => {
         </Button>
       </header>
 
-      <div className="agencies-toolbar users-toolbar">
-        <div className="users-toolbar-search">
-          <Input
-            label="Rechercher un utilisateur"
-            placeholder="Nom, telephone, role, agence..."
-            value={searchTerm}
-            onChange={(event) => {
-              setSearchTerm(event.target.value)
-              if (successMessage) setSuccessMessage('')
-            }}
-            icon={<IconSearch size={18} />}
-            variant="search"
-          />
+      <div className="agencies-toolbar users-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', flex: 1 }}>
+          <div className="users-toolbar-search" style={{ flex: 1, minWidth: '200px' }}>
+            <Input
+              label="Rechercher un utilisateur"
+              placeholder="Nom, telephone, role, agence..."
+              value={searchTerm}
+              onChange={(event) => {
+                setSearchTerm(event.target.value)
+                if (successMessage) setSuccessMessage('')
+              }}
+              icon={<IconSearch size={18} />}
+              variant="search"
+            />
+          </div>
+
+          <div className="users-toolbar-filters" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <Select
+              label="Filtrer par role"
+              value={filterRole}
+              onChange={(event) => setFilterRole(event.target.value)}
+              options={roleSelectOptions}
+              icon={<IconUser size={16} />}
+            />
+
+            <Select
+              label="Filtrer par agence"
+              value={filterAgence}
+              onChange={(event) => setFilterAgence(event.target.value)}
+              options={agencySelectOptions}
+              icon={<IconUser size={16} />}
+            />
+          </div>
         </div>
 
-        <div className="users-toolbar-filters">
-          <Select
-            label="Filtrer par role"
-            value={filterRole}
-            onChange={(event) => setFilterRole(event.target.value)}
-            options={roleSelectOptions}
-            icon={<IconUser size={16} />}
-          />
-
-          <Select
-            label="Filtrer par agence"
-            value={filterAgence}
-            onChange={(event) => setFilterAgence(event.target.value)}
-            options={agencySelectOptions}
-            icon={<IconUser size={16} />}
-          />
+        <div style={{ display: 'flex', gap: '8px' }} className="no-print">
+          <Button
+            type="button"
+            variant="secondary"
+            icon={<IconDownload size={18} />}
+            onClick={exportToExcel}
+            title="Exporter Excel"
+          >
+            Excel
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            icon={<IconPrinter size={18} />}
+            onClick={handlePrint}
+            title="Imprimer PDF"
+          >
+            PDF
+          </Button>
         </div>
       </div>
 

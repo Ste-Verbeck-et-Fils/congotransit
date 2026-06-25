@@ -133,14 +133,14 @@
 
 /* Print Overrides */
 @media print {
-  /* Structurally hide the React application root container entirely */
-  #root,
-  .layout-container,
-  .layout-content,
-  header,
-  footer,
-  nav,
-  button {
+  /* Structurally hide the React application root container entirely only when printing a voucher */
+  body:has(.voucher-print-wrapper) #root,
+  body:has(.voucher-print-wrapper) .layout-container,
+  body:has(.voucher-print-wrapper) .layout-content,
+  body:has(.voucher-print-wrapper) header,
+  body:has(.voucher-print-wrapper) footer,
+  body:has(.voucher-print-wrapper) nav,
+  body:has(.voucher-print-wrapper) button {
     display: none !important;
   }
 

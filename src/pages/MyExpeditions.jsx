@@ -1,8 +1,10 @@
 /* Ce composant affiche la liste des expeditions du client connecte. */
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IconBox, IconMoreVertical } from '../components/ui/Icons'
+import { IconBox, IconMoreVertical, IconDownload, IconPrinter } from '../components/ui/Icons'
+import Button from '../components/ui/Button'
 import { listClientExpeditions } from '../lib/expeditionsApi'
+import * as XLSX from 'xlsx'
 import '../styles/MyExpeditions.css'
 
 const STATUS_LABELS = {
@@ -59,12 +61,52 @@ const MyExpeditions = () => {
     [expeditions],
   )
 
+  const exportToExcel = () => {
+    const rows = sortedExpeditions.map(item => ({
+      'Code Suivi': item.code_suivi,
+      'Statut': getStatusLabel(item.status),
+      'Date': formatDate(item.date_expedition),
+      'Agence Départ': item.agence_depart_nom || '-',
+      'Agence Arrivée': item.agence_destination_nom || '-',
+      'Coût': `${Number(item.montant_total || 0).toFixed(2)} ${item.devise}`
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(rows)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Mes Expeditions')
+    XLSX.writeFile(workbook, 'mes_expeditions.xlsx')
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
   return (
     <section className="my-expeditions-page fade-in" aria-label="Mes expeditions">
-      <header className="my-expeditions-header">
+      <header className="my-expeditions-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1>Mes expeditions</h1>
           <p>Retrouvez toutes vos expeditions reliees a votre numero de telephone.</p>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }} className="no-print">
+          <Button
+            type="button"
+            variant="secondary"
+            icon={<IconDownload size={18} />}
+            onClick={exportToExcel}
+            title="Exporter Excel"
+          >
+            Excel
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            icon={<IconPrinter size={18} />}
+            onClick={handlePrint}
+            title="Imprimer PDF"
+          >
+            PDF
+          </Button>
         </div>
       </header>
 

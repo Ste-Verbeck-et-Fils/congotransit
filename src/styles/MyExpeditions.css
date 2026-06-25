@@ -231,3 +231,73 @@
     min-width: 150px;
   }
 }
+
+/* ── Styles d'impression (PDF Export) ───────────────────── */
+@media print {
+  .my-expeditions-actions-menu-shell,
+  .no-print {
+    display: none !important;
+  }
+
+  .my-expeditions-page {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  .my-expeditions-table-card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .my-expeditions-row {
+    break-inside: avoid;
+    border: none !important;
+    border-bottom: 1px solid #ddd !important;
+    box-shadow: none !important;
+    padding: 8px 4px !important;
+    display: grid !important;
+  }
+
+  .my-expeditions-table-head {
+    border: none !important;
+    border-bottom: 2px solid #333 !important;
+    background: transparent !important;
+    color: black !important;
+    padding: 8px 4px !important;
+    display: grid !important;
+  }
+
+  /* Retirer la colonne action de toutes les tables */
+  .my-expeditions-table-head,
+  .my-expeditions-row {
+    grid-template-columns: 1.2fr 0.8fr 0.9fr 1.2fr 1.2fr !important;
+  }
+
+  .my-expeditions-table-head span {
+    color: black !important;
+    font-weight: bold !important;
+  }
+
+  .my-expeditions-row span {
+    color: #333 !important;
+  }
+
+  .my-expeditions-header {
+    justify-content: center !important;
+    margin-bottom: 20px !important;
+    display: flex !important;
+  }
+
+  .my-expeditions-header h1 {
+    font-size: 18pt !important;
+    color: black !important;
+    text-align: center;
+    margin: 0 !important;
+  }
+
+  .my-expeditions-header p {
+    display: none !important;
+  }
+}

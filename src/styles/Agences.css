@@ -686,3 +686,87 @@
     width: 100%;
   }
 }
+
+/* ── Styles d'impression (PDF Export) ───────────────────── */
+@media print {
+  .agencies-add-btn,
+  .agencies-actions-menu-shell,
+  .agencies-actions-expanded,
+  .agencies-toolbar,
+  .persons-toolbar,
+  .users-toolbar {
+    display: none !important;
+  }
+
+  .agencies-page {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  .agencies-table-card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .agencies-row, .users-row, .persons-row {
+    break-inside: avoid;
+    border: none !important;
+    border-bottom: 1px solid #ddd !important;
+    box-shadow: none !important;
+    padding: 8px 4px !important;
+    display: grid !important;
+  }
+
+  .agencies-table-head, .users-table-head, .persons-table-head {
+    border: none !important;
+    border-bottom: 2px solid #333 !important;
+    background: transparent !important;
+    color: black !important;
+    padding: 8px 4px !important;
+    display: grid !important;
+  }
+
+  /* Retirer la colonne action de toutes les tables */
+  .agencies-table-head,
+  .agencies-row {
+    grid-template-columns: 2fr 1.2fr 1.5fr 1fr 1.8fr !important;
+  }
+
+  .users-table-head,
+  .users-row {
+    grid-template-columns: 1.4fr 1fr 0.9fr 1.2fr 0.8fr !important;
+  }
+
+  .persons-table-head,
+  .persons-row {
+    grid-template-columns: 1.5fr 1fr 1fr 1.4fr !important;
+  }
+
+  .agencies-table-head span, .users-table-head span, .persons-table-head span {
+    color: black !important;
+    font-weight: bold !important;
+  }
+
+  .agencies-row span, .users-row span, .persons-row span {
+    color: #333 !important;
+  }
+
+  .agencies-header {
+    justify-content: center !important;
+    margin-bottom: 20px !important;
+    display: flex !important;
+  }
+
+  .agencies-header h1 {
+    font-size: 18pt !important;
+    color: black !important;
+    text-align: center;
+    margin: 0 !important;
+  }
+
+  .agencies-header p {
+    display: none !important;
+  }
+}

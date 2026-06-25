@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
-import { IconSearch, IconBox, IconTimeline, IconMoreVertical } from '../components/ui/Icons'
+import { IconSearch, IconBox, IconTimeline, IconMoreVertical, IconDownload, IconPrinter } from '../components/ui/Icons'
 import { listPayments, deletePayment, updatePayment } from '../lib/expeditionsApi'
+import * as XLSX from 'xlsx'
 import '../styles/Expedients.css'
 
 const PaymentsList = () => {
@@ -145,6 +146,27 @@ const PaymentsList = () => {
     }
   }
 
+  const exportToExcel = () => {
+    const rows = filteredPayments.map(item => ({
+      'Référence': item.referenceTransaction || '-',
+      'Expédition': item.codeSuivi || item.refExpedition || '-',
+      'Montant': `${Number(item.montant || 0).toFixed(2)} ${item.devise}`,
+      'Mode': item.modePaiement || '-',
+      'Statut': getStatusLabel(item.status),
+      'Date': new Date(item.updatedAt || item.createdAt).toLocaleDateString('fr-FR'),
+      'Agent': item.agentNom || '-'
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(rows)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Paiements')
+    XLSX.writeFile(workbook, 'etats_sortie_paiements.xlsx')
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
   const handleEditSubmit = async (event) => {
     event.preventDefault()
     if (editForm.montant === undefined || editForm.montant === null || Number(editForm.montant) < 0) {
@@ -205,6 +227,26 @@ const PaymentsList = () => {
               icon={<IconSearch size={18} />}
               variant="search"
             />
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }} className="no-print">
+            <Button
+              type="button"
+              variant="secondary"
+              icon={<IconDownload size={18} />}
+              onClick={exportToExcel}
+              title="Exporter Excel"
+            >
+              Excel
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              icon={<IconPrinter size={18} />}
+              onClick={handlePrint}
+              title="Imprimer PDF"
+            >
+              PDF
+            </Button>
           </div>
         </div>
       </header>

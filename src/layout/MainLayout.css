@@ -34,3 +34,32 @@
     padding: 0.65rem;
   }
 }
+
+@media print {
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  .layout-container {
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+  
+  .layout-content {
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+  
+  .top-bar, .no-print {
+    display: none !important;
+  }
+}

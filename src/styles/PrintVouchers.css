@@ -1,0 +1,181 @@
+/* Stylesheet for printable vouchers - Bon de caisse & Reçu de paiement (React Portal edition) */
+
+/* Hide print wrapper completely on screen */
+.voucher-print-wrapper {
+  display: none !important;
+}
+
+/* Premium Vouchers Styles (Print layout structure) */
+.printable-voucher {
+  background: #ffffff;
+  color: #101828;
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  max-width: 450px;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Receipt specifically styled like a clean thermal bill receipt */
+.printable-voucher.payment-receipt {
+  border: 1px solid #e4e7ec;
+  border-radius: 16px;
+  border-top: 6px solid #12b76a; /* Success green bar */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.printable-voucher.cash-slip {
+  border: 1px solid #e4e7ec;
+  border-radius: 16px;
+  border-top: 6px solid #f79009; /* Pending orange bar */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.voucher-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px dashed #f2f4f7;
+}
+
+.voucher-logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0b7036;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.voucher-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  color: #475467;
+  letter-spacing: 1px;
+}
+
+.voucher-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.voucher-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.voucher-field .label {
+  color: #667085;
+  font-weight: 500;
+}
+
+.voucher-field .value {
+  font-weight: 600;
+  color: #1d2939;
+  text-align: right;
+}
+
+.voucher-double-col {
+  border-top: 2px dashed #f2f4f7;
+  padding-top: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.voucher-price-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.voucher-price-large {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0b7036;
+}
+
+.voucher-qr-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f2f4f7;
+}
+
+.voucher-qr-code {
+  width: 140px;
+  height: 140px;
+  background: #ffffff;
+  border: 1px solid #e4e7ec;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.voucher-code-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 0.75rem;
+  color: #344054;
+  word-break: break-all;
+  letter-spacing: 0.5px;
+}
+
+/* Print Overrides */
+@media print {
+  /* Structurally hide the React application root container entirely */
+  #root,
+  .layout-container,
+  .layout-content,
+  header,
+  footer,
+  nav,
+  button {
+    display: none !important;
+  }
+
+  /* Make sure the body has zero styling limits and background is clean */
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Force the print portal wrapper to display and act as full-width document root */
+  .voucher-print-wrapper {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+  }
+
+  .printable-voucher {
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+  
+  .printable-voucher.payment-receipt,
+  .printable-voucher.cash-slip {
+    border-top: none !important;
+  }
+}

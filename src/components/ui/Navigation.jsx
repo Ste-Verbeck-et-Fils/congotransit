@@ -11,6 +11,7 @@ import {
   IconTimeline,
   IconTruck,
   IconUser,
+  IconWallet,
 } from './Icons'
 
 const getNavItems = (roleSysteme) => [
@@ -18,6 +19,7 @@ const getNavItems = (roleSysteme) => [
     ? [
       { to: '/dashboard', label: 'Tableau de bord', icon: <IconDashboard size={20} /> },
       { to: '/dashboard/expedients', label: 'Expeditions', icon: <IconTruck size={20} /> },
+      { to: '/dashboard/paiements', label: 'Paiements', icon: <IconWallet size={20} /> },
       { to: '/dashboard/agences', label: 'Agences', icon: <IconOffice size={20} /> },
       { to: '/dashboard/personnes', label: 'Personnes', icon: <IconUser size={20} /> },
       { to: '/dashboard/utilisateurs', label: 'Utilisateurs', icon: <IconUser size={20} /> },
@@ -28,6 +30,7 @@ const getNavItems = (roleSysteme) => [
       ? [
         { to: '/dashboard', label: 'Tableau de bord', icon: <IconDashboard size={20} /> },
         { to: '/dashboard/expedients', label: 'Expeditions', icon: <IconTruck size={20} /> },
+        { to: '/dashboard/paiements', label: 'Paiements', icon: <IconWallet size={20} /> },
         { to: '/dashboard/trajet', label: 'Suivi trajet', icon: <IconTimeline size={20} /> },
         { to: '/dashboard/profil', label: 'Profil', icon: <IconUser size={20} /> },
       ]

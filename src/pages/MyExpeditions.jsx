@@ -73,12 +73,13 @@ const MyExpeditions = () => {
       )}
 
       <article className="my-expeditions-table-card">
-        <div className="my-expeditions-table-head" aria-hidden="true">
+        <div className="my-expeditions-table-head" aria-hidden="true" style={{ gridTemplateColumns: '1.2fr 0.8fr 0.9fr 1.2fr 1.2fr 0.8fr auto' }}>
           <span>Code suivi</span>
           <span>Status</span>
           <span>Date</span>
           <span>Agence depart</span>
           <span>Agence destination</span>
+          <span>Coût</span>
           <span>Action</span>
         </div>
 
@@ -91,7 +92,7 @@ const MyExpeditions = () => {
           )}
 
           {!isLoading && sortedExpeditions.map((item) => (
-            <article className="my-expeditions-row" key={item.code_suivi}>
+            <article className="my-expeditions-row" key={item.code_suivi} style={{ gridTemplateColumns: '1.2fr 0.8fr 0.9fr 1.2fr 1.2fr 0.8fr auto' }}>
               <span className="my-expeditions-main-cell">
                 <strong>{item.code_suivi}</strong>
               </span>
@@ -103,6 +104,7 @@ const MyExpeditions = () => {
               <span>{formatDate(item.date_expedition)}</span>
               <span>{item.agence_depart_nom || '-'}</span>
               <span>{item.agence_destination_nom || '-'}</span>
+              <span style={{ fontWeight: '700', color: 'var(--color-primary)' }}>{Number(item.montant_total || 0).toFixed(2)} {item.devise}</span>
               <span className="my-expeditions-actions-menu-shell">
                 <div className="my-expeditions-actions-menu">
                   <button

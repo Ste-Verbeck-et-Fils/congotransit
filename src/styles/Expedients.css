@@ -1288,3 +1288,89 @@
     padding: var(--spacing-md);
   }
 }
+
+/* ── Styles d'impression (PDF Export) ───────────────────── */
+@media print {
+  /* Masquer la navigation, les actions et la toolbar */
+  .app-navigation,
+  .top-bar,
+  .desktop-sidebar,
+  .expeditions-add-btn,
+  .no-print,
+  .expeditions-actions-menu-shell,
+  .expeditions-inline-actions,
+  .expeditions-toolbar,
+  .expeditions-header-controls {
+    display: none !important;
+  }
+
+  /* Reset layout pour l'impression pleine largeur */
+  body, .app-layout, .app-main, .expeditions-list-page {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .app-main {
+    margin-left: 0 !important;
+  }
+
+  /* Assurer que le tableau s'imprime bien */
+  .expeditions-table-card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .expeditions-row {
+    break-inside: avoid;
+    border: none !important;
+    border-bottom: 1px solid #ddd !important;
+    box-shadow: none !important;
+    padding: 8px 4px !important;
+  }
+
+  .expeditions-table-head {
+    border: none !important;
+    border-bottom: 2px solid #333 !important;
+    background: transparent !important;
+    color: black !important;
+    padding: 8px 4px !important;
+  }
+
+  .expeditions-table-head span {
+    color: black !important;
+    font-weight: bold !important;
+  }
+
+  .expeditions-row span {
+    color: #333 !important;
+  }
+
+  /* Retirer la colonne Actions du template */
+  .expeditions-table-head,
+  .expeditions-row {
+    grid-template-columns: 0.8fr 1.2fr 1.2fr 1fr 1fr 1fr 0.9fr 0.8fr !important;
+  }
+
+  .expeditions-table-head.no-agent,
+  .expeditions-row.no-agent {
+    grid-template-columns: 0.8fr 1.3fr 1.3fr 1.1fr 1.1fr 1fr 0.9fr !important;
+  }
+
+  /* Titre plus propre */
+  .expeditions-header-title h1 {
+    font-size: 18pt !important;
+    color: black !important;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .expeditions-header-title p {
+    display: none !important;
+  }
+}

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
-import { IconMoreVertical, IconPlus, IconSearch, IconBox } from '../components/ui/Icons'
+import { IconMoreVertical, IconPlus, IconSearch, IconBox, IconDownload, IconPrinter } from '../components/ui/Icons'
+import * as XLSX from 'xlsx'
 import { deleteExpeditionByCodeSuivi, listExpeditions } from '../lib/expeditionsApi'
 import { listAgencies } from '../lib/agencesApi'
 import { readAuthSession } from '../lib/authSession'
@@ -200,6 +201,28 @@ const ExpeditionsList = () => {
 
   const isStatusTerminal = (status) => ['LIVRE', 'ANNULE', 'PERDU'].includes(String(status || '').toUpperCase())
 
+  const exportToExcel = () => {
+    const rows = filteredExpeditions.map(item => ({
+      'Code Suivi': item.code_suivi,
+      'Expéditeur': item.expediteur_nom_complet || '-',
+      'Destinataire': item.destinataire_nom_complet || '-',
+      'Agence Départ': item.agence_depart_nom || '-',
+      'Agence Arrivée': item.agence_destination_nom || '-',
+      'Agent': item.agent_nom_affichage || '-',
+      'Statut': getStatusLabel(item.status),
+      'Date': new Date(item.date_expedition).toLocaleDateString('fr-FR')
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(rows)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Expeditions')
+    XLSX.writeFile(workbook, 'etats_sortie_expeditions.xlsx')
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
   return (
     <section className="expeditions-list-page fade-in" aria-label="Liste des expeditions">
       <header className="expeditions-list-header">
@@ -217,6 +240,27 @@ const ExpeditionsList = () => {
               icon={<IconSearch size={18} />}
               variant="search"
             />
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px' }} className="no-print">
+            <Button
+              type="button"
+              variant="secondary"
+              icon={<IconDownload size={18} />}
+              onClick={exportToExcel}
+              title="Exporter Excel"
+            >
+              Excel
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              icon={<IconPrinter size={18} />}
+              onClick={handlePrint}
+              title="Imprimer PDF"
+            >
+              PDF
+            </Button>
           </div>
 
           <Button
@@ -275,7 +319,7 @@ const ExpeditionsList = () => {
           {isAdmin && <span>Agent</span>}
           <span>Statut</span>
           <span>Date</span>
-          <span>Actions</span>
+          <span className="no-print">Actions</span>
         </div>
 
         <div className="expeditions-table-body">
@@ -302,7 +346,7 @@ const ExpeditionsList = () => {
                 </em>
               </span>
               <span className="cell-date">{new Date(item.date_expedition).toLocaleDateString('fr-FR')}</span>
-              <span className="expeditions-actions-menu-shell">
+              <span className="expeditions-actions-menu-shell no-print">
                 <div className="expeditions-actions-menu">
                   <button
                     type="button"

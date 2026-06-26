@@ -13,6 +13,9 @@ const PaymentsList = () => {
 
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
+  const [filterDevise, setFilterDevise] = useState('')
+  const [dateDebut, setDateDebut] = useState('')
+  const [dateFin, setDateFin] = useState('')
   const [payments, setPayments] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
@@ -91,6 +94,24 @@ const PaymentsList = () => {
     return payments.filter((item) => {
       // Filtre status
       if (filterStatus && item.status !== filterStatus) return false
+      
+      // Filtre devise
+      if (filterDevise && item.devise !== filterDevise) return false
+
+      // Filtre dates
+      if (dateDebut || dateFin) {
+        const itemDate = new Date(item.updatedAt || item.createdAt)
+        if (dateDebut) {
+          const start = new Date(dateDebut)
+          start.setHours(0,0,0,0)
+          if (itemDate < start) return false
+        }
+        if (dateFin) {
+          const end = new Date(dateFin)
+          end.setHours(23,59,59,999)
+          if (itemDate > end) return false
+        }
+      }
 
       // Recherche par code, référence, agent
       if (!normalizedSearch) return true
@@ -110,7 +131,7 @@ const PaymentsList = () => {
 
       return haystack.includes(normalizedSearch)
     })
-  }, [payments, filterStatus, normalizedSearch])
+  }, [payments, filterStatus, filterDevise, dateDebut, dateFin, normalizedSearch])
 
   const getStatusLabel = (status) => {
     const statusMap = {
@@ -251,13 +272,61 @@ const PaymentsList = () => {
         </div>
       </header>
 
-      <div className="expeditions-toolbar">
-        <Select
-          label="Statut du paiement"
-          value={filterStatus}
-          onChange={(event) => setFilterStatus(event.target.value)}
-          options={statusOptions}
-        />
+      <div className="expeditions-toolbar" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: '24px' }}>
+        <div style={{ flex: '1', minWidth: '180px' }}>
+          <Select
+            label="Statut du paiement"
+            value={filterStatus}
+            onChange={(event) => setFilterStatus(event.target.value)}
+            options={statusOptions}
+          />
+        </div>
+        <div style={{ flex: '1', minWidth: '150px' }}>
+          <Select
+            label="Devise"
+            value={filterDevise}
+            onChange={(event) => setFilterDevise(event.target.value)}
+            options={[
+              { value: '', label: 'Toutes les devises' },
+              { value: 'USD', label: 'USD' },
+              { value: 'CDF', label: 'CDF' },
+            ]}
+          />
+        </div>
+        <div style={{ flex: '1', minWidth: '150px' }}>
+          <Input
+            type="date"
+            label="Du"
+            value={dateDebut}
+            onChange={(event) => setDateDebut(event.target.value)}
+          />
+        </div>
+        <div style={{ flex: '1', minWidth: '150px' }}>
+          <Input
+            type="date"
+            label="Au"
+            value={dateFin}
+            onChange={(event) => setDateFin(event.target.value)}
+          />
+        </div>
+        
+        {(filterStatus || filterDevise || dateDebut || dateFin) && (
+          <div style={{ minWidth: '100px' }}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setFilterStatus('')
+                setFilterDevise('')
+                setDateDebut('')
+                setDateFin('')
+              }}
+              style={{ width: '100%' }}
+            >
+              Effacer filtres
+            </Button>
+          </div>
+        )}
       </div>
 
       {errorMessage && <p className="expedients-error" role="alert">{errorMessage}</p>}
